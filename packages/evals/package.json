@@ -1,0 +1,6 @@
+{
+  "name": "@juris/evals",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Evaluation harness, gold sets, and metrics for Juris"
+}

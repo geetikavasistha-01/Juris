@@ -1,0 +1,41 @@
+{
+  "name": "juris",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.23.1",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "build": "pnpm -r --filter=!@juris/e2e run build",
+    "scan:secrets": "secretlint \"**/*\"",
+    "check:requirements": "node scripts/check-requirements.mjs",
+    "check:forbidden": "node scripts/check-forbidden.mjs",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@secretlint/secretlint-rule-preset-recommend": "^10.0.1",
+    "@types/node": "^22.13.9",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^10.0.2",
+    "husky": "^9.1.7",
+    "js-yaml": "^4.1.0",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.2",
+    "secretlint": "^10.0.1",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.25.0",
+    "vitest": "^3.0.7"
+  }
+}
