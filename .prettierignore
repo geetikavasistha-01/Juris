@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+coverage/
+pnpm-lock.yaml
+supabase/.temp/
+supabase/.branches/
+.system_generated/
+playwright-report/
+test-results/
+*.tsbuildinfo
