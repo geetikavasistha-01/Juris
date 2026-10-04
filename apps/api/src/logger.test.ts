@@ -23,6 +23,18 @@ describe('Logger security and redaction', () => {
     expect(scrubbed).toContain('[REDACTED_GSK]');
   });
 
+  it('safely handles circular references without infinite recursion', () => {
+    const circular: Record<string, unknown> = {
+      name: 'test',
+      secretMsg: 'contains AIzaSy_1234567890123456789012345',
+    };
+    circular['self'] = circular;
+
+    expect(() => {
+      createLogger().info(circular, 'circular log');
+    }).not.toThrow();
+  });
+
   it('redacts sensitive field names and scrubs message contents in actual logger output', async () => {
     const logs: string[] = [];
     const stream = new Writable({

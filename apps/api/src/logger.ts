@@ -21,22 +21,27 @@ export function scrubKeyShapedStrings(text: string): string {
 }
 
 /**
- * Deeply scrubs key-shaped strings across any object or array.
+ * Deeply scrubs key-shaped strings across any object or array, protecting against circular references.
  */
-export function scrubObject<T>(input: T): T {
+export function scrubObject<T>(input: T, seen = new WeakSet<object>(), depth = 0): T {
   if (typeof input === 'string') {
     return scrubKeyShapedStrings(input) as unknown as T;
   }
   if (input === null || typeof input !== 'object') {
     return input;
   }
+  if (depth > 6 || seen.has(input)) {
+    return input;
+  }
+  seen.add(input);
+
   if (Array.isArray(input)) {
-    return input.map((item) => scrubObject(item)) as unknown as T;
+    return input.map((item) => scrubObject(item, seen, depth + 1)) as unknown as T;
   }
 
   const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(input)) {
-    result[key] = scrubObject(value);
+    result[key] = scrubObject(value, seen, depth + 1);
   }
   return result as T;
 }
