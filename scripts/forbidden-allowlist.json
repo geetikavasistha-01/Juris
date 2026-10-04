@@ -1,0 +1,5 @@
+{
+  "$schema": "Forbidden word scan allowlist",
+  "description": "Documented allowlist for check-forbidden. Every entry must document file, term, and rationale. Product code must never use mock, fake, dummy, or simulated data.",
+  "allowed": []
+}

@@ -1,0 +1,209 @@
+requirements:
+  # Ingestion
+  - id: ING-01
+    priority: P0
+    title: Accept text-layer PDFs within limits; validate by magic bytes; store original in private storage; server computes SHA-256; detect duplicates per user
+    status: not_started
+    tests: []
+
+  - id: ING-02
+    priority: P0
+    title: Accept pasted text up to configured size
+    status: not_started
+    tests: []
+
+  - id: ING-03
+    priority: P0
+    title: Upload returns within 1 second with a job id; stages are published live; jobs survive server restarts
+    status: not_started
+    tests: []
+
+  - id: ING-04
+    priority: P0
+    title: Every failure has a machine code and a human message. Non-retryable errors fail immediately. Retry uses stored file
+    status: not_started
+    tests: []
+
+  - id: ING-05
+    priority: P1
+    title: CSV and XLSX parsing with column profiling and row caps
+    status: not_started
+    tests: []
+
+  - id: ING-06
+    priority: P2
+    title: Scanned PDFs and images via vision (gated by S4)
+    status: not_started
+    tests: []
+
+  # Evidence engine
+  - id: EVD-01
+    priority: P0
+    title: Extract facts with type, value, unit, currency, period, page, verbatim quote
+    status: not_started
+    tests: []
+
+  - id: EVD-02
+    priority: P0
+    title: Verify each fact in code (quote on page, normalized number check); failed facts stored with reason
+    status: not_started
+    tests: []
+
+  - id: EVD-03
+    priority: P0
+    title: Summary and findings generated only from verified facts; each sentence cites facts; verifier pass removes unsupported sentences
+    status: not_started
+    tests: []
+
+  - id: EVD-04
+    priority: P0
+    title: Verification rate is stored per document and shown in UI
+    status: not_started
+    tests: []
+
+  - id: EVD-05
+    priority: P1
+    title: Cross-checks (components sum to total within tolerance), deduplication across pages
+    status: not_started
+    tests: []
+
+  # Visualization and dashboard
+  - id: VIZ-01
+    priority: P0
+    title: Visualization created only from verified facts and carries source pages; no chart renders empty axes
+    status: not_started
+    tests: []
+
+  - id: VIZ-02
+    priority: P0
+    title: First three visuals (key figures strip, allocation by category, trend over periods)
+    status: not_started
+    tests: []
+
+  - id: VIZ-03
+    priority: P1
+    title: Remaining chart catalog (revenue vs expenditure, top line items, category share over time, risks matrix, timeline, entities, document map)
+    status: not_started
+    tests: []
+
+  - id: VIZ-04
+    priority: P0
+    title: Chart interactions (hover details, cross-filtering, drill-down, export, source drawer, data table toggle)
+    status: not_started
+    tests: []
+
+  - id: VIZ-05
+    priority: P1
+    title: Chart switcher limited to valid types, period slider, compare two periods, view state in URL
+    status: not_started
+    tests: []
+
+  - id: VIZ-06
+    priority: P0
+    title: Honest empty states (N of M visualizations available with reason for each missing one)
+    status: not_started
+    tests: []
+
+  # Chat
+  - id: CHT-01
+    priority: P0
+    title: Hybrid retrieval (vector plus full text); answer only from retrieved context; citations validated server-side
+    status: not_started
+    tests: []
+
+  - id: CHT-02
+    priority: P0
+    title: Abstain when the document does not contain the answer
+    status: not_started
+    tests: []
+
+  - id: CHT-03
+    priority: P0
+    title: Streaming, markdown rendering, persisted history per document
+    status: not_started
+    tests: []
+
+  - id: CHT-04
+    priority: P0
+    title: Docked composer at bottom center; citation chips open PDF viewer at page with quote highlighted
+    status: not_started
+    tests: []
+
+  - id: CHT-05
+    priority: P1
+    title: Tables query plan execution via whitelisted code
+    status: not_started
+    tests: []
+
+  - id: CHT-06
+    priority: P1
+    title: Daily quotas enforced and displayed; clear message when quota exhausted
+    status: not_started
+    tests: []
+
+  - id: CHT-07
+    priority: P2
+    title: Cross-document chat
+    status: not_started
+    tests: []
+
+  # Accounts, library, platform
+  - id: AUTH-01
+    priority: P0
+    title: Supabase Auth (email with confirmation, Google); RLS on every table; no custom auth endpoints
+    status: not_started
+    tests: []
+
+  - id: AUTH-02
+    priority: P0
+    title: Delete account removes files, chunks, facts, visuals, messages
+    status: not_started
+    tests: []
+
+  - id: LIB-01
+    priority: P0
+    title: Library with real stats computed from user's documents
+    status: not_started
+    tests: []
+
+  - id: LIB-02
+    priority: P0
+    title: Seeded sample documents readable while signed out
+    status: not_started
+    tests: []
+
+  - id: PLT-01
+    priority: P0
+    title: Health endpoint verifies dependencies; UI shows actionable banner when degraded
+    status: not_started
+    tests: []
+
+  - id: PLT-02
+    priority: P0
+    title: Separate rate limiters (global, upload, chat, status reads); quotas per user
+    status: not_started
+    tests: []
+
+  - id: PLT-03
+    priority: P0
+    title: Secrets policy enforced by tools
+    status: not_started
+    tests: []
+
+  - id: PLT-04
+    priority: P0
+    title: Structured logs with request and job ids; error tracking
+    status: not_started
+    tests: []
+
+  - id: PLT-05
+    priority: P0
+    title: CI gates (typecheck, lint, test, gitleaks, build, smoke)
+    status: not_started
+    tests: []
+
+  - id: PLT-06
+    priority: P1
+    title: Retention and cleanup jobs
+    status: not_started
+    tests: []

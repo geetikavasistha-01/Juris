@@ -1,6 +1,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
+import globals from 'globals';
 
 export default tseslint.config(
   {
@@ -21,13 +22,25 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   prettier,
   {
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
       '@typescript-eslint/consistent-type-imports': 'error',
-      'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
+      'no-console': ['warn', { allow: ['warn', 'error', 'info', 'table'] }],
+    },
+  },
+  {
+    files: ['scripts/**/*.mjs', 'scripts/**/*.js', 'scripts/**/*.ts'],
+    rules: {
+      'no-console': 'off',
     },
   },
 );
