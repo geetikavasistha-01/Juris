@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Production & Build outputs
+dist/
+build/
+.turbo/
+
+# Environment files - strictly ignore all except .env.example
+.env
+.env.*
+!.env.example
+
+# Testing & Coverage
+coverage/
+playwright-report/
+test-results/
+
+# Logs & task outputs
+*.log
+logs/
+.system_generated/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Evaluation artifacts & work directories
+eval/pdfs/
+eval/work/
+packages/evals/pdfs/
+packages/evals/work/
+
+# Supabase local temp & branches
+supabase/.temp/
+supabase/.branches/
