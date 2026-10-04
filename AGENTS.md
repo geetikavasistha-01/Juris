@@ -12,3 +12,6 @@
 10. Keep provider, model, limits, and TTLs in configuration, not in UI text or constants.
 11. Small commits with clear messages. Do not rewrite git history.
 12. Finish every task with docs/evidence/<slice>.md: commands run (secrets redacted), observed results, screenshots, and a "not verified" list.
+13. Stay inside the repository. Never search the home directory, read the clipboard, read other projects' or other tools' data, or modify files outside the repo (including IDE and MCP configuration). If a needed file is missing, stop and ask.
+14. Never run destructive commands (git reset --hard, git clean, git checkout -- ., force push, amend or rebase of existing commits, rm -rf outside a scratch folder) without my explicit approval. To test a hook, use a new branch with only the test file staged.
+15. List every side effect (files changed outside the task scope, packages installed, processes started or stopped) under "Side effects" in the evidence file.
