@@ -84,7 +84,7 @@ export function createLogger(destination?: pino.DestinationStream) {
             }
             return arg;
           });
-          return method.apply(this, scrubbedArgs as [unknown, ...unknown[]]);
+          return (method as (...args: unknown[]) => void).apply(this, scrubbedArgs);
         },
       },
       formatters: {

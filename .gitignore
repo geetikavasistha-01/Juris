@@ -6,6 +6,7 @@ node_modules/
 dist/
 build/
 .turbo/
+*.tsbuildinfo
 
 # Environment files - strictly ignore all except .env.example
 .env
