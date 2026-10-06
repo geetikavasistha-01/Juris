@@ -1,0 +1,21 @@
+{
+  "spike": "S5",
+  "chartsTested": ["Treemap", "Bar", "Line", "Sunburst", "Heatmap", "KeyFiguresStrip"],
+  "bundleMetrics": {
+    "initialJsBytes": 6831,
+    "initialJsGzipBytes": 2616,
+    "initialJsGzipKb": 2.55,
+    "chartsVendorBytes": 671719,
+    "chartsVendorGzipBytes": 227487,
+    "chartsVendorGzipKb": 222.16,
+    "initialBudgetLimitKb": 300,
+    "passedBudget": true
+  },
+  "interactionsVerified": {
+    "kpiCardsRendered": 4,
+    "lazyLoadingWorked": true,
+    "canvasRendered": true,
+    "crossFilteringEventFired": true
+  },
+  "overallPass": true
+}
