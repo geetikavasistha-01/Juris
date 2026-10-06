@@ -20,6 +20,16 @@ export const ErrorCodeSchema = z.enum([
   'INTERNAL_ERROR',
   'EMPTY_RESPONSE',
   'TRUNCATED_RESPONSE',
+  // Modality & multi-modal ingestion error codes (ING-05..08, EVD-06, VIZ-07, CHT-05)
+  'UNSUPPORTED_FORMAT',
+  'MAGIC_BYTES_MISMATCH',
+  'IMAGE_DIMENSIONS_EXCEEDED',
+  'ARCHIVE_TOO_LARGE',
+  'TABLE_LIMIT_EXCEEDED',
+  'OCR_DISAGREEMENT',
+  'INVALID_QUERY_PLAN',
+  'INVALID_GEOMETRY',
+  'GEO_FEATURE_LIMIT_EXCEEDED',
 ]);
 
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;
@@ -69,3 +79,4 @@ export type HealthResponse = z.infer<typeof HealthResponseSchema>;
 
 export * from './text-normalization.js';
 export * from './jobs.js';
+export * from './modality.js';
