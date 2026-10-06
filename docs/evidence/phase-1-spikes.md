@@ -2,152 +2,127 @@
 
 **Date:** 2026-10-06  
 **Repository:** `Juris` (`main` branch)  
-**Evaluator:** Antigravity AI Assistant
+**Evaluator:** Antigravity AI Assistant  
+**Audit & Fix Status:** Phase 1 Complete and Re-Verified on Clean Database
 
 ---
 
-## 1. Summary of Spikes Executed
+## 1. Summary of Spikes & Audit Results
 
-| Spike     | Title                                 | ADR / Focus           | Target Metric                       | Observed Metric                           | Status     |
-| --------- | ------------------------------------- | --------------------- | ----------------------------------- | ----------------------------------------- | ---------- |
-| **S3**    | PDF Extraction & Viewer Matching      | ADR-004               | $\ge 95\%$ quote match (0% fuzzy)   | **100.0%** (177/177 quotes)               | **PASSED** |
-| **S5**    | Charts Bundle & Civic Cross-filtering | ADR-006               | Initial JS $< 300\text{ KB}$ gzip   | Initial: **2.55 KB**, Lazy: **222.16 KB** | **PASSED** |
-| **S6**    | Realtime Pub/Sub & Polling Recovery   | ADR-007               | 10 stages, dedupe, dropout catchup  | 10/10 stages, 3 recovered via polling     | **PASSED** |
-| **S7**    | Multi-Tenant & RLS Isolation          | Multi-tenant Security | Zero cross-tenant data leaks        | 100% isolated across all DB tables        | **PASSED** |
-| **S1**    | LLM Structured Output & Evidence      | ADR-001               | $\ge 95\%$ in-code verification     | **100.0%** (8/8 facts verified)           | **PASSED** |
-| **S2**    | Embeddings & Hybrid Retrieval         | ADR-003               | Recall@8 $\ge 85\%$ on 20 questions | **90.00%** (18/20 hits)                   | **PASSED** |
-| **Evals** | Gold Evaluation Set 1                 | PRD Ground Truth      | 10 items (8 facts, 2 abstentions)   | Formatted, marked "pending review"        | **PASSED** |
+| Spike     | Title                                 | Target Metric                                          | Observed Metric                                     | Status                       | Caveats / Notes                                                                                 |
+| :-------- | :------------------------------------ | :----------------------------------------------------- | :-------------------------------------------------- | :--------------------------- | :---------------------------------------------------------------------------------------------- |
+| **S1**    | LLM Structured Output & Evidence      | $\ge 95\%$ verification over $\ge 50$ facts            | **100.0%** (52/52 verified across 114 pages)        | **PASSED**                   | 100% JSON validity, 0% repair rate.                                                             |
+| **S2**    | Embeddings & Hybrid Retrieval         | Recall@8 $\ge 85\%$ on 20 held-out questions           | Vector: **95.0%**, FTS: **0.0%**, Hybrid: **95.0%** | **PASSED**                   | Held-out set committed prior to execution. Natural language queries require vector/hybrid.      |
+| **S3**    | PDF Extraction & Viewer Matching      | $\ge 95\%$ quote match (0% fuzzy)                      | **100.0%** (177/177 quotes in Chromium DOM)         | **PASSED**                   | Tested in real PDF.js viewer across 43 distinct pages.                                          |
+| **S5**    | ECharts Bundle & Civic Visualizations | Initial $< 300\text{ KB}$, Lazy $< 120\text{ KB}$ gzip | Initial: **2.55 KB**, Lazy: **222.16 KB**           | **FAIL / IN REVIEW**         | Fails $< 120\text{ KB}$ lazy chunk budget. ADR-006 marked In Review pending threshold decision. |
+| **S6**    | Realtime Pub/Sub & Polling Recovery   | 10 stages, monotonic dedupe, dropout recovery          | 10/10 stages, 4 recovered via polling               | **PASSED**                   | Real worker + Postgres `job_events` + Realtime WebSocket channel.                               |
+| **S7**    | Multi-Tenant RLS & RPC Security       | Zero cross-tenant data leaks across tables & RPCs      | 100% isolated (0 rows leaked to Account B or anon)  | **PASSED**                   | RPCs use `SECURITY INVOKER`, public access revoked, CTEs ordered.                               |
+| **Evals** | Gold Evaluation Set 1                 | 10 items (8 grounded, 2 abstentions)                   | Formatted, all quotes verified                      | **DRAFTED (PENDING REVIEW)** | Must be reviewed and approved by human.                                                         |
 
 ---
 
-## 2. Detailed Spike Results & Commands Executed
+## 2. Detailed Audit Findings & Implementations
 
-### Spike S3: PDF Extraction & Playwright Viewer Match
+### Item 1: Migration Reproducibility & Database Reset
 
-- **Objective:** Verify extracted text normalization matches Chromium PDF.js rendered text layer across 114 pages of NDMC Budget Speech.
-- **Commands Run:**
-  ```bash
-  npx tsx spikes/s3-pdf-extract/run.ts
-  npx vitest run packages/shared/src/text-normalization.test.ts
-  ```
+- **Actions:**
+  - Consolidated all schema definitions, tables, RLS policies, `REPLICA IDENTITY FULL` declarations, Realtime publications, and RPC functions into `supabase/migrations/20261006000001_initial_schema.sql`.
+  - Executed `npx supabase db reset` cleanly from scratch.
+  - Re-ran `tests/isolation.test.ts`, `spikes/s6-realtime/run-spike.ts`, and `spikes/s2-embeddings/run-held-out.ts` against the freshly reset database.
+- **Verification:** All tests passed with zero drift between migration files and active Postgres catalog.
+
+### Item 2: RPC Security & RLS Enforcement
+
+- **Actions:**
+  - Refactored `match_chunks`, `match_chunks_fts`, and `match_chunks_hybrid` from `SECURITY DEFINER` to `SECURITY INVOKER` so PostgreSQL enforces row-level security policies (`owner_id = auth.uid() OR is_sample = true`) directly on the underlying `chunks` table.
+  - Explicitly ran `REVOKE EXECUTE ... FROM PUBLIC, anon;` and granted execute only to `authenticated` and `service_role`.
+  - Added `ORDER BY (embedding <=> query_embedding) ASC` and `ORDER BY ts_rank_cd(fts, query) DESC` inside the `LIMIT 20` CTE subqueries of `match_chunks_hybrid`.
+  - Added cross-tenant isolation tests in `tests/isolation.test.ts` where Account B invokes each RPC with Account A's `doc_id`.
 - **Observed Results:**
-  - 177 / 177 quotes matched strictly in Chromium DOM (100.0% pass rate).
-  - 0% fallback fuzzy matching.
-  - Tests covering hyphenation, diacritics, ligatures, whitespace, and soft hyphens passed.
-- **Git Commit:** `cfc2c56` (`feat(spike-s3)`)
+  - Account B queries return `0` chunks.
+  - Anonymous queries return `401 / 403 Permission Denied`.
+  - Account A queries return strictly their own chunks.
+  - Public sample queries (`is_sample = true`) return chunks to both accounts.
 
----
+### Item 3: S2 Retrieval Honesty & Held-Out Set
 
-### Spike S5: ECharts Bundle Size & Civic Cross-Filtering
+- **History & Diff:**
+  - First run used Union Budget questions on NDMC data: Vector recall was 0% (0/20), Hybrid was 30% (6/20).
+  - Dev set questions were aligned to NDMC topics: Vector 90% (18/20), FTS 25% (5/20), Hybrid 90% (18/20).
+- **Held-Out Test Set (Committed First in `89ae9d4`):**
+  - Evaluated 20 new held-out questions without touching retrieval code.
+  - **Vector-only Recall@8:** **95.00%** (19/20)
+  - **FTS-only Recall@8:** **0.00%** (0/20) — Conversational/natural language queries fail exact term matching in `plainto_tsquery`.
+  - **Hybrid (RRF $k=60$) Recall@8:** **95.00%** (19/20)
+  - **Single Miss:** `HELD-14` (solar generation capacity on page 58 retrieved at rank 9 vs target page 58).
 
-- **Objective:** Measure tree-shaken production bundle size and verify interactive cross-filtering across 6 civic chart types.
-- **Commands Run:**
-  ```bash
-  npm --prefix spikes/s5-charts run build
-  npx tsx spikes/s5-charts/verify-charts.ts
-  ```
-- **Observed Results:**
-  - Initial JS Bundle: **2.55 KB** gzipped (Budget: $< 300\text{ KB}$).
-  - Lazy ECharts Chunk: **222.16 KB** gzipped.
-  - Total Production JS: **224.71 KB** gzipped.
-  - 6 civic charts rendered and tested: Key Figures Strip, Treemap, Bar Chart, Line Chart, Sunburst, Heatmap.
-  - Interactive cross-filtering verified in Chromium via Playwright (click sector -> filter detail table).
-- **Git Commit:** `113198f` (`feat(spike-s5)`)
+### Item 4: S5 Bundle Budget Status
 
----
+- **Status:** **FAIL / IN REVIEW** against the initial $< 120\text{ KB}$ lazy chunk threshold.
+- **Measurements:**
+  - Demo initial bundle: **2.55 KB** gzipped.
+  - Lazy ECharts chunk: **222.16 KB** gzipped.
+  - Projected full app initial bundle (Router + TanStack Query + Supabase): **~85–110 KB** gzipped.
+- **Remediation Proposals:**
+  1. Route-level code splitting: Load bar/line modules on Overview, defer Heatmap/Sunburst to Deep Analysis route.
+  2. Increase lazy threshold to $< 250\text{ KB}$ gzipped for full civic visualization capabilities.
 
-### Spike S6: Realtime Pub/Sub & Polling Recovery
+### Item 5: S3 PDF.js Viewer Breakdown
 
-- **Objective:** Validate real worker publishing real `job_events` over Supabase Realtime to a real browser client, with monotonic sequence deduplication and network dropout recovery.
-- **Commands Run:**
-  ```bash
-  npx tsx spikes/s6-realtime/run-spike.ts
-  npx vitest run packages/shared/src/jobs.test.ts
-  ```
-- **Observed Results:**
-  - Document & Job registered in Supabase Postgres.
-  - Client subscribed to Realtime WebSocket channel with authenticated JWT.
-  - Stages 1..3 (`validating`, `extracting`, `chunking`) received live via WebSocket.
-  - WebSocket disconnected intentionally at Stage 3.
-  - Worker published stages 4 (`embedding`), 5 (`classification`), 6 (`fact_extraction`).
-  - Client executed `recoverViaPolling()`: 3 missed stages recovered and merged.
-  - Client reconnected WebSocket and resumed worker for stages 7 (`verification`), 8 (`synthesis`), 9 (`building_visuals`), 10 (`done`).
-  - 10 / 10 stages received in monotonic sequence; duplicate/stale event deduplication verified.
-- **Git Commit:** `b558435` (`feat(spike-s6)`)
+- **Execution:** 177 quotes tested inside Chromium text layer rendered by PDF.js via Playwright.
+- **Distinct Pages Sampled:** 43 pages.
+- **Category Breakdown:**
+  - Single-line quotes: **43 / 43** (100.0%, 0 failures)
+  - Multi-line quotes: **43 / 43** (100.0%, 0 failures)
+  - Hyphenated words: **40 / 40** (100.0%, 0 failures)
+  - Numeric / Financial figures: **18 / 18** (100.0%, 0 failures)
+  - Ligatures / Special typography: **33 / 33** (100.0%, 0 failures)
+- **Fuzzy Fallback Matches:** 0 (0.0%).
 
----
+### Item 6: S1 Fact Verification on 50+ Facts
 
-### Spike S7: Multi-Tenant & RLS Isolation
+- **Execution:** Evaluated 52 facts sampled across 114 pages of `budget-speech-2026-27-english.pdf`.
+- **Metrics:**
+  - JSON Schema Validity Rate: **100.00%**
+  - JSON Repair Rate: **0.00%**
+  - In-Code Quote Verification Rate: **100.00%** (52/52 verified on source pages)
+  - Target: $\ge 95\%$.
 
-- **Objective:** Prove complete database and realtime isolation between Account A and Account B.
-- **Commands Run:**
-  ```bash
-  npx vitest run tests/isolation.test.ts
-  ```
-- **Observed Results:**
-  - Account B cannot SELECT, UPDATE, or DELETE documents, chunks, facts, jobs, or job_events owned by Account A.
-  - Account B receives 0 rows when querying Account A's private resources.
-  - Public sample documents (`is_sample = true`) remain readable by both authenticated accounts and anonymous users.
-- **Git Commit:** `ce34501` (`feat(spike-s7)`)
-
----
-
-### Spike S1: LLM Structured Output & In-Code Fact Verification
-
-- **Objective:** Validate LLM JSON schema extraction against Zod contract and verify 100% of extracted quotes match source pages in code.
-- **Commands Run:**
-  ```bash
-  npx tsx spikes/s1-llm-structured/run.ts
-  ```
-- **Observed Results:**
-  - Output conforms strictly to `DocumentAnalysisSchema` (Type: `budget`, 5 findings, 8 facts).
-  - In-code quote verification: 8 / 8 facts verified (100.0% verification rate, target $\ge 95\%$).
-  - Zero hallucinations or ungrounded claims.
-- **Git Commit:** `060d663` (`feat(spike-s1)`)
-
----
-
-### Spike S2: Embeddings & Hybrid Retrieval Recall@8
-
-- **Objective:** Evaluate vector-only, FTS-only, and Hybrid (Reciprocal Rank Fusion $k=60$) search across 20 civic questions on 114 pages of NDMC Budget Speech.
-- **Commands Run:**
-  ```bash
-  npx tsx spikes/s2-embeddings/run.ts
-  ```
-- **Observed Results:**
-  - 224 chunks ingested into Postgres with `vector(768)` and `tsvector` FTS index.
-  - Vector-only Recall@8: **90.00%** (18/20).
-  - FTS-only Recall@8: **25.00%** (5/20).
-  - Hybrid RRF Recall@8: **90.00%** (18/20), meeting target $\ge 85\%$.
-- **Git Commit:** `ddf025b` (`feat(spike-s2)`)
-
----
-
-### Gold Evaluation Set 1
+### Item 7: Gold Evaluation Set 1
 
 - **File:** `packages/evals/fixtures/gold-set-1.json`
-- **Items:** 10 items (8 grounded civic facts from NDMC speech with verbatim quotes, 2 unanswerable questions for abstention).
-- **Status:** `"pending human review"` (Rule 8 compliant).
-- **Git Commit:** `254c9da` (`feat(evals)`)
+- **Status:** `"drafted, pending human review"`
+- **Table of 10 Items:**
+
+| ID          | Question                                                                                                                 | Expected Answer Type | Expected Value / Detail                    | Page | Verbatim Quote                                                   |
+| :---------- | :----------------------------------------------------------------------------------------------------------------------- | :------------------- | :----------------------------------------- | :--- | :--------------------------------------------------------------- |
+| **GOLD-01** | What is the Budget Estimate (BE 2026-27) for revenue receipts in NDMC area?                                              | numeric_currency     | 5211.92 crore INR                          | 33   | `"The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore"` |
+| **GOLD-02** | What was the Revised Estimate (RE 2025-26) for revenue receipts?                                                         | numeric_currency     | 4964.73 crore INR                          | 33   | `"against Rs.4964.73 Crore provided in RE 2025-26"`              |
+| **GOLD-03** | What digital application initiative is launched for the Education Department?                                            | text_initiative      | Single Sign On App                         | 48   | `"Single Sign On App for education department"`                  |
+| **GOLD-04** | What is the primary objective of road restoration works and communication network upgrades?                              | text_initiative      | Reduce costs and minimize road restoration | 54   | `"reduce costs and minimize road restoration works"`             |
+| **GOLD-05** | What civic landmark illumination project is scheduled for completion in FY 2026-27?                                      | text_initiative      | Clock tower procurement                    | 62   | `"Clock tower is being procured in the next FY 2026-27"`         |
+| **GOLD-06** | What is the main objective of augmenting water storage capacity in NDMC area?                                            | text_initiative      | Maintain potable water consistency         | 64   | `"maintain consistency of potable water distribution"`           |
+| **GOLD-07** | What capital outlay is allocated towards improvement of Medical Services Department?                                     | numeric_currency     | 12.71 crore INR                            | 88   | `"Rs.12.71 crore towards Capital Expenditure"`                   |
+| **GOLD-08** | What revenue expenditure outlay is allocated for the Medical Services Department?                                        | numeric_currency     | 105.62 crore INR                           | 88   | `"Rs.105.62 crore towards Revenue Expenditure"`                  |
+| **GOLD-09** | What is the corporate tax exemption rate for foreign cryptocurrency mining entities operating in special economic zones? | abstention           | `null` (Out of scope / unanswerable)       | N/A  | `null`                                                           |
+| **GOLD-10** | What is the budget allocation for orbital deep-space satellite launch facilities in New Delhi?                           | abstention           | `null` (Out of scope / unanswerable)       | N/A  | `null`                                                           |
 
 ---
 
-## 3. Not Verified / Unverified List
+## 3. Not Verified / Limitations List
 
-The following items are explicitly out-of-scope for Phase 1 spikes and remain to be verified in Phase 2 / Phase 3:
-
-1. **Cloud Production Deployment:** Spikes ran against local Supabase containers and local Node/Vite processes; cloud Render / Netlify edge deployment will be verified in Phase 2.
-2. **Live LLM API Cost & Rate-Limits Under High Concurrency:** Tested against deterministic offline replay fixture and local schema validation. Live Gemini token latency under 50 concurrent requests will be load-tested in Phase 3.
-3. **Human Approval of Gold Eval Set:** Gold set items remain marked `"pending human review"` per AGENTS.md Rule 8 until approved via the human review tool.
+1. **Production Cloud Environment:** Tested on local macOS host with local Supabase stack and Node v22; production edge deployment (Cloudflare/Netlify + Render backend) remains to be verified in Phase 2.
+2. **High-Concurrency Live LLM Rate Limits:** Live Gemini API calls were verified for single-query extraction; high concurrency (50 simultaneous streams) will be load-tested in Phase 3.
+3. **Gold Set Human Approval:** Gold set items remain in `"drafted, pending human review"` state until human review sign-off.
+4. **Multi-Modal Non-PDF Pipelines:** CSV, Excel, GeoJSON, and raster image modalities are defined in shared contracts (`packages/shared/src/modality.ts`), but full ingestion parsers (S8–S10) will be implemented after the core walking skeleton (Phase 2a).
 
 ---
 
 ## 4. Side Effects
 
-- **Installed Packages:**
-  - `@playwright/test`, `echarts`, `pdfjs-dist`, `zod`, `@supabase/supabase-js`, `dotenv`, `pg`.
-- **Database Objects Created in Local Supabase Postgres:**
+- **Installed Packages:** `@playwright/test`, `echarts`, `pdfjs-dist`, `zod`, `@supabase/supabase-js`, `dotenv`, `pg`, `vitest`.
+- **Database Catalog Updates:**
+  - `supabase/migrations/20261006000001_initial_schema.sql` completely updated and reset via `supabase db reset`.
   - Tables: `documents`, `chunks`, `facts`, `analyses`, `visualizations`, `conversations`, `messages`, `jobs`, `job_events`.
-  - Functions: `claim_next_job`, `match_chunks`, `match_chunks_fts`, `match_chunks_hybrid`.
-  - Extensions: `vector` (pgvector), `pgcrypto`.
-  - Realtime publication: `supabase_realtime` on `job_events` with `REPLICA IDENTITY FULL`.
+  - RLS Policies: Applied across all 9 tables + `SECURITY INVOKER` on RPC functions `match_chunks`, `match_chunks_fts`, `match_chunks_hybrid`.
+  - Realtime: `REPLICA IDENTITY FULL` on `job_events` in `supabase_realtime` publication.
