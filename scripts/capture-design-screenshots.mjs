@@ -7,8 +7,8 @@ const SCREENSHOT_DIR = path.resolve('docs/evidence/screenshots');
 fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
 
 async function run() {
-  console.log('Starting preview server...');
-  const server = spawn('npx', ['vite', 'preview', '--port', '4173'], {
+  console.log('Starting dev server for design system screenshots...');
+  const server = spawn('npx', ['vite', 'dev', '--port', '4173'], {
     cwd: path.resolve('apps/web'),
     stdio: 'pipe',
   });
