@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import multipart from '@fastify/multipart';
 import {
   serializerCompiler,
   validatorCompiler,
@@ -8,6 +9,7 @@ import {
 import { HealthResponseSchema } from '@juris/shared';
 import { config } from './config.js';
 import { logger } from './logger.js';
+import { documentRoutes } from './routes/documents.js';
 import { execSync } from 'node:child_process';
 
 function resolveGitSha(): string {
@@ -35,6 +37,16 @@ export function buildApp() {
     origin: config.CORS_ORIGINS.split(',').map((o) => o.trim()),
     credentials: true,
   });
+
+  server.register(multipart, {
+    limits: {
+      fileSize: config.MAX_FILE_SIZE_BYTES,
+      files: 1,
+    },
+  });
+
+  // Register document routes
+  server.register(documentRoutes);
 
   // GET /health - returns minimal health with status, role, version, gitSha
   server.get(

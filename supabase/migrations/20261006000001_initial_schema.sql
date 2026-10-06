@@ -264,9 +264,9 @@ CREATE POLICY "Users can manage their own jobs"
   FOR ALL
   USING (auth.uid() = owner_id);
 
-CREATE POLICY "Users can view their own job events"
+CREATE POLICY "Users can manage their own job events"
   ON public.job_events
-  FOR SELECT
+  FOR ALL
   USING (auth.uid() = owner_id);
 
 -- Enable Supabase Realtime broadcast for job_events

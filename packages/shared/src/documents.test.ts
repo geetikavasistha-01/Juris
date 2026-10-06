@@ -15,7 +15,7 @@ describe('Document Contracts', () => {
       fileSizeBytes: 1048576,
       sha256: 'a'.repeat(64),
       mimeType: 'application/pdf',
-      status: 'uploaded',
+      status: 'queued',
       pageCount: 114,
       isSample: false,
       createdAt: new Date().toISOString(),
@@ -29,7 +29,7 @@ describe('Document Contracts', () => {
     const res = {
       documentId: '11111111-1111-1111-1111-111111111111',
       jobId: '33333333-3333-3333-3333-333333333333',
-      status: 'uploaded',
+      status: 'queued',
       filename: 'budget.pdf',
       fileSizeBytes: 2048,
       sha256: 'b'.repeat(64),
@@ -43,7 +43,7 @@ describe('Document Contracts', () => {
     const detail = {
       id: '11111111-1111-1111-1111-111111111111',
       filename: 'budget.pdf',
-      status: 'processed',
+      status: 'done',
       pageCount: 114,
       fileSizeBytes: 2048,
       sha256: 'c'.repeat(64),

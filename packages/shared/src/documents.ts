@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { JobEventSchema, JobStageSchema, JobStatusSchema } from './jobs.js';
 import { VerificationMethodSchema } from './modality.js';
 
-export const DocumentStatusSchema = z.enum(['uploaded', 'processing', 'processed', 'failed']);
+export const DocumentStatusSchema = z.enum(['queued', 'processing', 'done', 'failed']);
 export type DocumentStatus = z.infer<typeof DocumentStatusSchema>;
 
 export const DocumentSchema = z.object({
@@ -13,7 +13,7 @@ export const DocumentSchema = z.object({
   fileSizeBytes: z.number().int().nonnegative(),
   sha256: z.string().length(64),
   mimeType: z.string().min(1),
-  status: DocumentStatusSchema.default('uploaded'),
+  status: DocumentStatusSchema.default('queued'),
   pageCount: z.number().int().nonnegative().default(0),
   isSample: z.boolean().default(false),
   createdAt: z.string(),

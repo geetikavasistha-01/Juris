@@ -7,14 +7,18 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.2",
+    "@fastify/multipart": "^10.1.2",
     "@fastify/sensible": "^6.0.3",
     "@juris/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.117.2",
     "fastify": "^5.2.1",
     "fastify-type-provider-zod": "^4.0.2",
+    "pdfjs-dist": "^6.4.299",
     "pino": "^9.6.0",
     "zod": "^3.24.2"
   },
