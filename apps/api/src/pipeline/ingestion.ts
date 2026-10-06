@@ -30,18 +30,19 @@ function generate768DimEmbedding(text: string): number[] {
     const hash = crypto.createHash('md5').update(word).digest();
     const bucket = hash.readUInt16BE(0) % 768;
     const sign = hash.readUInt8(2) % 2 === 0 ? 1 : -1;
-    vec[bucket] += sign * (1.0 + Math.log(1 + word.length));
+    vec[bucket] = (vec[bucket] ?? 0) + sign * (1.0 + Math.log(1 + word.length));
   }
 
   // L2 normalization
   let norm = 0;
   for (let i = 0; i < 768; i++) {
-    norm += vec[i] * vec[i];
+    const val = vec[i] ?? 0;
+    norm += val * val;
   }
   norm = Math.sqrt(norm);
   if (norm > 0) {
     for (let i = 0; i < 768; i++) {
-      vec[i] /= norm;
+      vec[i] = (vec[i] ?? 0) / norm;
     }
   }
   return Array.from(vec);

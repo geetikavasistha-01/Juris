@@ -1,9 +1,6 @@
 import { z } from 'zod';
-import { JobEventSchema, JobStageSchema, JobStatusSchema } from './jobs.js';
+import { JobEventSchema, JobStageSchema, JobStatusSchema, DocumentStatusSchema } from './jobs.js';
 import { VerificationMethodSchema } from './modality.js';
-
-export const DocumentStatusSchema = z.enum(['queued', 'processing', 'done', 'failed']);
-export type DocumentStatus = z.infer<typeof DocumentStatusSchema>;
 
 export const DocumentSchema = z.object({
   id: z.string().uuid(),

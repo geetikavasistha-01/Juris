@@ -26,7 +26,7 @@ export type JobStage = ProcessingStage;
 export const JobStatusSchema = z.enum(['queued', 'running', 'completed', 'failed']);
 export type JobStatus = z.infer<typeof JobStatusSchema>;
 
-export const DocumentStatusSchema = z.enum(['uploaded', 'processing', 'processed', 'failed']);
+export const DocumentStatusSchema = z.enum(['queued', 'processing', 'done', 'failed']);
 export type DocumentStatus = z.infer<typeof DocumentStatusSchema>;
 
 /**
