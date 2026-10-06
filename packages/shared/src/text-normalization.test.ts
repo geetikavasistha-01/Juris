@@ -5,6 +5,7 @@ import {
   findQuoteInPage,
   normalizeCharacters,
   normalizeLineBreaks,
+  verifyFactQuoteAndValue,
 } from './text-normalization.js';
 
 describe('text-normalization', () => {
@@ -91,6 +92,57 @@ structure development and health‐care.`;
       const result = findQuoteInPage(rawPage, quote);
       expect(result.matched).toBe(false);
       expect(result.startIndex).toBe(-1);
+    });
+  });
+
+  describe('verifyFactQuoteAndValue & Negative Controls', () => {
+    const pageText = `Budget Speech 2026-27: The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore against Rs.4,964.73 Crore provided in RE 2025-26. Total capital allocation is Rs.741.15 Crore.`;
+
+    it('successfully verifies a fact with matching quote and numeric value', () => {
+      const result = verifyFactQuoteAndValue(pageText, {
+        page: 33,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        value: 5211.92,
+      });
+      expect(result.verified).toBe(true);
+      expect(result.quoteMatched).toBe(true);
+      expect(result.valueMatched).toBe(true);
+      expect(result.failReason).toBeUndefined();
+    });
+
+    it('NEGATIVE CONTROL 1: rejects a quote altered by one character', () => {
+      const result = verifyFactQuoteAndValue(pageText, {
+        page: 33,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 CroresX',
+        value: 5211.92,
+      });
+      expect(result.verified).toBe(false);
+      expect(result.quoteMatched).toBe(false);
+      expect(result.failReason).toContain('Quote');
+    });
+
+    it('NEGATIVE CONTROL 2: rejects when the numeric value does not match quote content', () => {
+      const result = verifyFactQuoteAndValue(pageText, {
+        page: 33,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        value: 9999.99, // Wrong value!
+      });
+      expect(result.verified).toBe(false);
+      expect(result.quoteMatched).toBe(true);
+      expect(result.valueMatched).toBe(false);
+      expect(result.failReason).toContain('Numeric value 9999.99 does not appear in quote');
+    });
+
+    it('NEGATIVE CONTROL 3: rejects when checked against a wrong/different page', () => {
+      const wrongPageText = `This is Page 12 discussing horticulture and tree planting in municipal parks.`;
+      const result = verifyFactQuoteAndValue(wrongPageText, {
+        page: 12,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        value: 5211.92,
+      });
+      expect(result.verified).toBe(false);
+      expect(result.quoteMatched).toBe(false);
+      expect(result.failReason).toContain('not found on page 12');
     });
   });
 });

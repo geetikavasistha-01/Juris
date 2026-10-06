@@ -185,3 +185,82 @@ export function findQuoteInPage(pageText: string, quote: string): QuoteMatchResu
     normalizedQuote: normQuote,
   };
 }
+
+export interface FactVerificationInput {
+  quote: string;
+  value?: number | null;
+  page: number;
+}
+
+export interface FactVerificationResult {
+  verified: boolean;
+  failReason?: string;
+  quoteMatched: boolean;
+  valueMatched: boolean;
+  exactMatch: boolean;
+}
+
+/**
+ * Verifies that a fact's verbatim quote appears on the specified page AND
+ * that the fact's numeric value (if provided) appears inside the quote.
+ */
+export function verifyFactQuoteAndValue(
+  pageText: string,
+  fact: FactVerificationInput,
+): FactVerificationResult {
+  if (!pageText) {
+    return {
+      verified: false,
+      failReason: `Page ${fact.page} text is empty or missing`,
+      quoteMatched: false,
+      valueMatched: false,
+      exactMatch: false,
+    };
+  }
+
+  // 1. Verify quote exists on page
+  const quoteResult = findQuoteInPage(pageText, fact.quote);
+  if (!quoteResult.matched) {
+    return {
+      verified: false,
+      failReason: `Quote "${fact.quote}" not found on page ${fact.page}`,
+      quoteMatched: false,
+      valueMatched: false,
+      exactMatch: false,
+    };
+  }
+
+  // 2. If value is provided (numeric), verify that value appears in the quote
+  if (fact.value !== undefined && fact.value !== null && Number.isFinite(fact.value)) {
+    const val = fact.value;
+    const normQuote = quoteResult.normalizedQuote;
+    const quoteWithoutNumberCommas = normQuote.replace(/(\d),(\d)/g, '$1$2');
+
+    const valStr = String(val);
+    const valWithCommas = val.toLocaleString('en-US');
+    const valWithIndianCommas = val.toLocaleString('en-IN');
+
+    const valueFound =
+      quoteWithoutNumberCommas.includes(valStr) ||
+      normQuote.includes(valWithCommas) ||
+      normQuote.includes(valWithIndianCommas) ||
+      normQuote.includes(valStr);
+
+    if (!valueFound) {
+      return {
+        verified: false,
+        failReason: `Numeric value ${val} does not appear in quote "${fact.quote}"`,
+        quoteMatched: true,
+        valueMatched: false,
+        exactMatch: quoteResult.exactMatch,
+      };
+    }
+  }
+
+  return {
+    verified: true,
+    quoteMatched: true,
+    valueMatched: true,
+    exactMatch: quoteResult.exactMatch,
+  };
+}
