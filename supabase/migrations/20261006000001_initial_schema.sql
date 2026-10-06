@@ -325,15 +325,26 @@ SECURITY INVOKER
 AS $$
 DECLARE
   q tsquery;
+  or_query text;
 BEGIN
-  BEGIN
-    q := websearch_to_tsquery('english', query_text);
-    IF q IS NULL OR q = ''::tsquery THEN
+  -- Extract keywords of length > 2 and combine with OR (|) for robust natural language matching
+  SELECT string_agg(lexeme, ' | ')
+  INTO or_query
+  FROM (
+    SELECT DISTINCT token AS lexeme
+    FROM ts_parse('default', query_text)
+    WHERE tokid = 1 AND length(token) > 2
+  ) t;
+
+  IF or_query IS NOT NULL AND or_query <> '' THEN
+    BEGIN
+      q := to_tsquery('english', or_query);
+    EXCEPTION WHEN OTHERS THEN
       q := plainto_tsquery('english', query_text);
-    END IF;
-  EXCEPTION WHEN OTHERS THEN
+    END;
+  ELSE
     q := plainto_tsquery('english', query_text);
-  END;
+  END IF;
 
   RETURN QUERY
   SELECT
@@ -342,11 +353,11 @@ BEGIN
     c.page_number,
     c.chunk_index,
     c.content,
-    ts_rank(c.fts, q)::FLOAT AS rank
+    ts_rank_cd(c.fts, q)::FLOAT AS rank
   FROM public.chunks c
   WHERE c.document_id = doc_id
-    AND c.fts @@ q
-  ORDER BY ts_rank(c.fts, q) DESC
+    AND (c.fts @@ q OR c.fts @@ plainto_tsquery('english', query_text))
+  ORDER BY ts_rank_cd(c.fts, q) DESC
   LIMIT match_count;
 END;
 $$;
@@ -373,15 +384,26 @@ SECURITY INVOKER
 AS $$
 DECLARE
   q tsquery;
+  or_query text;
 BEGIN
-  BEGIN
-    q := websearch_to_tsquery('english', query_text);
-    IF q IS NULL OR q = ''::tsquery THEN
+  -- Extract keywords of length > 2 and combine with OR (|) for robust natural language matching
+  SELECT string_agg(lexeme, ' | ')
+  INTO or_query
+  FROM (
+    SELECT DISTINCT token AS lexeme
+    FROM ts_parse('default', query_text)
+    WHERE tokid = 1 AND length(token) > 2
+  ) t;
+
+  IF or_query IS NOT NULL AND or_query <> '' THEN
+    BEGIN
+      q := to_tsquery('english', or_query);
+    EXCEPTION WHEN OTHERS THEN
       q := plainto_tsquery('english', query_text);
-    END IF;
-  EXCEPTION WHEN OTHERS THEN
+    END;
+  ELSE
     q := plainto_tsquery('english', query_text);
-  END;
+  END IF;
 
   RETURN QUERY
   WITH vector_ranks AS (
@@ -405,12 +427,12 @@ BEGIN
       c.page_number,
       c.chunk_index,
       c.content,
-      ts_rank(c.fts, q)::FLOAT AS f_score,
-      ROW_NUMBER() OVER (ORDER BY ts_rank(c.fts, q) DESC) AS f_rank
+      ts_rank_cd(c.fts, q)::FLOAT AS f_score,
+      ROW_NUMBER() OVER (ORDER BY ts_rank_cd(c.fts, q) DESC) AS f_rank
     FROM public.chunks c
     WHERE c.document_id = doc_id
-      AND c.fts @@ q
-    ORDER BY ts_rank(c.fts, q) DESC
+      AND (c.fts @@ q OR c.fts @@ plainto_tsquery('english', query_text))
+    ORDER BY ts_rank_cd(c.fts, q) DESC
     LIMIT 20
   )
   SELECT

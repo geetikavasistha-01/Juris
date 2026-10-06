@@ -2,8 +2,8 @@
   "spike": "S2",
   "totalQuestions": 20,
   "vectorRecall": 0.9,
-  "ftsRecall": 0.25,
-  "hybridRecall": 0.9,
+  "ftsRecall": 0.95,
+  "hybridRecall": 0.95,
   "targetRecall": 0.85,
   "passed": true,
   "evaluationDetails": [
@@ -12,8 +12,8 @@
       "question": "What are the budget estimates and expenditure summary in NDMC budget?",
       "expectedPage": 33,
       "vectorPages": [32, 75, 54, 62, 95],
-      "ftsPages": [],
-      "hybridPages": [32, 75, 54, 62, 95],
+      "ftsPages": [2, 101, 62, 64, 100],
+      "hybridPages": [62, 64, 19, 88, 32],
       "vectorHit": true,
       "ftsHit": false,
       "hybridHit": true
@@ -23,10 +23,10 @@
       "question": "What upgradation initiatives are planned for the education department and schools?",
       "expectedPage": 46,
       "vectorPages": [45, 46, 40, 37, 90],
-      "ftsPages": [],
-      "hybridPages": [45, 46, 40, 37, 90],
+      "ftsPages": [36, 45, 108, 46, 28],
+      "hybridPages": [45, 46, 102, 28, 113],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -34,10 +34,10 @@
       "question": "What is the single sign on app initiative for the education department?",
       "expectedPage": 48,
       "vectorPages": [48, 46, 15, 40, 102],
-      "ftsPages": [],
-      "hybridPages": [48, 46, 15, 40, 102],
+      "ftsPages": [48, 102, 36, 46, 41],
+      "hybridPages": [48, 102, 15, 36, 46],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -45,10 +45,10 @@
       "question": "What solar power and electricity distribution improvements are budgeted?",
       "expectedPage": 49,
       "vectorPages": [51, 31, 50, 48, 25],
-      "ftsPages": [],
-      "hybridPages": [51, 31, 50, 48, 25],
+      "ftsPages": [53, 52, 51, 54, 49],
+      "hybridPages": [51, 53, 52, 50, 31],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -56,10 +56,10 @@
       "question": "What improvements are planned for street lighting in the NDMC area?",
       "expectedPage": 51,
       "vectorPages": [51, 108, 109, 89, 83],
-      "ftsPages": [],
-      "hybridPages": [51, 108, 109, 89, 83],
+      "ftsPages": [2, 108, 51, 90, 10],
+      "hybridPages": [51, 108, 83, 75, 20],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -67,10 +67,10 @@
       "question": "What measures are taken for road safety, signages, and communication network?",
       "expectedPage": 54,
       "vectorPages": [59, 60, 73, 66, 97],
-      "ftsPages": [],
-      "hybridPages": [59, 60, 73, 66, 97],
+      "ftsPages": [59, 97, 20, 99, 55],
+      "hybridPages": [59, 23, 108, 97, 60],
       "vectorHit": false,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": false
     },
     {
@@ -78,10 +78,10 @@
       "question": "What is the cycle in city smart commuting project?",
       "expectedPage": 58,
       "vectorPages": [58, 28, 79, 9, 69],
-      "ftsPages": [],
-      "hybridPages": [58, 28, 79, 9, 69],
+      "ftsPages": [58, 107, 79, 28, 9],
+      "hybridPages": [58, 79, 28, 9, 39],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -89,10 +89,10 @@
       "question": "How is construction and demolition C&D waste management transported and processed?",
       "expectedPage": 61,
       "vectorPages": [93, 61, 94, 78, 92],
-      "ftsPages": [],
-      "hybridPages": [93, 61, 94, 78, 92],
+      "ftsPages": [93, 61, 94, 113, 71],
+      "hybridPages": [93, 61, 94, 71, 92],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -100,8 +100,8 @@
       "question": "What augmentation is planned for water storage capacity and supply sustainability?",
       "expectedPage": 64,
       "vectorPages": [64, 22, 11, 81, 113],
-      "ftsPages": [64],
-      "hybridPages": [64, 22, 11, 81, 113],
+      "ftsPages": [64, 62, 10, 9, 108],
+      "hybridPages": [64, 22, 62, 11, 9],
       "vectorHit": true,
       "ftsHit": true,
       "hybridHit": true
@@ -111,8 +111,8 @@
       "question": "How many drainage systems in NDMC area are being rehabilitated?",
       "expectedPage": 70,
       "vectorPages": [70, 9, 11, 64, 11],
-      "ftsPages": [70, 10, 9],
-      "hybridPages": [70, 9, 10, 11, 64],
+      "ftsPages": [2, 70, 55, 100, 10],
+      "hybridPages": [70, 64, 10, 55, 2],
       "vectorHit": true,
       "ftsHit": true,
       "hybridHit": true
@@ -122,10 +122,10 @@
       "question": "What milestones are planned for digitization of municipal records?",
       "expectedPage": 77,
       "vectorPages": [76, 90, 83, 102, 77],
-      "ftsPages": [],
-      "hybridPages": [76, 90, 83, 102, 77],
+      "ftsPages": [83, 76, 76, 108, 85],
+      "hybridPages": [76, 83, 77, 102, 102],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -133,8 +133,8 @@
       "question": "What mobile version is being developed for citizen-centric services?",
       "expectedPage": 84,
       "vectorPages": [84, 31, 12, 23, 78],
-      "ftsPages": [84],
-      "hybridPages": [84, 31, 12, 23, 78],
+      "ftsPages": [84, 106, 58, 78, 97],
+      "hybridPages": [84, 78, 23, 41, 31],
       "vectorHit": true,
       "ftsHit": true,
       "hybridHit": true
@@ -144,10 +144,10 @@
       "question": "What allocations and improvements are proposed for medical services and hospital analyzers?",
       "expectedPage": 88,
       "vectorPages": [88, 84, 84, 89, 109],
-      "ftsPages": [],
-      "hybridPages": [88, 84, 84, 89, 109],
+      "ftsPages": [84, 88, 53, 78, 83],
+      "hybridPages": [84, 88, 83, 75, 89],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -155,10 +155,10 @@
       "question": "What budget is allocated towards improvement of AYUSH department services?",
       "expectedPage": 90,
       "vectorPages": [88, 75, 95, 106, 89],
-      "ftsPages": [],
-      "hybridPages": [88, 75, 95, 106, 89],
+      "ftsPages": [88, 90, 75, 75, 53],
+      "hybridPages": [88, 75, 95, 19, 54],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -166,10 +166,10 @@
       "question": "What night cleaning operations are implemented for maximum efficiency and minimum disruption?",
       "expectedPage": 91,
       "vectorPages": [8, 91, 60, 23, 42],
-      "ftsPages": [],
-      "hybridPages": [8, 91, 60, 23, 42],
+      "ftsPages": [91, 60, 8, 61, 8],
+      "hybridPages": [91, 8, 60, 113, 13],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -177,10 +177,10 @@
       "question": "What waste segregation centers and sanitation challenges are being established?",
       "expectedPage": 94,
       "vectorPages": [94, 94, 31, 30, 90],
-      "ftsPages": [],
-      "hybridPages": [94, 94, 31, 30, 90],
+      "ftsPages": [93, 94, 61, 31, 94],
+      "hybridPages": [94, 94, 31, 90, 30],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -188,8 +188,8 @@
       "question": "How are sanitation operations being mechanized with mechanical sweepers?",
       "expectedPage": 95,
       "vectorPages": [95, 61, 8, 91, 61],
-      "ftsPages": [95, 8, 91],
-      "hybridPages": [95, 8, 91, 61, 61],
+      "ftsPages": [95, 91, 8, 61, 113],
+      "hybridPages": [95, 61, 91, 8, 61],
       "vectorHit": true,
       "ftsHit": true,
       "hybridHit": true
@@ -199,10 +199,10 @@
       "question": "What development is planned for green strips and horticulture in barren stretches?",
       "expectedPage": 97,
       "vectorPages": [96, 51, 97, 83, 23],
-      "ftsPages": [],
-      "hybridPages": [96, 51, 97, 83, 23],
+      "ftsPages": [97, 22, 96, 106, 108],
+      "hybridPages": [97, 96, 22, 23, 20],
       "vectorHit": true,
-      "ftsHit": false,
+      "ftsHit": true,
       "hybridHit": true
     },
     {
@@ -210,19 +210,19 @@
       "question": "What equipment including tree pruning machines is maintained for green cover?",
       "expectedPage": 98,
       "vectorPages": [96, 55, 18, 113, 112],
-      "ftsPages": [],
-      "hybridPages": [96, 55, 18, 113, 112],
+      "ftsPages": [98, 96, 68, 11, 67],
+      "hybridPages": [96, 55, 98, 96, 86],
       "vectorHit": false,
-      "ftsHit": false,
-      "hybridHit": false
+      "ftsHit": true,
+      "hybridHit": true
     },
     {
       "id": "Q-20",
       "question": "What disaster management group and resilient NDMC framework is established?",
       "expectedPage": 106,
       "vectorPages": [106, 22, 2, 113, 93],
-      "ftsPages": [106],
-      "hybridPages": [106, 22, 2, 113, 93],
+      "ftsPages": [2, 106, 93, 83, 12],
+      "hybridPages": [106, 2, 93, 83, 104],
       "vectorHit": true,
       "ftsHit": true,
       "hybridHit": true
