@@ -1,0 +1,1454 @@
+{
+  "documents": ["docs/pdf/budget-speech-2026-27-english.pdf", "docs/pdf/test_upload.pdf"],
+  "totalQuotes": 177,
+  "passedCount": 177,
+  "passRate": 100,
+  "targetPassRate": 95,
+  "passedThreshold": true,
+  "categoryBreakdown": {
+    "single-line": {
+      "total": 43,
+      "passed": 43,
+      "rate": 100
+    },
+    "multi-line": {
+      "total": 43,
+      "passed": 43,
+      "rate": 100
+    },
+    "hyphenated": {
+      "total": 40,
+      "passed": 40,
+      "rate": 100
+    },
+    "numeric": {
+      "total": 18,
+      "passed": 18,
+      "rate": 100
+    },
+    "ligature": {
+      "total": 33,
+      "passed": 33,
+      "rate": 100
+    }
+  },
+  "failures": [],
+  "results": [
+    {
+      "id": "Q-1",
+      "category": "single-line",
+      "pageNumber": 1,
+      "quote": "New Delhi Municipal Council",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-2",
+      "category": "multi-line",
+      "pageNumber": 1,
+      "quote": "New Delhi Municipal Council Palika Kendra, New Delhi-110001",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-3",
+      "category": "hyphenated",
+      "pageNumber": 1,
+      "quote": "Kendra, New Delhi-110001",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-4",
+      "category": "ligature",
+      "pageNumber": 1,
+      "quote": "New Delhi Municipal Council",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-5",
+      "category": "single-line",
+      "pageNumber": 2,
+      "quote": "2.  Future Ready NDMC: Education",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-6",
+      "category": "multi-line",
+      "pageNumber": 2,
+      "quote": "18.  Comprehensive Municipal Services 19  Smart Parking System",
+      "success": true,
+      "highlightedSpanCount": 4
+    },
+    {
+      "id": "Q-7",
+      "category": "ligature",
+      "pageNumber": 2,
+      "quote": "2.  Future Ready NDMC: Education",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-8",
+      "category": "single-line",
+      "pageNumber": 3,
+      "quote": "Distinguished Members of the Council,",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-9",
+      "category": "multi-line",
+      "pageNumber": 3,
+      "quote": "BUDGET SPEECH 2026-27 Distinguished Members of the Council,",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-10",
+      "category": "hyphenated",
+      "pageNumber": 3,
+      "quote": "BUDGET SPEECH 2026-27",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-11",
+      "category": "ligature",
+      "pageNumber": 3,
+      "quote": "Distinguished Members of the Council,",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-12",
+      "category": "single-line",
+      "pageNumber": 4,
+      "quote": "A.  Human Resource Management",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-13",
+      "category": "multi-line",
+      "pageNumber": 4,
+      "quote": "A.  Human Resource Management Human Resource Management is a strategic pillar for",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-14",
+      "category": "hyphenated",
+      "pageNumber": 4,
+      "quote": "during the G-20",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-15",
+      "category": "numeric",
+      "pageNumber": 4,
+      "quote": "A  total  of  4,357",
+      "success": true,
+      "highlightedSpanCount": 4
+    },
+    {
+      "id": "Q-16",
+      "category": "ligature",
+      "pageNumber": 4,
+      "quote": "Human Resource Management is a strategic pillar for",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-17",
+      "category": "single-line",
+      "pageNumber": 5,
+      "quote": "(b)  Requisitions to DSSSB/UPSC",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-18",
+      "category": "multi-line",
+      "pageNumber": 5,
+      "quote": "(b)  Requisitions to DSSSB/UPSC Eleven requisitions have been sent to the UPSC",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-19",
+      "category": "hyphenated",
+      "pageNumber": 5,
+      "quote": " Sub - Committee ",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-20",
+      "category": "ligature",
+      "pageNumber": 5,
+      "quote": "(b)  Requisitions to DSSSB/UPSC",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-21",
+      "category": "single-line",
+      "pageNumber": 6,
+      "quote": "NDMC has tak en various novel steps aligned with NEP",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-22",
+      "category": "multi-line",
+      "pageNumber": 6,
+      "quote": "NDMC has tak en various novel steps aligned with NEP 2020. One of the most prominent initiative is design of",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-23",
+      "category": "numeric",
+      "pageNumber": 6,
+      "quote": "is  99.44% and 98",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-24",
+      "category": "ligature",
+      "pageNumber": 6,
+      "quote": "NDMC has tak en various novel steps aligned with NEP",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-25",
+      "category": "single-line",
+      "pageNumber": 7,
+      "quote": "across NDMC schools. NDMC is in process of",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-26",
+      "category": "multi-line",
+      "pageNumber": 7,
+      "quote": "across NDMC schools. NDMC is in process of engaging  the  professional  sports  academies",
+      "success": true,
+      "highlightedSpanCount": 6
+    },
+    {
+      "id": "Q-27",
+      "category": "hyphenated",
+      "pageNumber": 7,
+      "quote": "under Public-Private Partnership (PPP)",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-28",
+      "category": "ligature",
+      "pageNumber": 7,
+      "quote": "across NDMC schools. NDMC is in process of",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-29",
+      "category": "single-line",
+      "pageNumber": 8,
+      "quote": "Poshan  Scheme”  has  already  been",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-30",
+      "category": "multi-line",
+      "pageNumber": 8,
+      "quote": "Poshan  Scheme”  has  already  been implemented in all the schools of NDMC. It  is",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-31",
+      "category": "hyphenated",
+      "pageNumber": 8,
+      "quote": "the mid - day meal",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-32",
+      "category": "ligature",
+      "pageNumber": 8,
+      "quote": "Poshan  Scheme”  has  already  been",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-33",
+      "category": "single-line",
+      "pageNumber": 9,
+      "quote": "expanded in entire NDMC area which has 14 markets",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-34",
+      "category": "multi-line",
+      "pageNumber": 9,
+      "quote": "expanded in entire NDMC area which has 14 markets having 150 km. major footpaths and 132 avenues roads",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-35",
+      "category": "hyphenated",
+      "pageNumber": 9,
+      "quote": "next FY 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-36",
+      "category": "numeric",
+      "pageNumber": 9,
+      "quote": "556 Crore under the Urban Development F",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-37",
+      "category": "ligature",
+      "pageNumber": 9,
+      "quote": "expanded in entire NDMC area which has 14 markets",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-38",
+      "category": "single-line",
+      "pageNumber": 10,
+      "quote": "settlement  causing  dangers  to  the  lives  and  the",
+      "success": true,
+      "highlightedSpanCount": 8
+    },
+    {
+      "id": "Q-39",
+      "category": "multi-line",
+      "pageNumber": 10,
+      "quote": "settlement  causing  dangers  to  the  lives  and  the properties . The process is at advance stage and likely to",
+      "success": true,
+      "highlightedSpanCount": 10
+    },
+    {
+      "id": "Q-40",
+      "category": "ligature",
+      "pageNumber": 10,
+      "quote": "settlement  causing  dangers  to  the  lives  and  the",
+      "success": true,
+      "highlightedSpanCount": 8
+    },
+    {
+      "id": "Q-41",
+      "category": "single-line",
+      "pageNumber": 11,
+      "quote": "D.2  Modernization of Sewerage System",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-42",
+      "category": "multi-line",
+      "pageNumber": 11,
+      "quote": "D.2  Modernization of Sewerage System For  the  improvement  of  sewerage  infrastructure,",
+      "success": true,
+      "highlightedSpanCount": 8
+    },
+    {
+      "id": "Q-43",
+      "category": "hyphenated",
+      "pageNumber": 11,
+      "quote": "maintenance and de-silting of sewer",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-44",
+      "category": "ligature",
+      "pageNumber": 11,
+      "quote": "D.2  Modernization of Sewerage System",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-45",
+      "category": "single-line",
+      "pageNumber": 12,
+      "quote": "response (vi) Integrated Command & Control Centre",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-46",
+      "category": "multi-line",
+      "pageNumber": 12,
+      "quote": "response (vi) Integrated Command & Control Centre for Centralized monitoring and management and (vii)",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-47",
+      "category": "hyphenated",
+      "pageNumber": 12,
+      "quote": "GIS-Based  Asset",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-48",
+      "category": "ligature",
+      "pageNumber": 12,
+      "quote": "response (vi) Integrated Command & Control Centre",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-49",
+      "category": "single-line",
+      "pageNumber": 13,
+      "quote": "E.3  End to End School Life Solution Module",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-50",
+      "category": "multi-line",
+      "pageNumber": 13,
+      "quote": "E.3  End to End School Life Solution Module In order to align with international  best practices, we",
+      "success": true,
+      "highlightedSpanCount": 4
+    },
+    {
+      "id": "Q-51",
+      "category": "hyphenated",
+      "pageNumber": 13,
+      "quote": "dynamic anti-smog guns at",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-52",
+      "category": "ligature",
+      "pageNumber": 13,
+      "quote": "E.3  End to End School Life Solution Module",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-53",
+      "category": "single-line",
+      "pageNumber": 14,
+      "quote": "for irrigation, footpath washing and washing of green",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-54",
+      "category": "multi-line",
+      "pageNumber": 14,
+      "quote": "for irrigation, footpath washing and washing of green belt through water tankers causing burning of fuel and",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-55",
+      "category": "hyphenated",
+      "pageNumber": 14,
+      "quote": "i.e.  Drip-Irrigation,  washing",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-56",
+      "category": "ligature",
+      "pageNumber": 14,
+      "quote": "for irrigation, footpath washing and washing of green",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-57",
+      "category": "single-line",
+      "pageNumber": 15,
+      "quote": "E . 8  Single Sign o n  ( SSO)",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-58",
+      "category": "multi-line",
+      "pageNumber": 15,
+      "quote": "E . 8  Single Sign o n  ( SSO) Single sign on  is an authentication method  letting users",
+      "success": true,
+      "highlightedSpanCount": 10
+    },
+    {
+      "id": "Q-59",
+      "category": "hyphenated",
+      "pageNumber": 15,
+      "quote": " re - authentication at",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-60",
+      "category": "ligature",
+      "pageNumber": 15,
+      "quote": "E . 8  Single Sign o n  ( SSO)",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-61",
+      "category": "single-line",
+      "pageNumber": 16,
+      "quote": "a)  TAT :  Turnaround  Time  was  fixed  for  all",
+      "success": true,
+      "highlightedSpanCount": 9
+    },
+    {
+      "id": "Q-62",
+      "category": "multi-line",
+      "pageNumber": 16,
+      "quote": "F.1  Standardization a)  TAT :  Turnaround  Time  was  fixed  for  all",
+      "success": true,
+      "highlightedSpanCount": 11
+    },
+    {
+      "id": "Q-63",
+      "category": "hyphenated",
+      "pageNumber": 16,
+      "quote": "Meetings for Inter-",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-64",
+      "category": "ligature",
+      "pageNumber": 16,
+      "quote": "F.1  Standardization",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-65",
+      "category": "single-line",
+      "pageNumber": 17,
+      "quote": "F.4  Re-alignment of NDMC Area in to 14 Circles",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-66",
+      "category": "multi-line",
+      "pageNumber": 17,
+      "quote": "F.4  Re-alignment of NDMC Area in to 14 Circles Electricity,  Horticulture  and  Civil  department  have",
+      "success": true,
+      "highlightedSpanCount": 8
+    },
+    {
+      "id": "Q-67",
+      "category": "hyphenated",
+      "pageNumber": 17,
+      "quote": "F.4  Re-alignment of NDMC",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-68",
+      "category": "numeric",
+      "pageNumber": 17,
+      "quote": "5 Lakhs for each such deficiency",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-69",
+      "category": "ligature",
+      "pageNumber": 17,
+      "quote": "F.4  Re-alignment of NDMC Area in to 14 Circles",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-70",
+      "category": "single-line",
+      "pageNumber": 18,
+      "quote": "and ASIs and 59 Clerical staff will receive training in",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-71",
+      "category": "multi-line",
+      "pageNumber": 18,
+      "quote": "and ASIs and 59 Clerical staff will receive training in noting/drafting and file management while another 59",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-72",
+      "category": "hyphenated",
+      "pageNumber": 18,
+      "quote": "capacity-building program for",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-73",
+      "category": "numeric",
+      "pageNumber": 18,
+      "quote": "a)  27 works with PV> Rs",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-74",
+      "category": "ligature",
+      "pageNumber": 18,
+      "quote": "and ASIs and 59 Clerical staff will receive training in",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-75",
+      "category": "single-line",
+      "pageNumber": 19,
+      "quote": "e)  As a result of capacity building, the employees",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-76",
+      "category": "multi-line",
+      "pageNumber": 19,
+      "quote": "e)  As a result of capacity building, the employees are equipped with professional knowledge and",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-77",
+      "category": "hyphenated",
+      "pageNumber": 19,
+      "quote": "installation of theme-based sculptures at",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-78",
+      "category": "numeric",
+      "pageNumber": 19,
+      "quote": "shifting to 100% renewable energy municipal bo",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-79",
+      "category": "ligature",
+      "pageNumber": 19,
+      "quote": "e)  As a result of capacity building, the employees",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-80",
+      "category": "single-line",
+      "pageNumber": 20,
+      "quote": "approx. for the FY 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-81",
+      "category": "multi-line",
+      "pageNumber": 20,
+      "quote": "More eminent and senior professionals will be engaged to leverage their expertise to make the NDMC area",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-82",
+      "category": "hyphenated",
+      "pageNumber": 20,
+      "quote": "the FY 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-83",
+      "category": "ligature",
+      "pageNumber": 20,
+      "quote": "approx. for the FY 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-84",
+      "category": "single-line",
+      "pageNumber": 21,
+      "quote": "encourage  use  of  electric  vehicles.  NDMC  is",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-85",
+      "category": "multi-line",
+      "pageNumber": 21,
+      "quote": "encourage  use  of  electric  vehicles.  NDMC  is steadfastly committed to achieve these goals as part of",
+      "success": true,
+      "highlightedSpanCount": 8
+    },
+    {
+      "id": "Q-86",
+      "category": "hyphenated",
+      "pageNumber": 21,
+      "quote": "FY2025-26 under which",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-87",
+      "category": "numeric",
+      "pageNumber": 21,
+      "quote": "cape NDMC is going to procure 5.53 lakhs tulip",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-88",
+      "category": "ligature",
+      "pageNumber": 21,
+      "quote": "encourage  use  of  electric  vehicles.  NDMC  is",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-89",
+      "category": "single-line",
+      "pageNumber": 22,
+      "quote": "plantations 5100 trees and 4,71,150 shrubs will be",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-90",
+      "category": "multi-line",
+      "pageNumber": 22,
+      "quote": "plantations 5100 trees and 4,71,150 shrubs will be planted in the next year 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-91",
+      "category": "hyphenated",
+      "pageNumber": 22,
+      "quote": "next year 2026-27.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-92",
+      "category": "numeric",
+      "pageNumber": 22,
+      "quote": "plantations 5100 trees and 4,71,150 shrubs will be",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-93",
+      "category": "ligature",
+      "pageNumber": 22,
+      "quote": "plantations 5100 trees and 4,71,150 shrubs will be",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-94",
+      "category": "single-line",
+      "pageNumber": 23,
+      "quote": "municipal  organization  is  a  unique  distinction.",
+      "success": true,
+      "highlightedSpanCount": 6
+    },
+    {
+      "id": "Q-95",
+      "category": "multi-line",
+      "pageNumber": 23,
+      "quote": "Presently there are many applications running in the NDMC. I propose to develop a mechanism to integrate",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-96",
+      "category": "hyphenated",
+      "pageNumber": 23,
+      "quote": "K. Re-development of Markets",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-97",
+      "category": "ligature",
+      "pageNumber": 23,
+      "quote": "municipal  organization  is  a  unique  distinction.",
+      "success": true,
+      "highlightedSpanCount": 6
+    },
+    {
+      "id": "Q-98",
+      "category": "single-line",
+      "pageNumber": 24,
+      "quote": "L .  Smart Public Convenience",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-99",
+      "category": "multi-line",
+      "pageNumber": 24,
+      "quote": "L .  Smart Public Convenience New Delhi Municipal Council will strive to make itself",
+      "success": true,
+      "highlightedSpanCount": 4
+    },
+    {
+      "id": "Q-100",
+      "category": "hyphenated",
+      "pageNumber": 24,
+      "quote": "hygiene,  self-sustaining  and",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-101",
+      "category": "numeric",
+      "pageNumber": 24,
+      "quote": "oposal for transitioning to a 100% digital payment",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-102",
+      "category": "ligature",
+      "pageNumber": 24,
+      "quote": "L .  Smart Public Convenience",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-103",
+      "category": "single-line",
+      "pageNumber": 25,
+      "quote": "Key Highlights of the Initiative:",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-104",
+      "category": "multi-line",
+      "pageNumber": 25,
+      "quote": "(i)  To eliminate Manual Transactions in the FY 2026-27, NDMC will phase out payments and",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-105",
+      "category": "hyphenated",
+      "pageNumber": 25,
+      "quote": "2026-27, NDMC will",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-106",
+      "category": "ligature",
+      "pageNumber": 25,
+      "quote": "Key Highlights of the Initiative:",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-1",
+      "category": "single-line",
+      "pageNumber": 1,
+      "quote": "रजिस्ट्री  सं. डी.एल.-  33002/99  REGD. No. D. L.-33002/99",
+      "success": true,
+      "highlightedSpanCount": 4
+    },
+    {
+      "id": "Q-2",
+      "category": "multi-line",
+      "pageNumber": 1,
+      "quote": "ाजधकार  से  प्र  काजित PUBLISHED BY AUTHORITY",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-3",
+      "category": "hyphenated",
+      "pageNumber": 1,
+      "quote": " सं. डी.एल.-  33002/99",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-4",
+      "category": "single-line",
+      "pageNumber": 2,
+      "quote": "2  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-5",
+      "category": "multi-line",
+      "pageNumber": 2,
+      "quote": "इलेजररक  वाहन  नीजत  2026-2030 ( चार  वषण )  इलेजररक  वाहनों  ( ईवी )  को  अंगीकार करने में  तेिी  लाने ,  वायु  गुणवत्ता  में सुधार  करने  और  इलेजररक  गजतिीलता  के  जलए  एक  सहायक  पाररजस्ट्थजतकी  तंत्र  का  सृिन करने के जलए तैयार की गयी है|",
+      "success": true,
+      "highlightedSpanCount": 33
+    },
+    {
+      "id": "Q-6",
+      "category": "hyphenated",
+      "pageNumber": 2,
+      "quote": "नीजत  2026-2030 ( चार",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-7",
+      "category": "numeric",
+      "pageNumber": 2,
+      "quote": "( िीतकालीन  अवजध  के िौरान  23%)  के  रू  प  में  वाहनों  से",
+      "success": true,
+      "highlightedSpanCount": 11
+    },
+    {
+      "id": "Q-8",
+      "category": "single-line",
+      "pageNumber": 3,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  3",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-9",
+      "category": "multi-line",
+      "pageNumber": 3,
+      "quote": "3.2  पररचालन दििाजनिेि का अजभप्राय इस नीजत के अंतगणत कायाणन्वयन  ,  पात्रता सत्यापन और संजवतरण प्र दियाओं के जलए समय - समय पर राष्ट्रीय  रािधानी  क्षेत्र  दिल्ली  सरकार द्व ारा िारी दकए गए अलग  - अलग जवस्ट्तृत जनिेिों से है।",
+      "success": true,
+      "highlightedSpanCount": 13
+    },
+    {
+      "id": "Q-10",
+      "category": "hyphenated",
+      "pageNumber": 3,
+      "quote": "----------------------------------------",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-11",
+      "category": "single-line",
+      "pageNumber": 4,
+      "quote": "4  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-12",
+      "category": "multi-line",
+      "pageNumber": 4,
+      "quote": "4.1.3  खरीि प्र ोत्साहन के जलए आवेिन पंिीकरण प्र माण पत्र  ( आरसी )  िारी होने की जतजथ से  30  दिनों के भीतर िमा दकया िाएगा। पात्र सजससडी राजि का संजवतरण जडजिटल पोटणल पर आवेिन िमा करने की जतजथ से  60  दिनों के भीतर सत्यापन",
+      "success": true,
+      "highlightedSpanCount": 11
+    },
+    {
+      "id": "Q-13",
+      "category": "hyphenated",
+      "pageNumber": 4,
+      "quote": "की एरस - िोरूम कीमत",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-14",
+      "category": "numeric",
+      "pageNumber": 4,
+      "quote": "चना  की  जतजथ  से  पहला  वषण  10,000  रु  पये प्र जत  दकलोवाट  घंटा",
+      "success": true,
+      "highlightedSpanCount": 11
+    },
+    {
+      "id": "Q-15",
+      "category": "single-line",
+      "pageNumber": 5,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  5",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-16",
+      "category": "multi-line",
+      "pageNumber": 5,
+      "quote": "अजधसूचना  की  जतजथ  से  िूसरा  वषण  एन 1 (>1.75  टन  सकल  वाहन  भार )  के  जलए  75,000  रु  पये  और  37,500 (1.75 टन  तक  सकल  वाहन  भार तक )",
+      "success": true,
+      "highlightedSpanCount": 26
+    },
+    {
+      "id": "Q-17",
+      "category": "hyphenated",
+      "pageNumber": 5,
+      "quote": " / दििा-जनिेिों  ,",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-18",
+      "category": "numeric",
+      "pageNumber": 5,
+      "quote": "की  जतजथ  से  िूसरा  वषण  एन 1 (>1",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-19",
+      "category": "single-line",
+      "pageNumber": 6,
+      "quote": "6  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-20",
+      "category": "multi-line",
+      "pageNumber": 6,
+      "quote": "4.7  सड़क  कर ,  पंिीकरण  िुल्क  छूट  और  प्र  वेि  जनषेध  छूट 4.7.1  नीजत अवजध के िौरान राष्ट्रीय रािधानी क्षेत्र दिल्ली में खरीिी गयी  और  पंिीकृत सभी इलेजररक वाहनों  ( खंड  4.7.2",
+      "success": true,
+      "highlightedSpanCount": 19
+    },
+    {
+      "id": "Q-21",
+      "category": "hyphenated",
+      "pageNumber": 6,
+      "quote": "बराबर एरस - िोरूम कीमत",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-22",
+      "category": "numeric",
+      "pageNumber": 6,
+      "quote": "100%  छूट प्र िान की िाएगी।",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-23",
+      "category": "single-line",
+      "pageNumber": 7,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  7",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-24",
+      "category": "multi-line",
+      "pageNumber": 7,
+      "quote": "5.7  मुख्य सजचव , राष्ट्रीय रािधानी क्षेत्र  दिल्ली सरकार की अध्यक्षता में एक उच्चाजधकार सजमजत का गिन दकया िाएगा  , जिसमें पररवहन ,  ऊिाण ,  योिना ,  पयाणवरण ,  जवत्त  ,  दिल्ली रांसको जलजमटेड  ( डीटीएल ),  जडस्ट्कॉम  और आवश्यकतानुसार समझे",
+      "success": true,
+      "highlightedSpanCount": 20
+    },
+    {
+      "id": "Q-25",
+      "category": "hyphenated",
+      "pageNumber": 7,
+      "quote": "अधण  - सावणिजनक चार्ििंग",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-26",
+      "category": "single-line",
+      "pageNumber": 8,
+      "quote": "8  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-27",
+      "category": "multi-line",
+      "pageNumber": 8,
+      "quote": "7.1.2  दिल्ली प्र िूषण जनयंत्रण सजमजत  ( डीपीसीसी )  एक उपयुि नीजतगत ढांचे के माध्यम से  ,  अजधकृत पुनचणिणकताणओं  तथा अन्य पात्र संस्ट्थाओं के सहयोग से  ,  सावणिजनक - जनिी भागीिारी  ( पीपीपी )  मॉडल के अंतगणत राष्ट्रीय रािधानी क्षेत्र दिल्ली में",
+      "success": true,
+      "highlightedSpanCount": 18
+    },
+    {
+      "id": "Q-28",
+      "category": "hyphenated",
+      "pageNumber": 8,
+      "quote": " सावणिजनक - जनिी भागीिारी",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-29",
+      "category": "numeric",
+      "pageNumber": 8,
+      "quote": "थ से िूसरे वषण की समाजप्त तक  10%",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-30",
+      "category": "single-line",
+      "pageNumber": 9,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  9",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-31",
+      "category": "multi-line",
+      "pageNumber": 9,
+      "quote": "8.4.2  यह आिेि स्ट् कूल बसों के पूरे बेड़े पर लागू होगा  ,  चाहे वे स्ट् वयं की हों  ,  पट्टे पर ली गई हों या दकराए पर ली गई हों। जिक्षा जवभाग  ,  राष्ट्रीय रािधानी क्षेत्र दिल्ली  सरकार ,  उपरोि आिेि का अनुपालन सुजनजित करेगा।",
+      "success": true,
+      "highlightedSpanCount": 12
+    },
+    {
+      "id": "Q-32",
+      "category": "hyphenated",
+      "pageNumber": 9,
+      "quote": "हैं  :-  दिनांक",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-33",
+      "category": "single-line",
+      "pageNumber": 10,
+      "quote": "10  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-34",
+      "category": "multi-line",
+      "pageNumber": 10,
+      "quote": "10.1.1  पररवहन जवभाग ,  राष्ट्रीय रािधानी क्षेत्र दिल्ली  सरकार ,  इलेजररक वाहन नीजत  2026  के कायाणन्वयन  ,  और समय- समय पर  सभी स्ट् पष्टीकरण  ,  मामूली संिोधन और पररचालन दििाजनिेि िारी करने के जलए नोडल जवभाग के रू प में कायण",
+      "success": true,
+      "highlightedSpanCount": 15
+    },
+    {
+      "id": "Q-35",
+      "category": "hyphenated",
+      "pageNumber": 10,
+      "quote": " सावणिजनक - जनिी भागीिारी",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-36",
+      "category": "single-line",
+      "pageNumber": 11,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  11",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-37",
+      "category": "multi-line",
+      "pageNumber": 11,
+      "quote": "10.5.2  दिल्ली  नगर जनगम ,  नई दिल्ली नगरपाजलका पररषि और दिल्ली छावनी बोडण सजहत राष्ट्रीय रािधानी क्षेत्र दिल्ली सरकार के अंतगणत आने वाले जवभागों  / स्ट्  वायत्त जनकायों  / जनगमों  / बोडों और इसी प्र कार के संस्ट्थानों की  सभी नई नागररक",
+      "success": true,
+      "highlightedSpanCount": 14
+    },
+    {
+      "id": "Q-38",
+      "category": "hyphenated",
+      "pageNumber": 11,
+      "quote": " ईवी - चार्ििंग ",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-39",
+      "category": "ligature",
+      "pageNumber": 11,
+      "quote": "jk\"Vªh; jkt/kkuh {ks= fnYyh ds mijkT;iky",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-40",
+      "category": "single-line",
+      "pageNumber": 12,
+      "quote": "12  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-41",
+      "category": "multi-line",
+      "pageNumber": 12,
+      "quote": "Delhi, the 30th June, 2026 F. No.  JC/EV/TPT/2026/02/281 —  Whereas ,  the Council of Ministers approved the Delhi Electric Vehicles",
+      "success": true,
+      "highlightedSpanCount": 7
+    },
+    {
+      "id": "Q-42",
+      "category": "hyphenated",
+      "pageNumber": 12,
+      "quote": "conferred by sub-section (3) of",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-43",
+      "category": "numeric",
+      "pageNumber": 12,
+      "quote": "contributor (23% during winter) to air polluti",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-44",
+      "category": "ligature",
+      "pageNumber": 12,
+      "quote": "Delhi, the 30th June, 2026",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-45",
+      "category": "single-line",
+      "pageNumber": 13,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  13",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-46",
+      "category": "multi-line",
+      "pageNumber": 13,
+      "quote": "3.3 Electric Vehicle Supply Equipment (EVSE) shall mean an element in Electric Vehicle Charging Infrastructure (EVCI) that supplies electrical energy for recharging the battery of electric vehicles. 3",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-47",
+      "category": "hyphenated",
+      "pageNumber": 13,
+      "quote": "Station means semi-public charging station",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-48",
+      "category": "numeric",
+      "pageNumber": 13,
+      "quote": "Year 1 from date of notification  ₹10",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-49",
+      "category": "ligature",
+      "pageNumber": 13,
+      "quote": "(EVCI) that supplies electrical energy for recharging the battery of electric vehicles. 3",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-50",
+      "category": "single-line",
+      "pageNumber": 14,
+      "quote": "14  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-51",
+      "category": "multi-line",
+      "pageNumber": 14,
+      "quote": "*No incentive shall be given to e-autos with battery capacity less than 4kWh. Incentive shall be applicable to both plug-in and battery swapping e-three-wheelers models.",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-52",
+      "category": "hyphenated",
+      "pageNumber": 14,
+      "quote": "given to e-autos with battery",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-53",
+      "category": "numeric",
+      "pageNumber": 14,
+      "quote": "Year 1 from date of notification  ₹1,",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-54",
+      "category": "ligature",
+      "pageNumber": 14,
+      "quote": "both plug-in and battery swapping e-three-wheelers models.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-55",
+      "category": "single-line",
+      "pageNumber": 15,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  15",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-56",
+      "category": "multi-line",
+      "pageNumber": 15,
+      "quote": "vehicle category (not being used for any purpose in  departments/autonomous bodies/corporations/boards and similar institutions under GNCTD including Municipal Corporation of Delhi, New Delhi Municipal Council and Delhi",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-57",
+      "category": "hyphenated",
+      "pageNumber": 15,
+      "quote": "for N2 E-Trucks: The first",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-58",
+      "category": "ligature",
+      "pageNumber": 15,
+      "quote": "The details regarding this provision shall be given in the operational guidelines.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-59",
+      "category": "single-line",
+      "pageNumber": 16,
+      "quote": "16  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-60",
+      "category": "multi-line",
+      "pageNumber": 16,
+      "quote": "7. Additional Ecosystem Development Measures 7.1 Battery Recycling",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-61",
+      "category": "hyphenated",
+      "pageNumber": 16,
+      "quote": "under a Public-Private",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-62",
+      "category": "numeric",
+      "pageNumber": 16,
+      "quote": "Till completion of year 2 from the date of notification",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-63",
+      "category": "ligature",
+      "pageNumber": 16,
+      "quote": "7. Additional Ecosystem Development Measures",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-64",
+      "category": "single-line",
+      "pageNumber": 17,
+      "quote": "[P ART  IV  DELHI GAZETTE : EXTRAORDINARY  17",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-65",
+      "category": "multi-line",
+      "pageNumber": 17,
+      "quote": "8.5.2  All other provisions of the existing Delhi Motor Vehicle Aggregator and Delivery Service Provider Scheme (2023) shall remain unchanged and shall apply. Aggregators and Delivery Service Providers shall be encouraged for transition",
+      "success": true,
+      "highlightedSpanCount": 3
+    },
+    {
+      "id": "Q-66",
+      "category": "hyphenated",
+      "pageNumber": 17,
+      "quote": "8.6.1 All hired/leased,non-transport and light",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-67",
+      "category": "ligature",
+      "pageNumber": 17,
+      "quote": "emissions in the NCT of Delhi.",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-68",
+      "category": "single-line",
+      "pageNumber": 18,
+      "quote": "18  DELHI GAZETTE : EXTRAORDINARY  P ART  IV]",
+      "success": true,
+      "highlightedSpanCount": 5
+    },
+    {
+      "id": "Q-69",
+      "category": "multi-line",
+      "pageNumber": 18,
+      "quote": "10.5 Urban Local bodies (Municipal Corporation of Delhi (MCD), Delhi Development Authority (DDA), Delhi Cantonment Board, New Delhi Municipal Council (NDMC), PWD, DUSIB, Revenue Department and other land-",
+      "success": true,
+      "highlightedSpanCount": 2
+    },
+    {
+      "id": "Q-70",
+      "category": "hyphenated",
+      "pageNumber": 18,
+      "quote": "and other land-",
+      "success": true,
+      "highlightedSpanCount": 1
+    },
+    {
+      "id": "Q-71",
+      "category": "ligature",
+      "pageNumber": 18,
+      "quote": "Cantonment Board, New Delhi Municipal Council (NDMC), PWD, DUSIB, Revenue Department and other land-",
+      "success": true,
+      "highlightedSpanCount": 1
+    }
+  ]
+}

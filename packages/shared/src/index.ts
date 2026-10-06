@@ -43,7 +43,7 @@ export type ErrorEnvelope = z.infer<typeof ErrorEnvelopeSchema>;
 export function createErrorResponse(
   code: ErrorCode,
   message: string,
-  details?: Record<string, unknown>
+  details?: Record<string, unknown>,
 ): ErrorEnvelope {
   return {
     error: {
@@ -66,3 +66,5 @@ export const HealthResponseSchema = z.object({
 });
 
 export type HealthResponse = z.infer<typeof HealthResponseSchema>;
+
+export * from './text-normalization.js';

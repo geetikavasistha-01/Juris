@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Viewer Text Layer Matcher (Spike S3)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 20px; background: #0f172a; color: #f8fafc; }
+    #viewer-container { position: relative; width: 900px; margin: 0 auto; background: white; color: black; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .page-container { position: relative; margin-bottom: 20px; }
+    .canvasWrapper canvas { display: block; width: 100%; height: auto; }
+    .textLayer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      opacity: 0.8;
+      line-height: 1.0;
+    }
+    .textLayer span {
+      color: transparent;
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+    }
+    .textLayer span.highlight {
+      background-color: rgba(255, 230, 0, 0.6) !important;
+      color: black !important;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Juris S3 PDF Viewer Text Layer Test Bench</h2>
+  <div id="status">Loading PDF...</div>
+  <div id="viewer-container"></div>
+
+  <script type="module">
+    import * as pdfjsLib from '/pdfjs-dist/build/pdf.mjs';
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/build/pdf.worker.mjs';
+
+    let pdfDoc = null;
+    const pageRenderCache = new Map();
+
+    // Normalization functions embedded identically from packages/shared/src/text-normalization.ts
+    const LIGATURE_MAP = {
+      '\uFB00': 'ff', '\uFB01': 'fi', '\uFB02': 'fl', '\uFB03': 'ffi',
+      '\uFB04': 'ffl', '\uFB05': 'ft', '\uFB06': 'st', '\u00E6': 'ae',
+      '\u00C6': 'AE', '\u0153': 'oe', '\u0152': 'OE'
+    };
+
+    const PUNCTUATION_MAP = {
+      '\u2018': "'", '\u2019': "'", '\u201A': "'", '\u201B': "'",
+      '\u201C': '"', '\u201D': '"', '\u201E': '"', '\u201F': '"',
+      '\u00AB': '"', '\u00BB': '"', '\u2010': '-', '\u2011': '-',
+      '\u2012': '-', '\u2013': '-', '\u2014': '-', '\u2015': '-',
+      '\u2212': '-', '\u2026': '...', '\u00A0': ' ', '\u2002': ' ',
+      '\u2003': ' ', '\u2004': ' ', '\u2005': ' ', '\u2006': ' ',
+      '\u2007': ' ', '\u2008': ' ', '\u2009': ' ', '\u200A': ' ',
+      '\u202F': ' ', '\u205F': ' ', '\u3000': ' ', '\u00AD': '',
+      '\u200B': '', '\u200C': '', '\u200D': '', '\uFEFF': ''
+    };
+
+    function canonicalize(input) {
+      if (!input) return '';
+      let text = input.normalize('NFKC');
+      for (const [k, v] of Object.entries(LIGATURE_MAP)) text = text.replaceAll(k, v);
+      for (const [k, v] of Object.entries(PUNCTUATION_MAP)) text = text.replaceAll(k, v);
+      text = text.replace(/\u00AD\s*/g, '');
+      text = text.replace(/([A-Za-z])-[\r\n]+\s*([A-Za-z])/g, '$1$2');
+      text = text.replace(/[\r\n]+/g, ' ');
+      return text.replace(/\s+/g, ' ').trim();
+    }
+
+    async function loadDocument(pdfUrl) {
+      pageRenderCache.clear();
+      pdfDoc = await pdfjsLib.getDocument({ url: pdfUrl }).promise;
+      document.getElementById('status').innerText = `PDF Loaded: ${pdfDoc.numPages} pages`;
+      return pdfDoc.numPages;
+    }
+
+    async function renderPage(pageNum) {
+      if (pageRenderCache.has(pageNum)) {
+        return pageRenderCache.get(pageNum);
+      }
+
+      const container = document.getElementById('viewer-container');
+      container.innerHTML = '';
+
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: 1.5 });
+
+      const pageDiv = document.createElement('div');
+      pageDiv.className = 'page-container';
+      pageDiv.style.width = `${viewport.width}px`;
+      pageDiv.style.height = `${viewport.height}px`;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      pageDiv.appendChild(canvas);
+
+      const renderContext = {
+        canvasContext: canvas.getContext('2d'),
+        viewport: viewport
+      };
+      await page.render(renderContext).promise;
+
+      // Text Layer
+      const textLayerDiv = document.createElement('div');
+      textLayerDiv.className = 'textLayer';
+      textLayerDiv.style.width = `${viewport.width}px`;
+      textLayerDiv.style.height = `${viewport.height}px`;
+
+      const textContent = await page.getTextContent();
+      const textSpans = [];
+
+      for (const item of textContent.items) {
+        if (!item.str) continue;
+        const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
+        const span = document.createElement('span');
+        span.textContent = item.str;
+        span.style.left = `${tx[4]}px`;
+        span.style.top = `${tx[5] - item.height * viewport.scale}px`;
+        span.style.fontSize = `${item.height * viewport.scale}px`;
+        span.style.fontFamily = item.fontName;
+        span.dataset.raw = item.str;
+        textLayerDiv.appendChild(span);
+        textSpans.push(span);
+      }
+
+      pageDiv.appendChild(textLayerDiv);
+      container.appendChild(pageDiv);
+
+      const pageData = { pageNum, pageDiv, textLayerDiv, textSpans };
+      pageRenderCache.set(pageNum, pageData);
+      return pageData;
+    }
+
+    // Client-side quote search and highlight in DOM text layer
+    async function highlightQuote(pageNum, quote) {
+      const pageData = await renderPage(pageNum);
+      const normTarget = canonicalize(quote);
+
+      // Clear existing highlights
+      pageData.textSpans.forEach(span => span.classList.remove('highlight'));
+
+      if (!normTarget) {
+        return { success: false, reason: 'EMPTY_QUOTE' };
+      }
+
+      // Concatenate text layer spans
+      const spanTexts = pageData.textSpans.map(s => s.textContent || '');
+      const fullText = spanTexts.join(' ');
+      const normFull = canonicalize(fullText);
+
+      const matchIdx = normFull.indexOf(normTarget);
+      if (matchIdx === -1) {
+        return {
+          success: false,
+          reason: 'NOT_FOUND_IN_TEXT_LAYER',
+          normTarget,
+          fullLength: normFull.length
+        };
+      }
+
+      // Locate overlapping spans and apply highlight class
+      let currentNormPos = 0;
+      let highlightedCount = 0;
+
+      for (const span of pageData.textSpans) {
+        const spanNorm = canonicalize(span.textContent || '');
+        if (!spanNorm) continue;
+
+        const spanStart = normFull.indexOf(spanNorm, currentNormPos);
+        if (spanStart !== -1) {
+          const spanEnd = spanStart + spanNorm.length;
+          currentNormPos = spanEnd;
+
+          // Check overlap with [matchIdx, matchIdx + normTarget.length]
+          const targetEnd = matchIdx + normTarget.length;
+          if (spanStart < targetEnd && spanEnd > matchIdx) {
+            span.classList.add('highlight');
+            highlightedCount++;
+          }
+        }
+      }
+
+      return {
+        success: highlightedCount > 0,
+        highlightedSpanCount: highlightedCount,
+        matchStartIndex: matchIdx,
+        matchEndIndex: matchIdx + normTarget.length,
+        normTarget
+      };
+    }
+
+    window.pdfMatcher = {
+      loadDocument,
+      renderPage,
+      highlightQuote
+    };
+  </script>
+</body>
+</html>
