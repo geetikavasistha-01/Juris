@@ -23,7 +23,7 @@ import {
 } from '../components/ui/index.js';
 import { useTheme } from '../theme.js';
 import { Moon, Sun, Monitor } from 'lucide-react';
-import { registerJurisEChartsTheme } from '../lib/echarts-theme.js';
+import { loadJurisECharts } from '../lib/echarts.js';
 
 export const DesignSystemPage: React.FC = () => {
   const { theme, setTheme, resolvedTheme } = useTheme();
@@ -35,7 +35,7 @@ export const DesignSystemPage: React.FC = () => {
   const chartRef = useRef<HTMLDivElement>(null);
   const isDark = resolvedTheme === 'dark';
 
-  // Lazy load echarts for the sample civic visualization
+  // Lazy load modular echarts for the sample civic visualization
   useEffect(() => {
     let chartInstance: {
       dispose: () => void;
@@ -43,10 +43,9 @@ export const DesignSystemPage: React.FC = () => {
       resize: () => void;
     } | null = null;
 
-    import('echarts').then((echarts) => {
-      registerJurisEChartsTheme(echarts);
+    loadJurisECharts().then(({ init }) => {
       if (chartRef.current) {
-        chartInstance = echarts.init(chartRef.current, isDark ? 'juris-dark' : 'juris-light');
+        chartInstance = init(chartRef.current, isDark ? 'juris-dark' : 'juris-light');
         chartInstance.setOption({
           title: {
             text: 'Civic Budget Expenditure Analysis (2026-27)',
@@ -155,31 +154,31 @@ export const DesignSystemPage: React.FC = () => {
                 name: 'brand-navy',
                 var: 'bg-brand-navy',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               {
                 name: 'accent-teal',
                 var: 'bg-accent-teal',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               {
                 name: 'verified',
                 var: 'bg-verified',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               {
                 name: 'unverified',
                 var: 'bg-unverified',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               {
                 name: 'failed',
                 var: 'bg-failed',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               { name: 'quote-highlight', var: 'bg-quote-highlight', border: 'border-quote-border' },
               { name: 'text', var: 'bg-text', border: 'border-transparent', text: 'text-bg' },
@@ -187,14 +186,14 @@ export const DesignSystemPage: React.FC = () => {
                 name: 'text-muted',
                 var: 'bg-text-muted',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
               { name: 'border', var: 'bg-border', border: 'border-border-strong' },
               {
                 name: 'focus-ring',
                 var: 'bg-focus-ring',
                 border: 'border-transparent',
-                text: 'text-white',
+                text: 'text-white dark:text-bg',
               },
             ].map((c) => (
               <div

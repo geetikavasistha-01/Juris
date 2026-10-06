@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useTheme } from './theme.js';
-import { DesignSystemPage } from './pages/DesignSystemPage.js';
 import { Button } from './components/ui/index.js';
 import { Palette } from 'lucide-react';
+
+const DesignSystemPage = import.meta.env.DEV
+  ? React.lazy(() =>
+      import('./pages/DesignSystemPage.js').then((m) => ({ default: m.DesignSystemPage })),
+    )
+  : null;
 
 // Declared via vite.config.ts define
 declare const __APP_VERSION__: string;
@@ -26,7 +31,7 @@ export const App: React.FC = () => {
   const version = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.1.0';
   const gitSha = typeof __GIT_SHA__ !== 'undefined' ? __GIT_SHA__ : 'dev';
 
-  if (currentPath === '/design') {
+  if (import.meta.env.DEV && currentPath === '/design' && DesignSystemPage) {
     return (
       <div>
         <div className="fixed bottom-4 right-4 z-50">
@@ -34,7 +39,9 @@ export const App: React.FC = () => {
             ← Back to App
           </Button>
         </div>
-        <DesignSystemPage />
+        <Suspense fallback={<div className="p-8 font-mono text-xs">Loading Design System...</div>}>
+          <DesignSystemPage />
+        </Suspense>
       </div>
     );
   }
@@ -44,15 +51,17 @@ export const App: React.FC = () => {
       <header className="flex justify-between items-center max-w-4xl w-full mx-auto">
         <h1 className="text-2xl font-bold font-serif tracking-tight text-text">Juris</h1>
         <div className="flex items-center space-x-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate('/design')}
-            className="gap-1.5"
-          >
-            <Palette className="w-3.5 h-3.5" />
-            <span>Design System</span>
-          </Button>
+          {import.meta.env.DEV && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => navigate('/design')}
+              className="gap-1.5"
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span>Design System</span>
+            </Button>
+          )}
           <label htmlFor="theme-select" className="text-xs text-text-muted">
             Theme:
           </label>
