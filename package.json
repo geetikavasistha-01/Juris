@@ -25,9 +25,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@google/genai": "^2.27.0",
     "@playwright/test": "^1.63.0",
     "@secretlint/secretlint-rule-pattern": "^13.0.7",
     "@secretlint/secretlint-rule-preset-recommend": "^10.0.1",
+    "@supabase/supabase-js": "^2.117.2",
     "@types/node": "^22.13.9",
     "echarts": "^6.1.0",
     "eslint": "^9.21.0",
