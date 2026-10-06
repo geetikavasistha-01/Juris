@@ -272,3 +272,136 @@ CREATE POLICY "Users can view their own job events"
 -- Enable Supabase Realtime broadcast for job_events
 ALTER TABLE public.job_events REPLICA IDENTITY FULL;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.job_events;
+
+-- 10. VECTOR MATCH FUNCTION (pgvector cosine similarity)
+CREATE OR REPLACE FUNCTION public.match_chunks (
+  query_embedding vector(768),
+  doc_id UUID,
+  match_count INT DEFAULT 8
+)
+RETURNS TABLE (
+  id UUID,
+  document_id UUID,
+  page_number INT,
+  chunk_index INT,
+  content TEXT,
+  similarity FLOAT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    c.id,
+    c.document_id,
+    c.page_number,
+    c.chunk_index,
+    c.content,
+    (1 - (c.embedding <=> query_embedding))::FLOAT AS similarity
+  FROM public.chunks c
+  WHERE c.document_id = doc_id
+  ORDER BY c.embedding <=> query_embedding
+  LIMIT match_count;
+END;
+$$;
+
+-- 11. FULL-TEXT SEARCH MATCH FUNCTION (ts_rank ranking)
+CREATE OR REPLACE FUNCTION public.match_chunks_fts (
+  query_text TEXT,
+  doc_id UUID,
+  match_count INT DEFAULT 8
+)
+RETURNS TABLE (
+  id UUID,
+  document_id UUID,
+  page_number INT,
+  chunk_index INT,
+  content TEXT,
+  rank FLOAT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    c.id,
+    c.document_id,
+    c.page_number,
+    c.chunk_index,
+    c.content,
+    ts_rank(c.fts, plainto_tsquery('english', query_text))::FLOAT AS rank
+  FROM public.chunks c
+  WHERE c.document_id = doc_id
+    AND c.fts @@ plainto_tsquery('english', query_text)
+  ORDER BY ts_rank(c.fts, plainto_tsquery('english', query_text)) DESC
+  LIMIT match_count;
+END;
+$$;
+
+-- 12. HYBRID MATCH FUNCTION (Reciprocal Rank Fusion k=60)
+CREATE OR REPLACE FUNCTION public.match_chunks_hybrid (
+  query_text TEXT,
+  query_embedding vector(768),
+  doc_id UUID,
+  match_count INT DEFAULT 8
+)
+RETURNS TABLE (
+  id UUID,
+  document_id UUID,
+  page_number INT,
+  chunk_index INT,
+  content TEXT,
+  vector_score FLOAT,
+  fts_score FLOAT,
+  rrf_score FLOAT
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  WITH vector_ranks AS (
+    SELECT
+      c.id,
+      c.document_id,
+      c.page_number,
+      c.chunk_index,
+      c.content,
+      (1 - (c.embedding <=> query_embedding))::FLOAT AS v_score,
+      ROW_NUMBER() OVER (ORDER BY c.embedding <=> query_embedding ASC) AS v_rank
+    FROM public.chunks c
+    WHERE c.document_id = doc_id
+    LIMIT 20
+  ),
+  fts_ranks AS (
+    SELECT
+      c.id,
+      c.document_id,
+      c.page_number,
+      c.chunk_index,
+      c.content,
+      ts_rank(c.fts, plainto_tsquery('english', query_text))::FLOAT AS f_score,
+      ROW_NUMBER() OVER (ORDER BY ts_rank(c.fts, plainto_tsquery('english', query_text)) DESC) AS f_rank
+    FROM public.chunks c
+    WHERE c.document_id = doc_id
+      AND c.fts @@ plainto_tsquery('english', query_text)
+    LIMIT 20
+  )
+  SELECT
+    COALESCE(v.id, f.id) AS id,
+    COALESCE(v.document_id, f.document_id) AS document_id,
+    COALESCE(v.page_number, f.page_number) AS page_number,
+    COALESCE(v.chunk_index, f.chunk_index) AS chunk_index,
+    COALESCE(v.content, f.content) AS content,
+    COALESCE(v.v_score, 0.0) AS vector_score,
+    COALESCE(f.f_score, 0.0) AS fts_score,
+    (COALESCE(1.0 / (60.0 + v.v_rank), 0.0) + COALESCE(1.0 / (60.0 + f.f_rank), 0.0))::FLOAT AS rrf_score
+  FROM vector_ranks v
+  FULL OUTER JOIN fts_ranks f ON v.id = f.id
+  ORDER BY rrf_score DESC
+  LIMIT match_count;
+END;
+$$;
+

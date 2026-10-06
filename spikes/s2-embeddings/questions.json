@@ -1,0 +1,102 @@
+[
+  {
+    "id": "Q-01",
+    "question": "What are the budget estimates and expenditure summary in NDMC budget?",
+    "expectedPage": 33
+  },
+  {
+    "id": "Q-02",
+    "question": "What upgradation initiatives are planned for the education department and schools?",
+    "expectedPage": 46
+  },
+  {
+    "id": "Q-03",
+    "question": "What is the single sign on app initiative for the education department?",
+    "expectedPage": 48
+  },
+  {
+    "id": "Q-04",
+    "question": "What solar power and electricity distribution improvements are budgeted?",
+    "expectedPage": 49
+  },
+  {
+    "id": "Q-05",
+    "question": "What improvements are planned for street lighting in the NDMC area?",
+    "expectedPage": 51
+  },
+  {
+    "id": "Q-06",
+    "question": "What measures are taken for road safety, signages, and communication network?",
+    "expectedPage": 54
+  },
+  {
+    "id": "Q-07",
+    "question": "What is the cycle in city smart commuting project?",
+    "expectedPage": 58
+  },
+  {
+    "id": "Q-08",
+    "question": "How is construction and demolition C&D waste management transported and processed?",
+    "expectedPage": 61
+  },
+  {
+    "id": "Q-09",
+    "question": "What augmentation is planned for water storage capacity and supply sustainability?",
+    "expectedPage": 64
+  },
+  {
+    "id": "Q-10",
+    "question": "How many drainage systems in NDMC area are being rehabilitated?",
+    "expectedPage": 70
+  },
+  {
+    "id": "Q-11",
+    "question": "What milestones are planned for digitization of municipal records?",
+    "expectedPage": 77
+  },
+  {
+    "id": "Q-12",
+    "question": "What mobile version is being developed for citizen-centric services?",
+    "expectedPage": 84
+  },
+  {
+    "id": "Q-13",
+    "question": "What allocations and improvements are proposed for medical services and hospital analyzers?",
+    "expectedPage": 88
+  },
+  {
+    "id": "Q-14",
+    "question": "What budget is allocated towards improvement of AYUSH department services?",
+    "expectedPage": 90
+  },
+  {
+    "id": "Q-15",
+    "question": "What night cleaning operations are implemented for maximum efficiency and minimum disruption?",
+    "expectedPage": 91
+  },
+  {
+    "id": "Q-16",
+    "question": "What waste segregation centers and sanitation challenges are being established?",
+    "expectedPage": 94
+  },
+  {
+    "id": "Q-17",
+    "question": "How are sanitation operations being mechanized with mechanical sweepers?",
+    "expectedPage": 95
+  },
+  {
+    "id": "Q-18",
+    "question": "What development is planned for green strips and horticulture in barren stretches?",
+    "expectedPage": 97
+  },
+  {
+    "id": "Q-19",
+    "question": "What equipment including tree pruning machines is maintained for green cover?",
+    "expectedPage": 98
+  },
+  {
+    "id": "Q-20",
+    "question": "What disaster management group and resilient NDMC framework is established?",
+    "expectedPage": 106
+  }
+]
