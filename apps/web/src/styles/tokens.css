@@ -1,0 +1,173 @@
+/**
+ * Juris Design System - Design Tokens (CSS Variables)
+ * Calm, precise, document-like aesthetic for legal & civic intelligence.
+ */
+
+:root {
+  /* Core Color Palette (Light) */
+  --bg: #F7F9FC;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --border: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-strong: #CBD5E1;
+
+  /* Typography Colors */
+  --text: #0F172A;
+  --text-muted: #475569;
+  --text-subtle: #64748B;
+  --text-inverse: #FFFFFF;
+
+  /* Brand & Actions */
+  --brand-navy: #12294A;
+  --brand-navy-hover: #0E1F38;
+  --accent-teal: #0F766E;
+  --accent-teal-hover: #115E59;
+  --accent-teal-subtle: #F0FDFA;
+  --accent-teal-border: #99F6E4;
+
+  /* Verification States (Semantic) */
+  --verified: #15803D;
+  --verified-bg: #F0FDF4;
+  --verified-border: #BBF7D0;
+
+  --unverified: #B45309;
+  --unverified-bg: #FFFBEB;
+  --unverified-border: #FDE68A;
+
+  --failed: #B91C1C;
+  --failed-bg: #FEF2F2;
+  --failed-border: #FECACA;
+
+  /* Quote & Highlighting */
+  --quote-highlight: rgba(253, 230, 138, 0.6);
+  --quote-highlight-solid: #FEF3C7;
+  --quote-border: #D97706;
+
+  /* Interactive States */
+  --focus-ring: #0F766E;
+  --focus-ring-offset: #FFFFFF;
+  --disabled-bg: #E2E8F0;
+  --disabled-text: #94A3B8;
+  --disabled-border: #CBD5E1;
+
+  /* Component Specifics */
+  --card-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+  --dialog-overlay: rgba(15, 23, 42, 0.4);
+
+  /* Typography Font Stacks */
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Touch & Spacing Metrics */
+  --min-touch-target: 44px;
+}
+
+/* Dark Theme Variables */
+.dark,
+[data-theme="dark"] {
+  --bg: #0A1424;
+  --surface: #101C30;
+  --surface-raised: #182844;
+  --border: #1E2D47;
+  --border-subtle: #142238;
+  --border-strong: #2A3F64;
+
+  --text: #E6EDF7;
+  --text-muted: #9FB0C8;
+  --text-subtle: #7E93B0;
+  --text-inverse: #0A1424;
+
+  --brand-navy: #8FB4F0;
+  --brand-navy-hover: #A6C5F5;
+  --accent-teal: #2DD4BF;
+  --accent-teal-hover: #5EEAD4;
+  --accent-teal-subtle: #082F2C;
+  --accent-teal-border: #134E48;
+
+  --verified: #4ADE80;
+  --verified-bg: #052E16;
+  --verified-border: #166534;
+
+  --unverified: #FBBF24;
+  --unverified-bg: #451A03;
+  --unverified-border: #854D0E;
+
+  --failed: #F87171;
+  --failed-bg: #450A0A;
+  --failed-border: #991B1B;
+
+  --quote-highlight: rgba(251, 191, 36, 0.35);
+  --quote-highlight-solid: #2B210B;
+  --quote-border: #F59E0B;
+
+  --focus-ring: #2DD4BF;
+  --focus-ring-offset: #101C30;
+  --disabled-bg: #1A273D;
+  --disabled-text: #4C5F7A;
+  --disabled-border: #23344E;
+
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+  --dialog-overlay: rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]):not(.light) {
+    --bg: #0A1424;
+    --surface: #101C30;
+    --surface-raised: #182844;
+    --border: #1E2D47;
+    --border-subtle: #142238;
+    --border-strong: #2A3F64;
+
+    --text: #E6EDF7;
+    --text-muted: #9FB0C8;
+    --text-subtle: #7E93B0;
+    --text-inverse: #0A1424;
+
+    --brand-navy: #8FB4F0;
+    --brand-navy-hover: #A6C5F5;
+    --accent-teal: #2DD4BF;
+    --accent-teal-hover: #5EEAD4;
+    --accent-teal-subtle: #082F2C;
+    --accent-teal-border: #134E48;
+
+    --verified: #4ADE80;
+    --verified-bg: #052E16;
+    --verified-border: #166534;
+
+    --unverified: #FBBF24;
+    --unverified-bg: #451A03;
+    --unverified-border: #854D0E;
+
+    --failed: #F87171;
+    --failed-bg: #450A0A;
+    --failed-border: #991B1B;
+
+    --quote-highlight: rgba(251, 191, 36, 0.35);
+    --quote-highlight-solid: #2B210B;
+    --quote-border: #F59E0B;
+
+    --focus-ring: #2DD4BF;
+    --focus-ring-offset: #101C30;
+    --disabled-bg: #1A273D;
+    --disabled-text: #4C5F7A;
+    --disabled-border: #23344E;
+
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+    --dialog-overlay: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
