@@ -1,0 +1,120 @@
+{
+  "document": "docs/pdf/budget-speech-2026-27-english.pdf",
+  "documentTitle": "NDMC Budget Speech 2026-27",
+  "totalPages": 114,
+  "status": "pending human review",
+  "items": [
+    {
+      "id": "GOLD-01",
+      "question": "What is the Budget Estimate (BE 2026-27) for revenue receipts in NDMC area?",
+      "expectedAnswerType": "numeric_currency",
+      "expectedValue": 5211.92,
+      "expectedUnit": "crore",
+      "expectedCurrency": "INR",
+      "expectedPage": 33,
+      "verbatimQuote": "The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-02",
+      "question": "What was the Revised Estimate (RE 2025-26) for revenue receipts?",
+      "expectedAnswerType": "numeric_currency",
+      "expectedValue": 4964.73,
+      "expectedUnit": "crore",
+      "expectedCurrency": "INR",
+      "expectedPage": 33,
+      "verbatimQuote": "against Rs.4964.73 Crore provided in RE 2025-26",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-03",
+      "question": "What digital application initiative is launched for the Education Department?",
+      "expectedAnswerType": "text_initiative",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": 48,
+      "verbatimQuote": "Single Sign On App for education department",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-04",
+      "question": "What is the primary objective of road restoration works and communication network upgrades?",
+      "expectedAnswerType": "text_initiative",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": 54,
+      "verbatimQuote": "reduce costs and minimize road restoration works",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-05",
+      "question": "What civic landmark illumination project is scheduled for completion in FY 2026-27?",
+      "expectedAnswerType": "text_initiative",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": 62,
+      "verbatimQuote": "Clock tower is being procured in the next FY 2026-27",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-06",
+      "question": "What is the main objective of augmenting water storage capacity in NDMC area?",
+      "expectedAnswerType": "text_initiative",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": 64,
+      "verbatimQuote": "maintain consistency of potable water distribution",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-07",
+      "question": "What capital outlay is allocated towards improvement of Medical Services Department?",
+      "expectedAnswerType": "numeric_currency",
+      "expectedValue": 12.71,
+      "expectedUnit": "crore",
+      "expectedCurrency": "INR",
+      "expectedPage": 88,
+      "verbatimQuote": "Rs.12.71 crore towards Capital Expenditure",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-08",
+      "question": "What revenue expenditure outlay is allocated for the Medical Services Department?",
+      "expectedAnswerType": "numeric_currency",
+      "expectedValue": 105.62,
+      "expectedUnit": "crore",
+      "expectedCurrency": "INR",
+      "expectedPage": 88,
+      "verbatimQuote": "Rs.105.62 crore towards Revenue Expenditure",
+      "unanswerable": false
+    },
+    {
+      "id": "GOLD-09",
+      "question": "What is the corporate tax exemption rate for foreign cryptocurrency mining entities operating in special economic zones?",
+      "expectedAnswerType": "abstention",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": -1,
+      "verbatimQuote": "",
+      "unanswerable": true,
+      "abstentionReason": "Not mentioned in the document. The document does not discuss foreign cryptocurrency mining tax exemptions."
+    },
+    {
+      "id": "GOLD-10",
+      "question": "What is the specific municipal property tax rebate percentage for electric vehicle charging stations in Zurich canton?",
+      "expectedAnswerType": "abstention",
+      "expectedValue": null,
+      "expectedUnit": null,
+      "expectedCurrency": null,
+      "expectedPage": -1,
+      "verbatimQuote": "",
+      "unanswerable": true,
+      "abstentionReason": "Not mentioned in the document. The document relates to the New Delhi Municipal Council, not Swiss municipal tax rates."
+    }
+  ]
+}
