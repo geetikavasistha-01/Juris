@@ -1,4 +1,12 @@
 {
+  "_provenance": {
+    "model": "synthetic-script-extractor",
+    "prompt_version": "synth-v1",
+    "timestamp": "2026-10-06T20:00:00Z",
+    "request_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "synthetic": true,
+    "status": "deprecated_synthetic"
+  },
   "documentTitle": "NDMC Budget Speech 2026-27",
   "documentType": "budget",
   "summary": "New Delhi Municipal Council (NDMC) Budget Speech 2026-27 outlining municipal finances, capital outlays, power distribution, water augmentation, health, education, and civic infrastructure.",

@@ -19,6 +19,7 @@
     "scan:secrets": "secretlint \"**/*\"",
     "check:requirements": "node scripts/check-requirements.mjs",
     "check:forbidden": "node scripts/check-forbidden.mjs",
+    "check:fixtures": "node scripts/check-fixtures.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "prepare": "husky"
