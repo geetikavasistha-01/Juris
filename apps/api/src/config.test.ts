@@ -32,7 +32,7 @@ describe('apps/api config', () => {
       SUPABASE_URL: 'https://xyzcompany.supabase.co',
       SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key_for_test',
       SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_service_key_for_test',
-      GEMINI_API_KEY: 'AIzaSyA_dummy_gemini_key_for_prod_test_min_len',
+      GEMINI_API_KEY: 'test_gemini_api_key_for_production_min_len',
       GEMINI_MODEL: 'gemini-1.5-pro',
       LLM_MODE: 'live',
       EMBEDDING_PROVIDER: 'hosted',
