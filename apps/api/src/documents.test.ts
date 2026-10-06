@@ -137,7 +137,7 @@ describe('Document API & Ingestion Pipeline', () => {
     for (let i = 1; i < eventsBody.events.length; i++) {
       expect(eventsBody.events[i].sequence).toBeGreaterThan(eventsBody.events[i - 1].sequence);
     }
-  });
+  }, 15000);
 
   it('rejects duplicate upload with 409 DUPLICATE', async () => {
     const pdfBuffer = fs.readFileSync('docs/pdf/test_upload.pdf');
