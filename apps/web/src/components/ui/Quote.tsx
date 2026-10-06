@@ -20,7 +20,7 @@ export const Quote: React.FC<QuoteProps> = ({
       <div className="italic select-text">{children}</div>
       {(page !== undefined || citation) && (
         <div className="mt-2 flex items-center justify-end">
-          <span className="text-caption font-mono text-text-muted bg-surface/80 px-2 py-0.5 rounded border border-border tabular-nums select-none">
+          <span className="text-caption font-mono text-text bg-surface px-2 py-0.5 rounded border border-border tabular-nums select-none">
             {citation ? citation : `Source: p. ${page}`}
           </span>
         </div>
