@@ -1,0 +1,60 @@
+{
+  "spike": "S6",
+  "totalStages": 10,
+  "receivedStages": 10,
+  "finalSequence": 10,
+  "missedRecoveredCount": 3,
+  "stagesObserved": [
+    {
+      "seq": 1,
+      "stage": "validating",
+      "progress": 10
+    },
+    {
+      "seq": 2,
+      "stage": "extracting",
+      "progress": 20
+    },
+    {
+      "seq": 3,
+      "stage": "chunking",
+      "progress": 30
+    },
+    {
+      "seq": 4,
+      "stage": "embedding",
+      "progress": 40
+    },
+    {
+      "seq": 5,
+      "stage": "classification",
+      "progress": 50
+    },
+    {
+      "seq": 6,
+      "stage": "fact_extraction",
+      "progress": 60
+    },
+    {
+      "seq": 7,
+      "stage": "verification",
+      "progress": 70
+    },
+    {
+      "seq": 8,
+      "stage": "synthesis",
+      "progress": 80
+    },
+    {
+      "seq": 9,
+      "stage": "building_visuals",
+      "progress": 90
+    },
+    {
+      "seq": 10,
+      "stage": "done",
+      "progress": 100
+    }
+  ],
+  "passed": true
+}
