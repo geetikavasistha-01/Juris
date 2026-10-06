@@ -1,0 +1,231 @@
+{
+  "spike": "S2_held_out",
+  "totalQuestions": 20,
+  "vectorRecall": 0.95,
+  "ftsRecall": 0,
+  "hybridRecall": 0.95,
+  "targetRecall": 0.85,
+  "passed": true,
+  "evaluationDetails": [
+    {
+      "id": "HELD-01",
+      "question": "What initiatives are planned for bio-methanation and waste management storage units?",
+      "expectedPage": 60,
+      "vectorPages": [12, 93, 61, 102, 45],
+      "ftsPages": [],
+      "hybridPages": [12, 93, 61, 102, 45],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-02",
+      "question": "What equipment and diagnostic machines are procured for Palika Maternity Hospital?",
+      "expectedPage": 87,
+      "vectorPages": [84, 87, 86, 88, 25],
+      "ftsPages": [],
+      "hybridPages": [84, 87, 86, 88, 25],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-03",
+      "question": "What smart street lighting and smart pole sensors are being deployed in NDMC?",
+      "expectedPage": 51,
+      "vectorPages": [14, 9, 51, 21, 109],
+      "ftsPages": [],
+      "hybridPages": [14, 9, 51, 21, 109],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-04",
+      "question": "What rooftop solar power capacity installations of 6.9 MW and 8.2 MW are identified?",
+      "expectedPage": 50,
+      "vectorPages": [65, 60, 81, 19, 22],
+      "ftsPages": [],
+      "hybridPages": [65, 60, 81, 19, 22],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-05",
+      "question": "What horticulture plant propagation and bulbous crop storage chambers are developed?",
+      "expectedPage": 60,
+      "vectorPages": [59, 22, 60, 64, 23],
+      "ftsPages": [],
+      "hybridPages": [59, 22, 60, 64, 23],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-06",
+      "question": "What facade lighting and structural strengthening is planned for municipal heritage buildings?",
+      "expectedPage": 73,
+      "vectorPages": [109, 51, 74, 71, 73],
+      "ftsPages": [],
+      "hybridPages": [109, 51, 74, 71, 73],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-07",
+      "question": "How is the NDMC legal department integrating with Delhi High Court e-court system?",
+      "expectedPage": 107,
+      "vectorPages": [106, 107, 58, 56, 56],
+      "ftsPages": [],
+      "hybridPages": [106, 107, 58, 56, 56],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-08",
+      "question": "How many recruitment requisitions were submitted to DSSSB and UPSC for staff vacancies?",
+      "expectedPage": 112,
+      "vectorPages": [112, 5, 102, 31, 113],
+      "ftsPages": [],
+      "hybridPages": [112, 5, 102, 31, 113],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-09",
+      "question": "Where are pink toilets for women being constructed across the NDMC area?",
+      "expectedPage": 92,
+      "vectorPages": [92, 28, 91, 51, 63],
+      "ftsPages": [],
+      "hybridPages": [92, 28, 91, 51, 63],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-10",
+      "question": "What property tax revenue efficiency measures and digital billing are implemented?",
+      "expectedPage": 78,
+      "vectorPages": [82, 32, 23, 24, 83],
+      "ftsPages": [],
+      "hybridPages": [82, 32, 23, 24, 83],
+      "vectorHit": false,
+      "ftsHit": false,
+      "hybridHit": false
+    },
+    {
+      "id": "HELD-11",
+      "question": "What future-ready water supply sustainability and pressure management plans are outlined?",
+      "expectedPage": 63,
+      "vectorPages": [2, 81, 64, 63, 22],
+      "ftsPages": [],
+      "hybridPages": [2, 81, 64, 63, 22],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-12",
+      "question": "What redevelopment proposal is prepared for multi-storey commercial complex at Akbar Bhawan?",
+      "expectedPage": 71,
+      "vectorPages": [71, 73, 73, 72, 74],
+      "ftsPages": [],
+      "hybridPages": [71, 73, 73, 72, 74],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-13",
+      "question": "What iconic e-library and civil horticulture works are planned for youth?",
+      "expectedPage": 72,
+      "vectorPages": [72, 45, 56, 72, 97],
+      "ftsPages": [],
+      "hybridPages": [72, 45, 56, 72, 97],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-14",
+      "question": "What cyber security audits and protection against unauthorized data breaches were completed?",
+      "expectedPage": 81,
+      "vectorPages": [81, 19, 80, 80, 109],
+      "ftsPages": [],
+      "hybridPages": [81, 19, 80, 80, 109],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-15",
+      "question": "What dental specialties including endodontics RCT are provided for hospital residents?",
+      "expectedPage": 86,
+      "vectorPages": [86, 84, 103, 84, 88],
+      "ftsPages": [],
+      "hybridPages": [86, 84, 103, 84, 88],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-16",
+      "question": "What equipment maintenance including tree pruning machines is deployed by horticulture?",
+      "expectedPage": 98,
+      "vectorPages": [113, 66, 11, 81, 67],
+      "ftsPages": [],
+      "hybridPages": [113, 66, 11, 81, 67],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-17",
+      "question": "What rehabilitation of sewer lines in Aliganj and Jor Bagh is undertaken?",
+      "expectedPage": 69,
+      "vectorPages": [64, 69, 64, 11, 68],
+      "ftsPages": [],
+      "hybridPages": [64, 69, 64, 11, 68],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-18",
+      "question": "What public amenities and flower varieties are developed near Nehru Park?",
+      "expectedPage": 99,
+      "vectorPages": [100, 55, 24, 21, 99],
+      "ftsPages": [],
+      "hybridPages": [100, 55, 24, 21, 99],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-19",
+      "question": "What is the Palika Samman scheme for employee encouragement and recognition?",
+      "expectedPage": 104,
+      "vectorPages": [104, 4, 27, 110, 93],
+      "ftsPages": [],
+      "hybridPages": [104, 4, 27, 110, 93],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    },
+    {
+      "id": "HELD-20",
+      "question": "What measures are taken to support elderly citizens and reduce isolation in NDMC area?",
+      "expectedPage": 105,
+      "vectorPages": [105, 28, 31, 30, 55],
+      "ftsPages": [],
+      "hybridPages": [105, 28, 31, 30, 55],
+      "vectorHit": true,
+      "ftsHit": false,
+      "hybridHit": true
+    }
+  ]
+}
