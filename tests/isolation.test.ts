@@ -98,7 +98,78 @@ describe('Spike S7: Multi-Tenant & RLS Isolation Verification', () => {
       .single();
     expect(docACheck.original_name).toBe('private_budget_a.pdf'); // Unmodified
 
-    // 5. Test Sample Documents (Public Read)
+    // 5. Test RPC Isolation (match_chunks, match_chunks_fts, match_chunks_hybrid)
+    // Insert private chunks for Doc A
+    const dummyEmbedding = Array(768).fill(0.01);
+    await clientA.from('chunks').insert({
+      document_id: docA.id,
+      owner_id: userA_id,
+      page_number: 1,
+      chunk_index: 0,
+      content: 'Confidential strategic financial data for Account A only',
+      embedding: dummyEmbedding,
+      embedding_model: 'text-embedding-004',
+    });
+
+    // User A can query their own chunks via RPCs
+    const { data: aVector } = await clientA.rpc('match_chunks', {
+      query_embedding: dummyEmbedding,
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(aVector).toBeDefined();
+    expect(aVector?.length).toBeGreaterThan(0);
+
+    const { data: aFts } = await clientA.rpc('match_chunks_fts', {
+      query_text: 'Confidential strategic',
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(aFts).toBeDefined();
+    expect(aFts?.length).toBeGreaterThan(0);
+
+    const { data: aHybrid } = await clientA.rpc('match_chunks_hybrid', {
+      query_text: 'Confidential strategic',
+      query_embedding: dummyEmbedding,
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(aHybrid).toBeDefined();
+    expect(aHybrid?.length).toBeGreaterThan(0);
+
+    // User B attempts to call RPCs with User A's doc_id -> MUST return 0 rows
+    const { data: bVector } = await clientB.rpc('match_chunks', {
+      query_embedding: dummyEmbedding,
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(bVector).toHaveLength(0);
+
+    const { data: bFts } = await clientB.rpc('match_chunks_fts', {
+      query_text: 'Confidential strategic',
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(bFts).toHaveLength(0);
+
+    const { data: bHybrid } = await clientB.rpc('match_chunks_hybrid', {
+      query_text: 'Confidential strategic',
+      query_embedding: dummyEmbedding,
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(bHybrid).toHaveLength(0);
+
+    // Anonymous caller attempts to call RPCs on User A's private doc
+    const anonClient = createClient(config.API_URL, config.ANON_KEY);
+    const { data: anonVector, error: anonVecErr } = await anonClient.rpc('match_chunks', {
+      query_embedding: dummyEmbedding,
+      doc_id: docA.id,
+      match_count: 5,
+    });
+    expect(anonVector === null || anonVector.length === 0 || !!anonVecErr).toBe(true);
+
+    // 6. Test Sample Documents (Public Read)
     const { data: sampleDoc } = await adminClient
       .from('documents')
       .insert({
@@ -113,12 +184,33 @@ describe('Spike S7: Multi-Tenant & RLS Isolation Verification', () => {
       .select()
       .single();
 
+    // Insert public sample chunk
+    await adminClient.from('chunks').insert({
+      document_id: sampleDoc.id,
+      owner_id: userA_id,
+      page_number: 1,
+      chunk_index: 0,
+      content: 'Public open civic budget data for all citizens',
+      embedding: dummyEmbedding,
+      embedding_model: 'text-embedding-004',
+    });
+
     const { data: publicDocsForB } = await clientB
       .from('documents')
       .select('*')
       .eq('id', sampleDoc.id);
     expect(publicDocsForB).toHaveLength(1);
     expect(publicDocsForB![0].original_name).toBe('public_sample_budget.pdf');
+
+    // User B querying sample doc chunks via RPC
+    const { data: bSampleChunks } = await clientB.rpc('match_chunks_hybrid', {
+      query_text: 'Public open civic',
+      query_embedding: dummyEmbedding,
+      doc_id: sampleDoc.id,
+      match_count: 5,
+    });
+    expect(bSampleChunks).toBeDefined();
+    expect(bSampleChunks?.length).toBeGreaterThan(0);
 
     // Cleanup
     await adminClient.from('documents').delete().eq('id', docA.id);

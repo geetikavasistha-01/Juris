@@ -27,12 +27,14 @@ async function runS6Spike() {
   const serviceRoleKey = config.SERVICE_ROLE_KEY;
   const anonKey = config.ANON_KEY;
 
-  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const adminSupabase = createClient(supabaseUrl, serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 
   console.info('1. Creating test user & document in Supabase Postgres...');
   const testEmail = `realtime_test_${Date.now()}@juris.local`;
   const testPassword = 'Password123!Secure';
-  const { data: userData, error: userErr } = await supabase.auth.admin.createUser({
+  const { data: userData, error: userErr } = await adminSupabase.auth.admin.createUser({
     email: testEmail,
     password: testPassword,
     email_confirm: true,
@@ -45,7 +47,10 @@ async function runS6Spike() {
   const ownerId = userData.user.id;
 
   // Sign in to obtain access_token for browser client RLS authentication
-  const { data: authSession, error: authErr } = await supabase.auth.signInWithPassword({
+  const userClient = createClient(supabaseUrl, anonKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data: authSession, error: authErr } = await userClient.auth.signInWithPassword({
     email: testEmail,
     password: testPassword,
   });
@@ -56,7 +61,7 @@ async function runS6Spike() {
   }
   const accessToken = authSession.session.access_token;
 
-  const { data: doc, error: docErr } = await supabase
+  const { data: doc, error: docErr } = await adminSupabase
     .from('documents')
     .insert({
       owner_id: ownerId,
@@ -79,7 +84,7 @@ async function runS6Spike() {
   const jobId = '11111111-1111-1111-1111-111111111111';
 
   // Create job row
-  await supabase.from('jobs').insert({
+  await adminSupabase.from('jobs').insert({
     id: jobId,
     document_id: documentId,
     owner_id: ownerId,
@@ -140,30 +145,28 @@ async function runS6Spike() {
     },
   );
 
-  // Wait for stage 3 to arrive via live WebSocket
+  // Wait for stage 2 or 3 to arrive via live WebSocket
   await page.waitForFunction(
     () => {
       const win = window as unknown as { __REALTIME_STATE__?: { lastSequence?: number } };
-      return (win.__REALTIME_STATE__?.lastSequence || 0) >= 3;
+      return (win.__REALTIME_STATE__?.lastSequence || 0) >= 2;
     },
     { timeout: 15000 },
   );
 
   console.info(
-    '   - Live WebSocket events verified for initial stages (validating -> extracting -> chunking).',
+    '   - Live WebSocket events verified for initial stages (validating -> extracting).',
   );
 
   // 5. Inject disconnect
-  console.info(
-    '5. Injecting intentional WebSocket disconnect at Stage 3 (simulating network dropout)...',
-  );
+  console.info('5. Injecting intentional WebSocket disconnect (simulating network dropout)...');
   await page.evaluate(() => {
     const win = window as unknown as { simulateDisconnect: () => Promise<void> };
     return win.simulateDisconnect();
   });
 
-  // Wait 1.2s for worker to publish stages 4 (embedding), 5 (classification), 6 (fact_extraction)
-  await new Promise((resolve) => setTimeout(resolve, 1200));
+  // Wait 1.5s for worker to publish stages 3, 4, 5, 6
+  await new Promise((resolve) => setTimeout(resolve, 1500));
 
   // 6. Trigger Polling Recovery
   console.info(
@@ -229,7 +232,7 @@ async function runS6Spike() {
   server.close();
 
   // Cleanup test doc
-  await supabase.from('documents').delete().eq('id', documentId);
+  await adminSupabase.from('documents').delete().eq('id', documentId);
 
   const passed =
     finalState.events.length === 10 &&

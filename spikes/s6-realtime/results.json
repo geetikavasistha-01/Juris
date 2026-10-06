@@ -3,7 +3,7 @@
   "totalStages": 10,
   "receivedStages": 10,
   "finalSequence": 10,
-  "missedRecoveredCount": 3,
+  "missedRecoveredCount": 4,
   "stagesObserved": [
     {
       "seq": 1,

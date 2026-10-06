@@ -259,9 +259,9 @@ CREATE POLICY "Users can access their own messages"
   USING (auth.uid() = owner_id);
 
 -- Jobs & Job Events RLS
-CREATE POLICY "Users can view their own jobs"
+CREATE POLICY "Users can manage their own jobs"
   ON public.jobs
-  FOR SELECT
+  FOR ALL
   USING (auth.uid() = owner_id);
 
 CREATE POLICY "Users can view their own job events"
@@ -273,7 +273,7 @@ CREATE POLICY "Users can view their own job events"
 ALTER TABLE public.job_events REPLICA IDENTITY FULL;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.job_events;
 
--- 10. VECTOR MATCH FUNCTION (pgvector cosine similarity)
+-- 10. VECTOR MATCH FUNCTION (pgvector cosine similarity, SECURITY INVOKER enforces RLS)
 CREATE OR REPLACE FUNCTION public.match_chunks (
   query_embedding vector(768),
   doc_id UUID,
@@ -288,7 +288,7 @@ RETURNS TABLE (
   similarity FLOAT
 )
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 AS $$
 BEGIN
   RETURN QUERY
@@ -301,12 +301,12 @@ BEGIN
     (1 - (c.embedding <=> query_embedding))::FLOAT AS similarity
   FROM public.chunks c
   WHERE c.document_id = doc_id
-  ORDER BY c.embedding <=> query_embedding
+  ORDER BY c.embedding <=> query_embedding ASC
   LIMIT match_count;
 END;
 $$;
 
--- 11. FULL-TEXT SEARCH MATCH FUNCTION (ts_rank ranking)
+-- 11. FULL-TEXT SEARCH MATCH FUNCTION (ts_rank ranking, SECURITY INVOKER enforces RLS)
 CREATE OR REPLACE FUNCTION public.match_chunks_fts (
   query_text TEXT,
   doc_id UUID,
@@ -321,9 +321,20 @@ RETURNS TABLE (
   rank FLOAT
 )
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 AS $$
+DECLARE
+  q tsquery;
 BEGIN
+  BEGIN
+    q := websearch_to_tsquery('english', query_text);
+    IF q IS NULL OR q = ''::tsquery THEN
+      q := plainto_tsquery('english', query_text);
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    q := plainto_tsquery('english', query_text);
+  END;
+
   RETURN QUERY
   SELECT
     c.id,
@@ -331,16 +342,16 @@ BEGIN
     c.page_number,
     c.chunk_index,
     c.content,
-    ts_rank(c.fts, plainto_tsquery('english', query_text))::FLOAT AS rank
+    ts_rank(c.fts, q)::FLOAT AS rank
   FROM public.chunks c
   WHERE c.document_id = doc_id
-    AND c.fts @@ plainto_tsquery('english', query_text)
-  ORDER BY ts_rank(c.fts, plainto_tsquery('english', query_text)) DESC
+    AND c.fts @@ q
+  ORDER BY ts_rank(c.fts, q) DESC
   LIMIT match_count;
 END;
 $$;
 
--- 12. HYBRID MATCH FUNCTION (Reciprocal Rank Fusion k=60)
+-- 12. HYBRID MATCH FUNCTION (Reciprocal Rank Fusion k=60, SECURITY INVOKER enforces RLS)
 CREATE OR REPLACE FUNCTION public.match_chunks_hybrid (
   query_text TEXT,
   query_embedding vector(768),
@@ -358,9 +369,20 @@ RETURNS TABLE (
   rrf_score FLOAT
 )
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 AS $$
+DECLARE
+  q tsquery;
 BEGIN
+  BEGIN
+    q := websearch_to_tsquery('english', query_text);
+    IF q IS NULL OR q = ''::tsquery THEN
+      q := plainto_tsquery('english', query_text);
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    q := plainto_tsquery('english', query_text);
+  END;
+
   RETURN QUERY
   WITH vector_ranks AS (
     SELECT
@@ -373,6 +395,7 @@ BEGIN
       ROW_NUMBER() OVER (ORDER BY c.embedding <=> query_embedding ASC) AS v_rank
     FROM public.chunks c
     WHERE c.document_id = doc_id
+    ORDER BY c.embedding <=> query_embedding ASC
     LIMIT 20
   ),
   fts_ranks AS (
@@ -382,11 +405,12 @@ BEGIN
       c.page_number,
       c.chunk_index,
       c.content,
-      ts_rank(c.fts, plainto_tsquery('english', query_text))::FLOAT AS f_score,
-      ROW_NUMBER() OVER (ORDER BY ts_rank(c.fts, plainto_tsquery('english', query_text)) DESC) AS f_rank
+      ts_rank(c.fts, q)::FLOAT AS f_score,
+      ROW_NUMBER() OVER (ORDER BY ts_rank(c.fts, q) DESC) AS f_rank
     FROM public.chunks c
     WHERE c.document_id = doc_id
-      AND c.fts @@ plainto_tsquery('english', query_text)
+      AND c.fts @@ q
+    ORDER BY ts_rank(c.fts, q) DESC
     LIMIT 20
   )
   SELECT
@@ -404,4 +428,14 @@ BEGIN
   LIMIT match_count;
 END;
 $$;
+
+-- 13. FUNCTION PERMISSIONS & ACCESS CONTROL
+REVOKE EXECUTE ON FUNCTION public.match_chunks FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.match_chunks_fts FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.match_chunks_hybrid FROM PUBLIC, anon;
+
+GRANT EXECUTE ON FUNCTION public.match_chunks TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.match_chunks_fts TO authenticated, service_role;
+GRANT EXECUTE ON FUNCTION public.match_chunks_hybrid TO authenticated, service_role;
+
 
