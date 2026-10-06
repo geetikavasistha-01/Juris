@@ -76,6 +76,36 @@ async function runS3Spike() {
   const budgetReport = await runForPdf('docs/pdf/budget-speech-2026-27-english.pdf', 25, page);
   const uploadReport = await runForPdf('docs/pdf/test_upload.pdf', 18, page);
 
+  // Negative Controls: Verify known-bad quotes and wrong-page matches are strictly rejected
+  console.info('\n--- Testing Negative Controls in PDF.js Text Layer ---');
+  await page.evaluate(async (pdfUrl) => {
+    await window.pdfMatcher.loadDocument(pdfUrl);
+  }, '/docs/pdf/budget-speech-2026-27-english.pdf');
+
+  // Negative Control 1: Altered quote
+  const neg1 = await page.evaluate(async () => {
+    return await window.pdfMatcher.highlightQuote(
+      3,
+      'This is a completely fictitious budget line item that does not exist',
+    );
+  });
+  console.info(`  Negative Control 1 (Fake Quote): success=${neg1.success} (Expected: false)`);
+
+  // Negative Control 2: Wrong page
+  const neg2 = await page.evaluate(async () => {
+    return await window.pdfMatcher.highlightQuote(1, 'Single Sign on (SSO) authentication'); // Appears on page 15, not page 1
+  });
+  console.info(`  Negative Control 2 (Wrong Page): success=${neg2.success} (Expected: false)`);
+
+  const negativeControlsPassed = !neg1.success && !neg2.success;
+  if (!negativeControlsPassed) {
+    console.error(
+      '❌ Negative control check failed: A bad quote was erroneously matched in the DOM!',
+    );
+    process.exit(1);
+  }
+  console.info('  ✅ Negative controls verified: 100% of invalid quotes were rejected.');
+
   await browser.close();
   server.close();
 
