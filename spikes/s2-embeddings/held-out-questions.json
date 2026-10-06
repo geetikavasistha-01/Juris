@@ -1,0 +1,102 @@
+[
+  {
+    "id": "HELD-01",
+    "question": "What initiatives are planned for bio-methanation and waste management storage units?",
+    "expectedPage": 60
+  },
+  {
+    "id": "HELD-02",
+    "question": "What equipment and diagnostic machines are procured for Palika Maternity Hospital?",
+    "expectedPage": 87
+  },
+  {
+    "id": "HELD-03",
+    "question": "What smart street lighting and smart pole sensors are being deployed in NDMC?",
+    "expectedPage": 51
+  },
+  {
+    "id": "HELD-04",
+    "question": "What rooftop solar power capacity installations of 6.9 MW and 8.2 MW are identified?",
+    "expectedPage": 50
+  },
+  {
+    "id": "HELD-05",
+    "question": "What horticulture plant propagation and bulbous crop storage chambers are developed?",
+    "expectedPage": 60
+  },
+  {
+    "id": "HELD-06",
+    "question": "What facade lighting and structural strengthening is planned for municipal heritage buildings?",
+    "expectedPage": 73
+  },
+  {
+    "id": "HELD-07",
+    "question": "How is the NDMC legal department integrating with Delhi High Court e-court system?",
+    "expectedPage": 107
+  },
+  {
+    "id": "HELD-08",
+    "question": "How many recruitment requisitions were submitted to DSSSB and UPSC for staff vacancies?",
+    "expectedPage": 112
+  },
+  {
+    "id": "HELD-09",
+    "question": "Where are pink toilets for women being constructed across the NDMC area?",
+    "expectedPage": 92
+  },
+  {
+    "id": "HELD-10",
+    "question": "What property tax revenue efficiency measures and digital billing are implemented?",
+    "expectedPage": 78
+  },
+  {
+    "id": "HELD-11",
+    "question": "What future-ready water supply sustainability and pressure management plans are outlined?",
+    "expectedPage": 63
+  },
+  {
+    "id": "HELD-12",
+    "question": "What redevelopment proposal is prepared for multi-storey commercial complex at Akbar Bhawan?",
+    "expectedPage": 71
+  },
+  {
+    "id": "HELD-13",
+    "question": "What iconic e-library and civil horticulture works are planned for youth?",
+    "expectedPage": 72
+  },
+  {
+    "id": "HELD-14",
+    "question": "What cyber security audits and protection against unauthorized data breaches were completed?",
+    "expectedPage": 81
+  },
+  {
+    "id": "HELD-15",
+    "question": "What dental specialties including endodontics RCT are provided for hospital residents?",
+    "expectedPage": 86
+  },
+  {
+    "id": "HELD-16",
+    "question": "What equipment maintenance including tree pruning machines is deployed by horticulture?",
+    "expectedPage": 98
+  },
+  {
+    "id": "HELD-17",
+    "question": "What rehabilitation of sewer lines in Aliganj and Jor Bagh is undertaken?",
+    "expectedPage": 69
+  },
+  {
+    "id": "HELD-18",
+    "question": "What public amenities and flower varieties are developed near Nehru Park?",
+    "expectedPage": 99
+  },
+  {
+    "id": "HELD-19",
+    "question": "What is the Palika Samman scheme for employee encouragement and recognition?",
+    "expectedPage": 104
+  },
+  {
+    "id": "HELD-20",
+    "question": "What measures are taken to support elderly citizens and reduce isolation in NDMC area?",
+    "expectedPage": 105
+  }
+]
