@@ -1,0 +1,100 @@
+{
+  "spike": "S1",
+  "mode": "replay",
+  "schemaValid": true,
+  "totalFacts": 8,
+  "verifiedCount": 8,
+  "verificationRate": 100,
+  "passed": true,
+  "analysis": {
+    "documentTitle": "New Delhi Municipal Council Budget Speech 2026-27",
+    "documentType": "budget",
+    "summary": "The New Delhi Municipal Council (NDMC) Budget Speech 2026-27 presents comprehensive civic budget estimates with total expenditure projected at ₹5,810.02 Crore and total revenue receipts of ₹5,211.92 Crore. Key civic investments focus on Electricity/Discom Operations (₹1,966.80 Crore), Education (₹245.93 Crore), Water Supply (₹230.28 Crore), and Road Infrastructure (₹228.87 Crore).",
+    "keyFindings": [
+      "Total projected budget expenditure for BE 2026-27 is Rs.5810.02 Crore against Rs.5484.15 Crore in RE 2025-26.",
+      "Budget Estimates for Revenue Receipts in 2026-27 are Rs.5211.92 Crore.",
+      "Capital expenditure is projected at Rs.943.84 Crore in BE 2026-27 against Rs.586.54 Crore in RE 2025-26.",
+      "Electricity Department is allocated Rs.1966.80 crore with Rs.360.07 crore towards capital expenditure.",
+      "Education Sector is allocated Rs.245.93 crore with Rs.16.99 crore towards capital work."
+    ],
+    "facts": [
+      {
+        "type": "financial_total",
+        "value": 5810.02,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 33,
+        "quote": "The total expenditure for BE 2026-27 are Rs.5810.02 Crore"
+      },
+      {
+        "type": "financial_total",
+        "value": 5211.92,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 33,
+        "quote": "The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 943.84,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 33,
+        "quote": "The capital expenditure is projected at Rs.943.84 Crore in BE 2026-27"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 4866.18,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 33,
+        "quote": "The BE for revenue expenditure in 2026-27 are Rs.4866.18 Crore"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 1966.8,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 54,
+        "quote": "I propose to allocate Rs.1966.80 crore for Electricity Department"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 245.93,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 48,
+        "quote": "NDMC propose to spend a sum of Rs. 245.93 crore towards Education Sector"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 228.87,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 62,
+        "quote": "I propose to allocate Rs. 228.87 crore for Road Department"
+      },
+      {
+        "type": "financial_allocation",
+        "value": 230.28,
+        "unit": "crore",
+        "currency": "INR",
+        "period": "2026-27",
+        "page": 64,
+        "quote": "I propose to allocate Rs.230.28 crore for Water Supply Department"
+      }
+    ],
+    "risks": [
+      "Peak summer electricity demand management and power procurement tariff fluctuation risks.",
+      "Aging underground sewer line infrastructure requiring specialized trenchless rehabilitation.",
+      "Water supply dependence on Delhi Jal Board (DJB) raw bulk supply during short periods."
+    ]
+  }
+}

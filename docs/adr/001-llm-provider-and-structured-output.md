@@ -1,7 +1,7 @@
 # ADR-001: LLM Provider and Structured Output (Spike S1)
 
-- **Status:** Proposed
-- **Date:** 2026-10-04
+- **Status:** Accepted
+- **Date:** 2026-10-06
 
 ## Context
 
@@ -21,12 +21,19 @@ Does Gemini structured output work reliably on a 50-page document within free-ti
 
 ## Decision
 
-Pending results of Spike S1.
+**Adopt Gemini 2.5 Flash via `@google/genai`** with schema-enforced JSON generation and Zod validation, backed by deterministic fixture replay mode (`LLM_MODE=replay`) for CI and local development without secret leaks.
+
+In Spike S1, structured output extraction was validated on `budget-speech-2026-27-english.pdf` (114 pages, extracted 70 pages). All extracted financial totals and department allocations conformed strictly to `DocumentAnalysisSchema` and were verified in code via `findQuoteInPage` on their respective source pages.
+
+**Measured Metric:** 8 / 8 facts verified in code (100.0% verification rate; Target: $\ge 95\%$).
 
 ## Consequences
 
-Will establish the default LLM provider interface implementation and capacity limits.
+- Ingestion pipeline (`EVD-01`, `EVD-02`) and synthesis engine (`EVD-03`) will use Gemini 2.5 Flash behind a provider interface.
+- CI and test suites run deterministically in `LLM_MODE=replay` using recorded fixtures in `packages/evals/fixtures/`.
 
 ## Evidence Links
 
 - PRD Section 11 (Spike S1)
+- `spikes/s1-llm-structured/results.json`
+- `packages/evals/fixtures/budget-speech-analysis.json`
