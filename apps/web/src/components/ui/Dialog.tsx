@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useId } from 'react';
 import { X } from 'lucide-react';
 
 export interface DialogProps {
@@ -19,20 +19,75 @@ export const Dialog: React.FC<DialogProps> = ({
   className = '',
 }) => {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+  const descId = useId();
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Save currently focused element to restore when closing
+    triggerRef.current = document.activeElement as HTMLElement | null;
+
+    const dialogElement = dialogRef.current;
+    if (dialogElement) {
+      // Find first focusable element or default to dialog itself
+      const focusable = dialogElement.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length > 0) {
+        focusable[0]?.focus();
+      } else {
+        dialogElement.focus();
+      }
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && dialogElement) {
+        const focusableElements = Array.from(
+          dialogElement.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((el) => el.offsetParent !== null);
+
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl?.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl?.focus();
+          }
+        }
       }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
+      // Restore focus to trigger element
+      if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+        triggerRef.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 
@@ -44,16 +99,25 @@ export const Dialog: React.FC<DialogProps> = ({
       onClick={onClose}
       aria-modal="true"
       role="dialog"
+      aria-labelledby={titleId}
+      aria-describedby={description ? descId : undefined}
     >
       <div
         ref={dialogRef}
-        className={`w-full max-w-lg bg-surface border border-border rounded-xl shadow-xl p-6 transition-all duration-150 relative ${className}`}
+        tabIndex={-1}
+        className={`w-full max-w-lg bg-surface border border-border rounded-xl shadow-xl p-6 transition-all duration-150 relative focus:outline-none ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between pb-3 mb-3 border-b border-border-subtle">
           <div>
-            <h2 className="text-h3 font-serif font-semibold text-text">{title}</h2>
-            {description && <p className="text-small text-text-muted mt-0.5">{description}</p>}
+            <h2 id={titleId} className="text-h3 font-serif font-semibold text-text">
+              {title}
+            </h2>
+            {description && (
+              <p id={descId} className="text-small text-text-muted mt-0.5">
+                {description}
+              </p>
+            )}
           </div>
           <button
             type="button"

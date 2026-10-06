@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useId } from 'react';
 import { X } from 'lucide-react';
 
 export interface DrawerProps {
@@ -18,19 +18,74 @@ export const Drawer: React.FC<DrawerProps> = ({
   position = 'right',
   className = '',
 }) => {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Save currently focused element to restore when closing
+    triggerRef.current = document.activeElement as HTMLElement | null;
+
+    const drawerElement = drawerRef.current;
+    if (drawerElement) {
+      const focusable = drawerElement.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length > 0) {
+        focusable[0]?.focus();
+      } else {
+        drawerElement.focus();
+      }
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
+        e.preventDefault();
         onClose();
+        return;
+      }
+
+      if (e.key === 'Tab' && drawerElement) {
+        const focusableElements = Array.from(
+          drawerElement.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter((el) => el.offsetParent !== null);
+
+        if (focusableElements.length === 0) {
+          e.preventDefault();
+          return;
+        }
+
+        const firstEl = focusableElements[0];
+        const lastEl = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstEl) {
+            e.preventDefault();
+            lastEl?.focus();
+          }
+        } else {
+          if (document.activeElement === lastEl) {
+            e.preventDefault();
+            firstEl?.focus();
+          }
+        }
       }
     };
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
     return () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
+      // Restore focus to trigger element
+      if (triggerRef.current && typeof triggerRef.current.focus === 'function') {
+        triggerRef.current.focus();
+      }
     };
   }, [isOpen, onClose]);
 
@@ -48,13 +103,18 @@ export const Drawer: React.FC<DrawerProps> = ({
       onClick={onClose}
       aria-modal="true"
       role="dialog"
+      aria-labelledby={titleId}
     >
       <div
-        className={`fixed ${positionStyles[position]} bg-surface border-border shadow-2xl p-6 flex flex-col transition-transform duration-200 ${className}`}
+        ref={drawerRef}
+        tabIndex={-1}
+        className={`fixed ${positionStyles[position]} bg-surface border-border shadow-2xl p-6 flex flex-col transition-transform duration-200 focus:outline-none ${className}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-4 mb-4 border-b border-border-subtle">
-          <h3 className="text-h3 font-serif font-semibold text-text">{title}</h3>
+          <h3 id={titleId} className="text-h3 font-serif font-semibold text-text">
+            {title}
+          </h3>
           <button
             type="button"
             onClick={onClose}

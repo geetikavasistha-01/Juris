@@ -36,6 +36,8 @@ export const Toast: React.FC<ToastProps> = ({
   return (
     <div
       role="alert"
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
+      aria-atomic="true"
       className={`flex items-start gap-3 p-4 bg-surface border rounded-lg shadow-md max-w-sm ${borderStyles[type]} ${className}`}
     >
       {icons[type]}
