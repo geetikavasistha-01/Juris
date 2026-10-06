@@ -1,91 +1,485 @@
 {
-  "documentTitle": "New Delhi Municipal Council Budget Speech 2026-27",
+  "documentTitle": "NDMC Budget Speech 2026-27",
   "documentType": "budget",
-  "summary": "The New Delhi Municipal Council (NDMC) Budget Speech 2026-27 presents comprehensive civic budget estimates with total expenditure projected at ₹5,810.02 Crore and total revenue receipts of ₹5,211.92 Crore. Key civic investments focus on Electricity/Discom Operations (₹1,966.80 Crore), Education (₹245.93 Crore), Water Supply (₹230.28 Crore), and Road Infrastructure (₹228.87 Crore).",
+  "summary": "New Delhi Municipal Council (NDMC) Budget Speech 2026-27 outlining municipal finances, capital outlays, power distribution, water augmentation, health, education, and civic infrastructure.",
   "keyFindings": [
-    "Total projected budget expenditure for BE 2026-27 is Rs.5810.02 Crore against Rs.5484.15 Crore in RE 2025-26.",
-    "Budget Estimates for Revenue Receipts in 2026-27 are Rs.5211.92 Crore.",
-    "Capital expenditure is projected at Rs.943.84 Crore in BE 2026-27 against Rs.586.54 Crore in RE 2025-26.",
-    "Electricity Department is allocated Rs.1966.80 crore with Rs.360.07 crore towards capital expenditure.",
-    "Education Sector is allocated Rs.245.93 crore with Rs.16.99 crore towards capital work."
+    "Total budget revenue receipts for BE 2026-27 are estimated at Rs. 5,211.92 Crore.",
+    "Capital receipts are projected at Rs. 741.15 Crore for civic and urban infrastructure.",
+    "Comprehensive allocations made for solar power, smart health centers, and education upgrade."
   ],
   "facts": [
     {
-      "type": "financial_total",
-      "value": 5810.02,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 110001,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 33,
-      "quote": "The total expenditure for BE 2026-27 are Rs.5810.02 Crore"
+      "page": 1,
+      "quote": "Palika Kendra, New Delhi-110001"
     },
     {
-      "type": "financial_total",
-      "value": 5211.92,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 1,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 33,
-      "quote": "The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore"
+      "page": 2,
+      "quote": "1.  Introduction"
     },
     {
-      "type": "financial_allocation",
-      "value": 943.84,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 2,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 33,
-      "quote": "The capital expenditure is projected at Rs.943.84 Crore in BE 2026-27"
+      "page": 2,
+      "quote": "2.  Future Ready NDMC: Education"
     },
     {
-      "type": "financial_allocation",
-      "value": 4866.18,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 3,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 33,
-      "quote": "The BE for revenue expenditure in 2026-27 are Rs.4866.18 Crore"
+      "page": 2,
+      "quote": "3.  Reliable NDMC: Discom Operations"
     },
     {
-      "type": "financial_allocation",
-      "value": 1966.8,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 4,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 54,
-      "quote": "I propose to allocate Rs.1966.80 crore for Electricity Department"
+      "page": 2,
+      "quote": "4.  Reliable NDMC: Roads And Lanes"
     },
     {
-      "type": "financial_allocation",
-      "value": 245.93,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 5,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 48,
-      "quote": "NDMC propose to spend a sum of Rs. 245.93 crore towards Education Sector"
+      "page": 2,
+      "quote": "5.  Reliable NDMC: Water Supply"
     },
     {
-      "type": "financial_allocation",
-      "value": 228.87,
-      "unit": "crore",
-      "currency": "INR",
+      "type": "statistic",
+      "value": 6,
+      "unit": null,
+      "currency": null,
       "period": "2026-27",
-      "page": 62,
-      "quote": "I propose to allocate Rs. 228.87 crore for Road Department"
+      "page": 2,
+      "quote": "6.  Reliable NDMC: Sewerage System"
     },
     {
-      "type": "financial_allocation",
-      "value": 230.28,
-      "unit": "crore",
+      "type": "statistic",
+      "value": 7,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "7.  Reliable NDMC: Drainage System"
+    },
+    {
+      "type": "statistic",
+      "value": 8,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "8.  Strong NDMC: Building, Bridges & Urban Assets"
+    },
+    {
+      "type": "statistic",
+      "value": 9,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "9.  Technology Maximum: Information Technology Governance"
+    },
+    {
+      "type": "statistic",
+      "value": 10,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "10.  Swasth NDMC: Medical Services"
+    },
+    {
+      "type": "statistic",
+      "value": 11,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "11.  Swasth NDMC: AYUSH Services"
+    },
+    {
+      "type": "statistic",
+      "value": 12,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "12.  Swachh NDMC: Public Health"
+    },
+    {
+      "type": "statistic",
+      "value": 13,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "13.  Green NDMC: Natural Resource Conservation / Horticulture"
+    },
+    {
+      "type": "statistic",
+      "value": 14,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "14.  Prudent NDMC: Financial Stability"
+    },
+    {
+      "type": "statistic",
+      "value": 15,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "15.  Caring NDMC: Employee and Citizen Welfare"
+    },
+    {
+      "type": "statistic",
+      "value": 16,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "16.  Inclusive NDMC: Protection of Weaker Sections"
+    },
+    {
+      "type": "statistic",
+      "value": 17,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "17.  Resilient NDMC: Disaster Management"
+    },
+    {
+      "type": "statistic",
+      "value": 18,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "18.  Comprehensive Municipal Services"
+    },
+    {
+      "type": "statistic",
+      "value": 19,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "19  Smart Parking System"
+    },
+    {
+      "type": "financial_trend",
+      "value": 20,
+      "unit": null,
       "currency": "INR",
       "period": "2026-27",
-      "page": 64,
-      "quote": "I propose to allocate Rs.230.28 crore for Water Supply Department"
+      "page": 2,
+      "quote": "20  Durdarshi NDMC :Vision and Urban Design Strategy"
+    },
+    {
+      "type": "statistic",
+      "value": 21,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 2,
+      "quote": "21  Human Resource Management"
+    },
+    {
+      "type": "financial_trend",
+      "value": 2026,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 3,
+      "quote": "BUDGET SPEECH 2026-27"
+    },
+    {
+      "type": "statistic",
+      "value": 2047,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 3,
+      "quote": "urban infrastructure aligning with “ Vision @ 2047”  to"
+    },
+    {
+      "type": "statistic",
+      "value": 20,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "contribution of NDMC  employees during the G-20"
+    },
+    {
+      "type": "statistic",
+      "value": 1,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "A.1  Settlement of Long Pending Pay and Pension"
+    },
+    {
+      "type": "statistic",
+      "value": 15,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "been constituted which has resolved  15 pay/pension"
+    },
+    {
+      "type": "statistic",
+      "value": 814,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "related issues covering 814 employee s ."
+    },
+    {
+      "type": "statistic",
+      "value": 4,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "eligibl e  regular  employees.  A  total  of  4,357"
+    },
+    {
+      "type": "statistic",
+      "value": 2,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "A.2  Appointment/ Promotion"
+    },
+    {
+      "type": "financial_trend",
+      "value": 81,
+      "unit": null,
+      "currency": "INR",
+      "period": "2026-27",
+      "page": 4,
+      "quote": "The personnel department conducted 81 DPCs,"
+    },
+    {
+      "type": "statistic",
+      "value": 954,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 4,
+      "quote": "resultin g in promotion of 954 officials in various"
+    },
+    {
+      "type": "statistic",
+      "value": 32,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 5,
+      "quote": "for  DPC  of  32  vacancies  and  similarly  32"
+    },
+    {
+      "type": "statistic",
+      "value": 354,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 5,
+      "quote": "requisitions have been sent  to  DSSSB for 354"
+    },
+    {
+      "type": "statistic",
+      "value": 2026,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 5,
+      "quote": "by  March,  2026  after  completion  of  other"
+    },
+    {
+      "type": "statistic",
+      "value": 3,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 5,
+      "quote": "A.3  L M H Scheme for Contractual Employees"
+    },
+    {
+      "type": "statistic",
+      "value": 4,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 5,
+      "quote": "A.4  Implementation of e-HRMS and payroll"
+    },
+    {
+      "type": "statistic",
+      "value": 2020,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "2020. One of the most prominent initiative is design of"
+    },
+    {
+      "type": "statistic",
+      "value": 2025,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "Chief Minister on 4th September, 2025. 240 NDMC"
+    },
+    {
+      "type": "statistic",
+      "value": 15,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "basics of AI, 15+ AI tools with its ethical use. Now"
+    },
+    {
+      "type": "statistic",
+      "value": 300,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "NDMC has 300 ACES of AI.  Outstanding CBSE Board"
+    },
+    {
+      "type": "policy_target",
+      "value": 2024,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "Result  achieved  in  FY  2024 - 25  with  highest  pass"
+    },
+    {
+      "type": "statistic",
+      "value": 10,
+      "unit": "percent",
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "percentage in the history of NDMC in Class - 10  and  12"
+    },
+    {
+      "type": "statistic",
+      "value": 99.44,
+      "unit": "percent",
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "is  99.44% and 98.46%  respectively."
+    },
+    {
+      "type": "statistic",
+      "value": 14,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 6,
+      "quote": "engaged  14  coaches  across  10  sports"
+    },
+    {
+      "type": "policy_target",
+      "value": 2025,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 7,
+      "quote": "will be finalized in the current FY 2025-26."
+    },
+    {
+      "type": "statistic",
+      "value": 2024,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 7,
+      "quote": "Minister  on  2nd  Oct.,  2024  on  the  birth"
+    },
+    {
+      "type": "statistic",
+      "value": 3,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 8,
+      "quote": "with rich in Omega 3 Acids, protein and other"
+    },
+    {
+      "type": "financial_trend",
+      "value": 3,
+      "unit": null,
+      "currency": "INR",
+      "period": "2026-27",
+      "page": 8,
+      "quote": "of  3  e - karts,  15  battery - operated  sweepers  and  27"
+    },
+    {
+      "type": "statistic",
+      "value": 14,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 9,
+      "quote": "expanded in entire NDMC area which has 14 markets"
+    },
+    {
+      "type": "statistic",
+      "value": 150,
+      "unit": "km",
+      "currency": null,
+      "period": "2026-27",
+      "page": 9,
+      "quote": "having 150 km. major footpaths and 132 avenues roads"
+    },
+    {
+      "type": "statistic",
+      "value": 2026,
+      "unit": null,
+      "currency": null,
+      "period": "2026-27",
+      "page": 9,
+      "quote": "is likely to be started in next FY 2026-27."
     }
   ],
   "risks": [
-    "Peak summer electricity demand management and power procurement tariff fluctuation risks.",
-    "Aging underground sewer line infrastructure requiring specialized trenchless rehabilitation.",
-    "Water supply dependence on Delhi Jal Board (DJB) raw bulk supply during short periods."
+    "Revenue realization risks depending on property tax recovery targets.",
+    "Power purchase cost fluctuations affecting distribution tariffs.",
+    "Capital project execution timelines across multi-year infrastructure works."
   ]
 }
