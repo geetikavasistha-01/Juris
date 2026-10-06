@@ -57,8 +57,16 @@ jobs:
       - name: Verify forbidden words in product code
         run: pnpm run check:forbidden
 
+      - name: Verify design token contracts & contrast
+        run: |
+          pnpm run check:tokens
+          pnpm run check:contrast
+
       - name: Build all workspace packages
         run: pnpm run build
+
+      - name: Verify zero external host dependencies in dist
+        run: pnpm run check:external-hosts
 
       - name: Install Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
