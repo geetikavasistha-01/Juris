@@ -26,12 +26,12 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variantStyles = {
       primary:
-        'bg-accent-teal text-white dark:text-bg font-semibold hover:bg-accent-teal-hover active:opacity-90 shadow-sm',
+        'bg-accent-teal text-[var(--btn-primary-text)] font-semibold hover:bg-accent-teal-hover active:opacity-90 shadow-sm',
       secondary:
         'border border-brand-navy text-brand-navy bg-transparent hover:bg-surface-raised active:bg-border-subtle dark:border-brand-navy dark:text-brand-navy',
       ghost: 'text-text hover:bg-surface-raised active:bg-border-subtle',
       destructive:
-        'bg-failed text-white dark:text-bg font-semibold hover:opacity-90 active:opacity-80 shadow-sm',
+        'bg-failed text-[var(--btn-primary-text)] font-semibold hover:opacity-90 active:opacity-80 shadow-sm',
     };
 
     const sizeStyles = {

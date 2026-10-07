@@ -280,7 +280,12 @@ export const LiveProgressPage: React.FC = () => {
           </span>
         </h3>
 
-        <div className="bg-surface-raised border border-border rounded-lg p-4 font-mono text-xs max-h-64 overflow-y-auto space-y-2">
+        <div
+          role="region"
+          aria-label="Processing event logs"
+          tabIndex={0}
+          className="bg-surface-raised border border-border rounded-lg p-4 font-mono text-xs max-h-64 overflow-y-auto space-y-2 focus:outline-none focus:ring-2 focus:ring-focus-ring"
+        >
           {allEvents.length === 0 ? (
             <p className="text-text-subtle">Waiting for initial stage events...</p>
           ) : (

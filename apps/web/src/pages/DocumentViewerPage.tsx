@@ -173,7 +173,7 @@ export const DocumentViewerPage: React.FC = () => {
                 onClick={() => setFactFilter('all')}
                 className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
                   factFilter === 'all'
-                    ? 'bg-brand-navy text-white shadow-xs'
+                    ? 'bg-brand-navy text-[var(--btn-primary-text)] shadow-xs'
                     : 'text-text-muted hover:text-text bg-surface-raised'
                 }`}
               >
@@ -233,8 +233,17 @@ export const DocumentViewerPage: React.FC = () => {
                 return (
                   <Card
                     key={fact.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Inspect citation for fact on page ${fact.page}: ${fact.quote}`}
                     onClick={() => setSelectedFact(fact)}
-                    className="p-5 cursor-pointer hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        setSelectedFact(fact);
+                      }
+                    }}
+                    className="p-5 cursor-pointer hover:border-border-strong transition-all flex flex-col justify-between space-y-4 shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-accent-teal"
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-3">

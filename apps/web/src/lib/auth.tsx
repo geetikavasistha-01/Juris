@@ -53,7 +53,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInAsGuest = async () => {
-    // Demo / guest mode
+    try {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (!error && data?.user) {
+        setUser(data.user);
+        setSession(data.session);
+        return;
+      }
+    } catch {
+      // Handled by local fallback below
+    }
+
+    // Local demo guest state fallback
     setUser({
       id: '11111111-1111-1111-1111-111111111111',
       app_metadata: {},

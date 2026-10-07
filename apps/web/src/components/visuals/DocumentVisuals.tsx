@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { DocumentFactDetail } from '@juris/shared';
+import {
+  prepareTopAllocationsData,
+  prepareTemporalTrendData,
+  prepareCategoryFactCounts,
+} from '@juris/shared';
 import { loadJurisECharts } from '../../lib/echarts.js';
 import { useTheme } from '../../theme.js';
 import {
@@ -17,7 +22,8 @@ import {
   PieChart,
   Table as TableIcon,
   ShieldCheck,
-  Info,
+  AlertCircle,
+  FileSpreadsheet,
 } from 'lucide-react';
 import type { init as initFn } from 'echarts/core';
 
@@ -39,41 +45,12 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
   const trendChartRef = useRef<HTMLDivElement>(null);
   const treemapChartRef = useRef<HTMLDivElement>(null);
 
-  // Extract numeric facts
-  const numericFacts = facts
-    .filter((f) => f.value !== null && typeof f.value === 'number' && !Number.isNaN(f.value))
-    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+  // Strict data preparation functions from shared contracts (VIZ-01, VIZ-06)
+  const barData = prepareTopAllocationsData(facts);
+  const trendData = prepareTemporalTrendData(facts);
+  const categoryData = prepareCategoryFactCounts(facts);
 
-  // 1. Top Allocations & Metrics Data (Bar Chart)
-  const topAllocations = numericFacts.slice(0, 8);
-  const barCategories = topAllocations.map((f) =>
-    f.quote.length > 28 ? `${f.quote.substring(0, 26)}...` : f.quote,
-  );
-  const barValues = topAllocations.map((f) => f.value);
-
-  // 2. Period/Temporal Trend Data (Line Chart)
-  const factsWithPeriod = numericFacts.filter((f) => Boolean(f.period));
-  // Group by period
-  const periodMap = new Map<string, number>();
-  for (const f of factsWithPeriod) {
-    const period = f.period || 'Current';
-    periodMap.set(period, (periodMap.get(period) || 0) + (f.value || 0));
-  }
-  const trendPeriods = Array.from(periodMap.keys());
-  const trendValues = Array.from(periodMap.values());
-
-  // 3. Category Breakdown Data (Treemap)
-  const categoryMap = new Map<string, number>();
-  for (const f of numericFacts) {
-    const cat = f.type ? f.type.toUpperCase() : 'GENERAL';
-    categoryMap.set(cat, (categoryMap.get(cat) || 0) + (f.value || 0));
-  }
-  const treemapData = Array.from(categoryMap.entries()).map(([name, value]) => ({
-    name,
-    value,
-  }));
-
-  // Verification Summary
+  // Verification Summary counts
   const verifiedCount = facts.filter((f) => f.verified).length;
   const unverifiedCount = facts.filter((f) => !f.verified && !f.failReason).length;
   const failedCount = facts.filter((f) => !f.verified && f.failReason).length;
@@ -86,18 +63,28 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
     loadJurisECharts().then(({ init }) => {
       const themeName = isDark ? 'juris-dark' : 'juris-light';
 
-      // 1. Render Bar Chart
-      if (barChartRef.current && topAllocations.length > 0) {
+      // 1. Render Top Allocations Bar Chart (Verified Facts Only)
+      if (barChartRef.current && barData.status === 'ready') {
         barInstance = init(barChartRef.current, themeName);
         barInstance.setOption({
           title: {
-            text: 'Top Quantified Facts & Allocations',
-            subtext: `${documentName} (Verified Values)`,
+            text: barData.title,
+            subtext: `${documentName} (Verified Values Only)`,
             left: 'left',
           },
           tooltip: {
             trigger: 'axis',
             axisPointer: { type: 'shadow' },
+            formatter: (params: unknown) => {
+              const items = Array.isArray(params) ? params : [params];
+              const item = items[0] as { dataIndex: number } | undefined;
+              if (!item) return '';
+              const fact = barData.items[item.dataIndex];
+              if (!fact) return '';
+              return `<div style="font-weight:bold;margin-bottom:4px;">${fact.name}</div>
+                      <div>Value: <b>${fact.value.toLocaleString()} ${barData.currency || ''}</b></div>
+                      <div style="font-size:11px;color:var(--color-text-subtle);margin-top:4px;">Source: Page ${fact.page} (Verified)</div>`;
+            },
           },
           grid: {
             left: '3%',
@@ -107,7 +94,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
           },
           xAxis: {
             type: 'category',
-            data: barCategories,
+            data: barData.categories,
             axisLabel: {
               interval: 0,
               rotate: 25,
@@ -116,12 +103,15 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
           },
           yAxis: {
             type: 'value',
+            axisLabel: {
+              formatter: '{value}',
+            },
           },
           series: [
             {
-              name: 'Amount / Metric',
+              name: 'Allocation',
               type: 'bar',
-              data: barValues,
+              data: barData.values,
               itemStyle: {
                 borderRadius: [4, 4, 0, 0],
               },
@@ -130,13 +120,13 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
         });
       }
 
-      // 2. Render Trend Line Chart
-      if (trendChartRef.current && trendPeriods.length > 0) {
+      // 2. Render Temporal Trend Line Chart (Verified Periods Only)
+      if (trendChartRef.current && trendData.status === 'ready') {
         trendInstance = init(trendChartRef.current, themeName);
         trendInstance.setOption({
           title: {
-            text: 'Allocations Across Fiscal Periods',
-            subtext: 'Aggregated by Cited Period',
+            text: trendData.title,
+            subtext: 'Aggregated by Cited Fiscal Period',
             left: 'left',
           },
           tooltip: {
@@ -150,16 +140,16 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
           },
           xAxis: {
             type: 'category',
-            data: trendPeriods,
+            data: trendData.periods,
           },
           yAxis: {
             type: 'value',
           },
           series: [
             {
-              name: 'Total Period Amount',
+              name: 'Total Period Allocation',
               type: 'line',
-              data: trendValues,
+              data: trendData.values,
               smooth: true,
               symbol: 'circle',
               symbolSize: 8,
@@ -171,27 +161,27 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
         });
       }
 
-      // 3. Render Treemap Chart
-      if (treemapChartRef.current && treemapData.length > 0) {
+      // 3. Render Fact Counts Treemap (Thematic Weight)
+      if (treemapChartRef.current && categoryData.status === 'ready') {
         treemapInstance = init(treemapChartRef.current, themeName);
         treemapInstance.setOption({
           title: {
-            text: 'Fact Distribution by Type',
-            subtext: 'Proportional Weight of Extracted Civic Data',
+            text: categoryData.title,
+            subtext: categoryData.description,
             left: 'left',
           },
           tooltip: {
-            formatter: '{b}: {c}',
+            formatter: '{b}',
           },
           series: [
             {
               type: 'treemap',
-              data: treemapData,
+              data: categoryData.treemapData,
               roam: false,
               breadcrumb: { show: false },
               label: {
                 show: true,
-                formatter: '{b}\n{c}',
+                formatter: '{b}',
               },
             },
           ],
@@ -212,19 +202,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
       trendInstance?.dispose();
       treemapInstance?.dispose();
     };
-  }, [facts, isDark, documentName]);
-
-  if (numericFacts.length === 0) {
-    return (
-      <Card className="p-8 text-center border-dashed">
-        <Info className="w-10 h-10 text-text-muted mx-auto mb-3" />
-        <h3 className="font-serif text-lg font-bold text-text">No Numerical Facts Extracted</h3>
-        <p className="text-sm text-text-muted max-w-md mx-auto mt-1">
-          This document contains narrative facts without quantitative numerical allocations.
-        </p>
-      </Card>
-    );
-  }
+  }, [facts, isDark, documentName, barData, trendData, categoryData]);
 
   return (
     <div className="space-y-8">
@@ -265,7 +243,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
 
       {/* Primary Visualizations Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Top Allocations Bar Chart */}
+        {/* Top Allocations Bar Chart Card */}
         <Card className="p-6 flex flex-col justify-between">
           <CardHeader className="p-0 pb-4">
             <div className="flex items-center gap-2">
@@ -273,40 +251,61 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
               <CardTitle className="text-base">Top Quantitative Allocations</CardTitle>
             </div>
             <CardDescription className="text-xs">
-              Highest-value extracted budget allocations and numeric facts.
+              Verified financial facts extracted from document text.
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0 pt-2">
-            <div ref={barChartRef} className="w-full h-80" />
-            {showTables && (
-              <div className="mt-4 border-t border-border pt-4 overflow-x-auto">
-                <table className="w-full text-xs font-mono">
-                  <thead>
-                    <tr className="border-b border-border text-text-subtle">
-                      <th className="text-left py-1">Fact / Allocation</th>
-                      <th className="text-right py-1">Value</th>
-                      <th className="text-right py-1">Page</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topAllocations.map((f, i) => (
-                      <tr key={i} className="border-b border-border/50">
-                        <td className="py-1 text-text truncate max-w-xs">{f.quote}</td>
-                        <td className="py-1 text-right font-bold text-accent-teal">
-                          {f.value?.toLocaleString()}
-                        </td>
-                        <td className="py-1 text-right text-text-subtle">p. {f.page}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            {barData.status === 'ready' ? (
+              <>
+                <div ref={barChartRef} className="w-full h-80" />
+                {showTables && (
+                  <div
+                    tabIndex={0}
+                    role="region"
+                    aria-label="Top quantitative allocations data table"
+                    className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                  >
+                    <table className="w-full text-xs font-mono">
+                      <thead>
+                        <tr className="border-b border-border text-text-subtle">
+                          <th className="text-left py-1">Fact / Allocation</th>
+                          <th className="text-right py-1">Value</th>
+                          <th className="text-right py-1">Unit</th>
+                          <th className="text-right py-1">Page</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {barData.items.map((item, i) => (
+                          <tr key={i} className="border-b border-border/50">
+                            <td className="py-1 text-text truncate max-w-xs">{item.quote}</td>
+                            <td className="py-1 text-right font-bold text-accent-teal">
+                              {item.value.toLocaleString()}
+                            </td>
+                            <td className="py-1 text-right text-text-subtle">
+                              {barData.currency || ''} {barData.unit || ''}
+                            </td>
+                            <td className="py-1 text-right text-text-subtle">p. {item.page}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
+                <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <p className="text-sm font-medium text-text">No Quantified Allocations Displayed</p>
+                <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
+                  {barData.emptyReason}
+                </p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* Temporal Trends Line Chart */}
-        {trendPeriods.length > 0 ? (
+        {/* Temporal Trends or Category Distribution Card */}
+        {trendData.status === 'ready' ? (
           <Card className="p-6 flex flex-col justify-between">
             <CardHeader className="p-0 pb-4">
               <div className="flex items-center gap-2">
@@ -314,26 +313,31 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
                 <CardTitle className="text-base">Fiscal Period Breakdown</CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Multi-year allocations and projections extracted from document text.
+                Multi-year allocations extracted with explicit period citations.
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0 pt-2">
               <div ref={trendChartRef} className="w-full h-80" />
               {showTables && (
-                <div className="mt-4 border-t border-border pt-4 overflow-x-auto">
+                <div
+                  tabIndex={0}
+                  role="region"
+                  aria-label="Fiscal period breakdown data table"
+                  className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                >
                   <table className="w-full text-xs font-mono">
                     <thead>
                       <tr className="border-b border-border text-text-subtle">
-                        <th className="text-left py-1">Period</th>
-                        <th className="text-right py-1">Aggregated Allocation</th>
+                        <th className="text-left py-1">Fiscal Period</th>
+                        <th className="text-right py-1">Sum ({trendData.currency || ''})</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {trendPeriods.map((p, i) => (
+                      {trendData.periods.map((p, i) => (
                         <tr key={i} className="border-b border-border/50">
                           <td className="py-1 text-text">{p}</td>
                           <td className="py-1 text-right font-bold text-accent-teal">
-                            {trendValues[i]?.toLocaleString()}
+                            {trendData.values[i]?.toLocaleString()}
                           </td>
                         </tr>
                       ))}
@@ -344,19 +348,66 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
             </CardContent>
           </Card>
         ) : (
-          /* Category Treemap Chart */
+          /* Fact Counts by Category Treemap */
           <Card className="p-6 flex flex-col justify-between">
             <CardHeader className="p-0 pb-4">
               <div className="flex items-center gap-2">
                 <PieChart className="w-5 h-5 text-accent-teal" />
-                <CardTitle className="text-base">Fact Distribution by Type</CardTitle>
+                <CardTitle className="text-base">
+                  Fact Counts by Category (Thematic Weight)
+                </CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Proportional category weight across all extracted facts.
+                Proportion of facts across topic areas (fact counts, not expenditure share).
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0 pt-2">
-              <div ref={treemapChartRef} className="w-full h-80" />
+              {categoryData.status === 'ready' ? (
+                <>
+                  <div ref={treemapChartRef} className="w-full h-80" />
+                  {showTables && (
+                    <div
+                      tabIndex={0}
+                      role="region"
+                      aria-label="Fact counts by category data table"
+                      className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                    >
+                      <table className="w-full text-xs font-mono">
+                        <thead>
+                          <tr className="border-b border-border text-text-subtle">
+                            <th className="text-left py-1">Category</th>
+                            <th className="text-right py-1">Count</th>
+                            <th className="text-right py-1">Verified</th>
+                            <th className="text-right py-1">Share</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {categoryData.categories.map((c, i) => (
+                            <tr key={i} className="border-b border-border/50">
+                              <td className="py-1 text-text">{c.category}</td>
+                              <td className="py-1 text-right font-bold text-accent-teal">
+                                {c.count}
+                              </td>
+                              <td className="py-1 text-right text-text-subtle">
+                                {c.verifiedCount}
+                              </td>
+                              <td className="py-1 text-right text-text-subtle">{c.percentage}%</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
+                  <FileSpreadsheet className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                  <p className="text-sm font-medium text-text">No Categories Available</p>
+                  <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
+                    {categoryData.emptyReason}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}

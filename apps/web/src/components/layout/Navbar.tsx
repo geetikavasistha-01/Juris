@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
             to="/documents"
             className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
           >
-            <div className="w-9 h-9 rounded-lg bg-brand-navy flex items-center justify-center text-white font-serif font-bold text-xl shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-brand-navy flex items-center justify-center text-[var(--btn-primary-text)] font-serif font-bold text-xl shadow-sm">
               §
             </div>
             <div>

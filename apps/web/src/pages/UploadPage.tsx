@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { DEFAULT_MAX_FILE_SIZE_BYTES } from '@juris/shared';
 import { uploadDocument } from '../lib/api.js';
 import { Button, Card, Toast } from '../components/ui/index.js';
 import { UploadCloud, FileText, Loader2, ShieldAlert } from 'lucide-react';
@@ -13,6 +14,8 @@ export const UploadPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const maxFileSizeMb = Math.round(DEFAULT_MAX_FILE_SIZE_BYTES / (1024 * 1024));
 
   const uploadMutation = useMutation({
     mutationFn: (file: File) => uploadDocument(file),
@@ -36,11 +39,10 @@ export const UploadPage: React.FC = () => {
       return;
     }
 
-    // 2. Check maximum size (50MB)
-    const MAX_SIZE = 50 * 1024 * 1024;
-    if (file.size > MAX_SIZE) {
+    // 2. Check maximum size from shared config
+    if (file.size > DEFAULT_MAX_FILE_SIZE_BYTES) {
       setValidationError(
-        `File size (${(file.size / (1024 * 1024)).toFixed(1)} MB) exceeds the 50 MB limit.`,
+        `File size (${(file.size / (1024 * 1024)).toFixed(1)} MB) exceeds the ${maxFileSizeMb} MB limit.`,
       );
       return;
     }
@@ -101,11 +103,20 @@ export const UploadPage: React.FC = () => {
 
       <Card className="border-2 border-dashed border-border p-6 sm:p-10 transition-colors">
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="Upload PDF dropzone: click or press Enter to select a file"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer transition-all ${
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
+          className={`flex flex-col items-center justify-center p-8 rounded-xl cursor-pointer transition-all outline-none focus-visible:ring-2 focus-visible:ring-accent-teal ${
             isDragging
               ? 'bg-accent-teal/10 border-2 border-accent-teal'
               : 'hover:bg-surface-raised/60'
@@ -127,7 +138,7 @@ export const UploadPage: React.FC = () => {
             {isDragging ? 'Drop your PDF here' : 'Click to select or drag and drop your PDF'}
           </h3>
           <p className="text-xs text-text-subtle text-center mt-1">
-            Standard PDF documents up to 50 MB (Latin text, scanned, or tables)
+            Standard PDF documents up to {maxFileSizeMb} MB (Latin text, scanned, or tables)
           </p>
         </div>
 

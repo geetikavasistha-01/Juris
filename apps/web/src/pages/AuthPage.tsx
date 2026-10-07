@@ -49,7 +49,7 @@ export const AuthPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto space-y-6 pt-6">
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-xl bg-brand-navy text-white font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-sm">
+        <div className="w-12 h-12 rounded-xl bg-brand-navy text-[var(--btn-primary-text)] font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-sm">
           §
         </div>
         <h1 className="font-serif text-2xl font-bold text-text">

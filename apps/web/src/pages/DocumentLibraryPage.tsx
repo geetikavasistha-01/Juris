@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '../lib/auth.js';
 import { fetchDocuments, deleteDocument } from '../lib/api.js';
 import type { DocumentListItem } from '@juris/shared';
 import {
@@ -26,17 +27,20 @@ import {
   AlertCircle,
   Loader2,
   FileCheck,
+  ShieldCheck,
 } from 'lucide-react';
 
 export const DocumentLibraryPage: React.FC = () => {
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [deletingDocId, setDeletingDocId] = useState<string | null>(null);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['documents'],
+    queryKey: ['documents', user?.id],
     queryFn: fetchDocuments,
+    enabled: Boolean(user),
     refetchInterval: (query) => {
       // Auto-poll if any document is queued or processing
       const hasActive = query.state.data?.documents.some(
@@ -163,7 +167,7 @@ export const DocumentLibraryPage: React.FC = () => {
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition-colors ${
                 statusFilter === st
-                  ? 'bg-brand-navy text-white shadow-xs'
+                  ? 'bg-brand-navy text-[var(--btn-primary-text)] shadow-xs'
                   : 'bg-surface border border-border text-text-muted hover:text-text hover:bg-surface-raised'
               }`}
             >
@@ -174,7 +178,23 @@ export const DocumentLibraryPage: React.FC = () => {
       </div>
 
       {/* Document Grid / List */}
-      {isLoading ? (
+      {!user ? (
+        <Card className="p-8 text-center max-w-lg mx-auto border-dashed">
+          <ShieldCheck className="w-10 h-10 text-accent-teal mx-auto mb-3" />
+          <h3 className="font-serif text-lg font-bold text-text">
+            Sign In to Access Your Documents
+          </h3>
+          <p className="text-xs text-text-muted mt-1 mb-6">
+            Sign in with your email or continue as a demo guest to upload, verify facts, and inspect
+            allocations.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Link to="/login">
+              <Button variant="primary">Sign In / Demo Guest</Button>
+            </Link>
+          </div>
+        </Card>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="p-5 space-y-4">
