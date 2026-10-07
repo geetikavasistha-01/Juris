@@ -48,25 +48,32 @@ export function buildApp() {
   // Register document routes
   server.register(documentRoutes);
 
-  // GET /health - returns minimal health with status, role, version, gitSha
-  server.get(
-    '/health',
-    {
-      schema: {
-        response: {
-          200: HealthResponseSchema,
-        },
+  // GET /health and /api/health
+  const healthOpts = {
+    schema: {
+      response: {
+        200: HealthResponseSchema,
       },
     },
-    async (_request, reply) => {
-      return reply.status(200).send({
-        status: 'ok',
-        role: config.ROLE,
-        version: currentVersion,
-        gitSha: currentGitSha,
-      });
-    },
-  );
+  };
+
+  server.get('/health', healthOpts, async (_request, reply) => {
+    return reply.status(200).send({
+      status: 'ok',
+      role: config.ROLE,
+      version: currentVersion,
+      gitSha: currentGitSha,
+    });
+  });
+
+  server.get('/api/health', healthOpts, async (_request, reply) => {
+    return reply.status(200).send({
+      status: 'ok',
+      role: config.ROLE,
+      version: currentVersion,
+      gitSha: currentGitSha,
+    });
+  });
 
   return server;
 }

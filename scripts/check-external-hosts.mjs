@@ -21,6 +21,8 @@ const ALLOWED_HOSTS = new Set([
   '0.0.0.0',
   'react.dev', // React error message URL decoder links in react-dom bundle
   'reactjs.org',
+  'reactrouter.com', // React Router documentation links in package errors
+  'github.com', // Supabase open-source migration/discussions links in bundled code
   'tailwindcss.com', // Tailwind CSS header comment
 ]);
 

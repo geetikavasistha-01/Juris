@@ -97,3 +97,29 @@ export const JobEventsListResponseSchema = z.object({
   events: z.array(JobEventSchema),
 });
 export type JobEventsListResponse = z.infer<typeof JobEventsListResponseSchema>;
+
+export const DocumentListItemSchema = z.object({
+  id: z.string().uuid(),
+  filename: z.string(),
+  status: DocumentStatusSchema,
+  pageCount: z.number().int().nonnegative(),
+  fileSizeBytes: z.number().int().nonnegative(),
+  sha256: z.string(),
+  isSample: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type DocumentListItem = z.infer<typeof DocumentListItemSchema>;
+
+export const DocumentListResponseSchema = z.object({
+  documents: z.array(DocumentListItemSchema),
+  total: z.number().int().nonnegative(),
+});
+export type DocumentListResponse = z.infer<typeof DocumentListResponseSchema>;
+
+export const DocumentFileResponseSchema = z.object({
+  documentId: z.string().uuid(),
+  signedUrl: z.string().url(),
+  expiresInSeconds: z.number().int().positive(),
+});
+export type DocumentFileResponse = z.infer<typeof DocumentFileResponseSchema>;

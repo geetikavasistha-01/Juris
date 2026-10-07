@@ -29,9 +29,9 @@ test.describe('Juris Home Page Smoke Test', () => {
     const headerHeading = page.locator('header h1');
     await expect(headerHeading).toHaveText('Juris');
 
-    // Verify main card content
-    const cardTitle = page.locator('section h2');
-    await expect(cardTitle).toHaveText('Juris');
+    // Verify library page heading
+    const libraryTitle = page.locator('main h1');
+    await expect(libraryTitle).toContainText('Document');
 
     // Verify version and git sha are rendered
     const versionEl = page.locator('#app-version');

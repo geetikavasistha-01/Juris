@@ -413,4 +413,122 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     });
     return reply.status(200).send(validated);
   });
+
+  // 5. GET /api/documents - List documents for user
+  server.get('/api/documents', async (request, reply) => {
+    const auth = await resolveAuthUser(request.headers.authorization);
+    const supabase = getAdminSupabaseClient();
+
+    const { data: docs, error } = await supabase
+      .from('documents')
+      .select(
+        'id, original_name, status, page_count, size_bytes, sha256, is_sample, created_at, updated_at',
+      )
+      .or(`owner_id.eq.${auth.id},is_sample.eq.true`)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      server.log.error({ error }, 'Failed to list documents');
+      return reply
+        .status(500)
+        .send(createErrorResponse('INTERNAL_ERROR', 'Failed to list documents'));
+    }
+
+    const formatted = (docs || []).map((d) => ({
+      id: d.id,
+      filename: d.original_name,
+      status: d.status,
+      pageCount: d.page_count,
+      fileSizeBytes: d.size_bytes,
+      sha256: d.sha256,
+      isSample: d.is_sample,
+      createdAt: d.created_at ? new Date(d.created_at).toISOString() : new Date().toISOString(),
+      updatedAt: d.updated_at ? new Date(d.updated_at).toISOString() : new Date().toISOString(),
+    }));
+
+    return reply.status(200).send({
+      documents: formatted,
+      total: formatted.length,
+    });
+  });
+
+  // 6. DELETE /api/documents/:id - Delete document and all dependencies
+  server.delete<{ Params: { id: string } }>('/api/documents/:id', async (request, reply) => {
+    const auth = await resolveAuthUser(request.headers.authorization);
+    const { id } = request.params;
+    const supabase = getAdminSupabaseClient();
+
+    // Check ownership
+    const { data: doc, error: fetchErr } = await supabase
+      .from('documents')
+      .select('id, storage_path, owner_id')
+      .eq('id', id)
+      .eq('owner_id', auth.id)
+      .maybeSingle();
+
+    if (fetchErr || !doc) {
+      return reply
+        .status(404)
+        .send(createErrorResponse('NOT_FOUND', `Document ${id} not found or permission denied`));
+    }
+
+    // Delete associated storage file
+    if (doc.storage_path) {
+      try {
+        await supabase.storage.from('documents').remove([doc.storage_path]);
+      } catch (storageErr) {
+        server.log.warn({ storageErr }, 'Storage file delete notice');
+      }
+    }
+
+    // Cascade delete in Postgres
+    const { error: deleteErr } = await supabase.from('documents').delete().eq('id', id);
+    if (deleteErr) {
+      server.log.error({ deleteErr }, 'Failed to delete document record');
+      return reply
+        .status(500)
+        .send(createErrorResponse('INTERNAL_ERROR', 'Failed to delete document'));
+    }
+
+    return reply.status(200).send({ status: 'deleted', id });
+  });
+
+  // 7. GET /api/documents/:id/file - Signed URL for viewing
+  server.get<{ Params: { id: string } }>('/api/documents/:id/file', async (request, reply) => {
+    const auth = await resolveAuthUser(request.headers.authorization);
+    const { id } = request.params;
+    const supabase = getAdminSupabaseClient();
+
+    const { data: doc } = await supabase
+      .from('documents')
+      .select('id, storage_path, is_sample')
+      .eq('id', id)
+      .or(`owner_id.eq.${auth.id},is_sample.eq.true`)
+      .maybeSingle();
+
+    if (!doc || !doc.storage_path) {
+      return reply
+        .status(404)
+        .send(createErrorResponse('NOT_FOUND', `Document ${id} file not found`));
+    }
+
+    const { data: signedData, error } = await supabase.storage
+      .from('documents')
+      .createSignedUrl(doc.storage_path, 3600);
+
+    if (error || !signedData?.signedUrl) {
+      // Return local fallback URL if local storage
+      return reply.status(200).send({
+        documentId: id,
+        signedUrl: `${config.SUPABASE_URL}/storage/v1/object/public/documents/${doc.storage_path}`,
+        expiresInSeconds: 3600,
+      });
+    }
+
+    return reply.status(200).send({
+      documentId: id,
+      signedUrl: signedData.signedUrl,
+      expiresInSeconds: 3600,
+    });
+  });
 };

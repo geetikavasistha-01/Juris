@@ -9,20 +9,20 @@ interface TabsContextType {
 const TabsContext = createContext<TabsContextType | undefined>(undefined);
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  defaultValue: string;
+  defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
 }
 
 export const Tabs: React.FC<TabsProps> = ({
-  defaultValue,
+  defaultValue = '',
   value,
   onValueChange,
   className = '',
   children,
   ...props
 }) => {
-  const [activeTab, setActiveTabState] = useState(defaultValue);
+  const [activeTab, setActiveTabState] = useState(defaultValue || value || '');
   const currentTab = value !== undefined ? value : activeTab;
   const tabTriggersRef = useRef<Map<string, HTMLButtonElement>>(new Map());
 

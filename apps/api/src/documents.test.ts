@@ -1,5 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import fs from 'node:fs';
+import path from 'node:path';
 import { buildApp } from './app.js';
 import { getAdminSupabaseClient } from './supabase.js';
 
@@ -63,8 +64,20 @@ describe('Document API & Ingestion Pipeline', () => {
     expect(body.error.code).toBe('MAGIC_BYTES_MISMATCH');
   });
 
+  function getTestPdfBuffer(): Buffer {
+    const candidatePaths = [
+      path.resolve('docs/pdf/test_upload.pdf'),
+      path.resolve(process.cwd(), 'docs/pdf/test_upload.pdf'),
+      path.resolve(import.meta.dirname, '../../../docs/pdf/test_upload.pdf'),
+    ];
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) return fs.readFileSync(p);
+    }
+    throw new Error('test_upload.pdf not found in candidate paths');
+  }
+
   it('uploads a valid PDF, starts background processing, and returns 201 Created', async () => {
-    const pdfBuffer = fs.readFileSync('docs/pdf/test_upload.pdf');
+    const pdfBuffer = getTestPdfBuffer();
     const mp = createMultipartPayload('test_upload.pdf', 'application/pdf', pdfBuffer);
 
     const response = await app.inject({
@@ -140,7 +153,7 @@ describe('Document API & Ingestion Pipeline', () => {
   }, 15000);
 
   it('rejects duplicate upload with 409 DUPLICATE', async () => {
-    const pdfBuffer = fs.readFileSync('docs/pdf/test_upload.pdf');
+    const pdfBuffer = getTestPdfBuffer();
     const mp = createMultipartPayload('test_upload_duplicate.pdf', 'application/pdf', pdfBuffer);
 
     const response = await app.inject({
@@ -171,5 +184,21 @@ describe('Document API & Ingestion Pipeline', () => {
     expect(response.statusCode).toBe(404);
     const body = response.json();
     expect(body.error.code).toBe('NOT_FOUND');
+  });
+
+  it('lists documents for user via GET /api/documents', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/documents',
+      headers: {
+        authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.documents).toBeDefined();
+    expect(Array.isArray(body.documents)).toBe(true);
+    expect(body.total).toBe(body.documents.length);
   });
 });
