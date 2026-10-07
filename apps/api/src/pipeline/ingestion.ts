@@ -340,12 +340,16 @@ export async function runDocumentIngestionPipeline(
 
           const currency = /Rs\.?|crore|lakh/i.test(trimmed) ? 'INR' : null;
 
+          // Extract explicit fiscal period token if mentioned
+          const periodMatch = trimmed.match(/(?:(?:FY|BE|RE)\s*)?(20\d{2}[-–]\d{2,4}|20\d{2})/i);
+          const period = periodMatch && periodMatch[1] ? periodMatch[1].replace('–', '-') : null;
+
           rawFactCandidates.push({
             type,
             value: val,
             unit,
             currency,
-            period: '2026-27',
+            period,
             page: page.pageNumber,
             quote: trimmed,
           });
@@ -365,6 +369,7 @@ export async function runDocumentIngestionPipeline(
         page: cand.page,
         quote: cand.quote,
         value: cand.value,
+        period: cand.period,
       });
 
       if (verResult.verified) {

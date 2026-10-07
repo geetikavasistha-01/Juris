@@ -16,7 +16,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // Helper to extract and verify authenticated user ID from Authorization header
   async function resolveAuthUser(
     authHeader?: string,
-  ): Promise<{ id: string; token: string } | null> {
+  ): Promise<{ id: string; token: string; isAnonymous?: boolean } | null> {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return null;
     }
@@ -27,6 +27,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       return {
         id: '11111111-1111-1111-1111-111111111111',
         token,
+        isAnonymous: true,
       };
     }
 
@@ -39,7 +40,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       );
       return null;
     }
-    return { id: data.user.id, token };
+    return { id: data.user.id, token, isAnonymous: false };
   }
 
   // 1. POST /api/documents - Upload & enqueue processing
@@ -49,6 +50,17 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       return reply
         .status(401)
         .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required for upload'));
+    }
+
+    if (auth.isAnonymous) {
+      return reply
+        .status(403)
+        .send(
+          createErrorResponse(
+            'FORBIDDEN',
+            'Anonymous uploads are restricted. Please sign in to upload documents.',
+          ),
+        );
     }
 
     const data = await request.file();

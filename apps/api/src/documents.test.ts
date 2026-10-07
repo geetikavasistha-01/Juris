@@ -201,4 +201,195 @@ describe('Document API & Ingestion Pipeline', () => {
     expect(Array.isArray(body.documents)).toBe(true);
     expect(body.total).toBe(body.documents.length);
   });
+
+  it('restricts anonymous guest uploads with 403 FORBIDDEN', async () => {
+    const pdfBuffer = getTestPdfBuffer();
+    const mp = createMultipartPayload('guest_upload.pdf', 'application/pdf', pdfBuffer);
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/documents',
+      headers: {
+        ...mp.headers,
+        authorization: 'Bearer demo-guest-token',
+      },
+      payload: mp.payload,
+    });
+
+    expect(response.statusCode).toBe(403);
+    const body = response.json();
+    expect(body.error.code).toBe('FORBIDDEN');
+  });
+
+  it('cascades deletion across chunks, facts, analyses, visualizations, conversations, and jobs', async () => {
+    const supabase = getAdminSupabaseClient();
+    const docId = crypto.randomUUID();
+
+    // 1. Insert parent document
+    const { error: dErr } = await supabase.from('documents').insert({
+      id: docId,
+      owner_id: _testUserId,
+      original_name: 'cascade_test.pdf',
+      storage_path: `documents/${_testUserId}/${docId}.pdf`,
+      size_bytes: 1024,
+      sha256: `sha256_${Date.now()}`,
+      status: 'done',
+      page_count: 1,
+    });
+    expect(dErr).toBeNull();
+
+    // 2. Insert related records into chunks, facts, analyses, visualizations, conversations, messages, jobs, job_events
+    const convId = crypto.randomUUID();
+    const jobId = crypto.randomUUID();
+
+    await supabase.from('chunks').insert({
+      document_id: docId,
+      owner_id: _testUserId,
+      page_number: 1,
+      chunk_index: 0,
+      content: 'Sample chunk content for cascade test',
+    });
+
+    await supabase.from('facts').insert({
+      document_id: docId,
+      owner_id: _testUserId,
+      type: 'financial_allocation',
+      value: 100,
+      unit: 'crore',
+      page: 1,
+      quote: 'Sample quote 100 crore',
+      verified: true,
+    });
+
+    await supabase.from('analyses').insert({
+      document_id: docId,
+      owner_id: _testUserId,
+      summary: 'Analysis summary for cascade test',
+      verification_rate: 100,
+    });
+
+    await supabase.from('visualizations').insert({
+      document_id: docId,
+      owner_id: _testUserId,
+      kind: 'bar',
+      title: 'Cascade Chart',
+      spec: {},
+    });
+
+    await supabase.from('conversations').insert({
+      id: convId,
+      document_id: docId,
+      owner_id: _testUserId,
+    });
+
+    await supabase.from('messages').insert({
+      conversation_id: convId,
+      owner_id: _testUserId,
+      role: 'user',
+      content: 'Hello document',
+    });
+
+    await supabase.from('jobs').insert({
+      id: jobId,
+      document_id: docId,
+      owner_id: _testUserId,
+      status: 'completed',
+    });
+
+    await supabase.from('job_events').insert({
+      job_id: jobId,
+      document_id: docId,
+      owner_id: _testUserId,
+      stage: 'completed',
+      progress: 100,
+      sequence: 1,
+      message: 'Done',
+    });
+
+    // Verify all related records exist before deletion
+    const { count: chunkCountBefore } = await supabase
+      .from('chunks')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(chunkCountBefore).toBe(1);
+
+    const { count: factCountBefore } = await supabase
+      .from('facts')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(factCountBefore).toBe(1);
+
+    const { count: vizCountBefore } = await supabase
+      .from('visualizations')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(vizCountBefore).toBe(1);
+
+    const { count: msgCountBefore } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('conversation_id', convId);
+    expect(msgCountBefore).toBe(1);
+
+    // 3. Delete document via DELETE /api/documents/:id
+    const delRes = await app.inject({
+      method: 'DELETE',
+      url: `/api/documents/${docId}`,
+      headers: {
+        authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    expect(delRes.statusCode).toBe(200);
+    expect(delRes.json()).toEqual({ status: 'deleted', id: docId });
+
+    // 4. Verify all cascading tables are empty for docId
+    const { count: chunkCountAfter } = await supabase
+      .from('chunks')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(chunkCountAfter).toBe(0);
+
+    const { count: factCountAfter } = await supabase
+      .from('facts')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(factCountAfter).toBe(0);
+
+    const { count: analysisCountAfter } = await supabase
+      .from('analyses')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(analysisCountAfter).toBe(0);
+
+    const { count: vizCountAfter } = await supabase
+      .from('visualizations')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(vizCountAfter).toBe(0);
+
+    const { count: convCountAfter } = await supabase
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(convCountAfter).toBe(0);
+
+    const { count: msgCountAfter } = await supabase
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('conversation_id', convId);
+    expect(msgCountAfter).toBe(0);
+
+    const { count: jobCountAfter } = await supabase
+      .from('jobs')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(jobCountAfter).toBe(0);
+
+    const { count: eventCountAfter } = await supabase
+      .from('job_events')
+      .select('*', { count: 'exact', head: true })
+      .eq('document_id', docId);
+    expect(eventCountAfter).toBe(0);
+  });
 });
