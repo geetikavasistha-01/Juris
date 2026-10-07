@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth.js';
-import { Button, Input, Card, Toast } from '../components/ui/index.js';
+import { Button, Input, Card, Toast, JurisLogo } from '../components/ui/index.js';
 import { ShieldCheck, Lock, UserCheck, Loader2 } from 'lucide-react';
 
 export const AuthPage: React.FC = () => {
@@ -49,8 +49,8 @@ export const AuthPage: React.FC = () => {
   return (
     <div className="max-w-md mx-auto space-y-6 pt-6">
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-xl bg-brand-navy text-[var(--btn-primary-text)] font-serif font-bold text-2xl flex items-center justify-center mx-auto shadow-sm">
-          §
+        <div className="flex justify-center mb-1">
+          <JurisLogo size={56} iconOnly />
         </div>
         <h1 className="font-serif text-2xl font-bold text-text">
           {mode === 'signin' ? 'Sign in to Juris' : 'Create a Juris Account'}

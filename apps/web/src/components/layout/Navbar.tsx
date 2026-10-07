@@ -12,7 +12,7 @@ import {
   LogOut,
   User as UserIcon,
 } from 'lucide-react';
-import { Button } from '../ui/index.js';
+import { Button, JurisLogo } from '../ui/index.js';
 
 export const Navbar: React.FC = () => {
   const { theme, setTheme } = useTheme();
@@ -36,19 +36,19 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-8">
           <Link
             to="/documents"
-            className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded"
+            className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded py-1"
           >
-            <div className="w-9 h-9 rounded-lg bg-brand-navy flex items-center justify-center text-[var(--btn-primary-text)] font-serif font-bold text-xl shadow-sm">
-              §
-            </div>
+            <JurisLogo size={36} iconOnly />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="font-serif font-semibold text-lg text-text tracking-tight">Juris</h1>
+                <span className="font-serif font-bold text-xl text-text tracking-tight leading-none">
+                  Juris
+                </span>
                 <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-surface-raised border border-border text-text-muted">
                   Civic AI
                 </span>
               </div>
-              <p className="text-xs text-text-subtle hidden sm:block">
+              <p className="text-xs text-text-subtle hidden sm:block mt-0.5">
                 Legal & Fiscal Intelligence
               </p>
             </div>

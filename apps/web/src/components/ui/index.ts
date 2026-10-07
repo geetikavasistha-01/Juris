@@ -11,3 +11,4 @@ export * from './Toast.js';
 export * from './Skeleton.js';
 export * from './EmptyState.js';
 export * from './ErrorState.js';
+export * from './JurisLogo.js';
