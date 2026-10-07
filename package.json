@@ -23,6 +23,7 @@
     "check:contrast": "node scripts/check-contrast.mjs",
     "check:tokens": "node scripts/check-tokens.mjs",
     "check:external-hosts": "node scripts/check-external-hosts.mjs",
+    "e2e": "playwright test --config e2e/playwright.config.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "prepare": "husky"
