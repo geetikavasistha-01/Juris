@@ -119,9 +119,7 @@ export function prepareTopAllocationsData(
   }
 
   // Filter out aggregate totals so individual allocations and aggregate sums don't share a ranking
-  const lineItemFacts = verifiedNumericFacts.filter(
-    (f) => f.type !== 'financial_total' && f.type !== 'total',
-  );
+  const lineItemFacts = verifiedNumericFacts.filter((f) => f.type !== 'financial_total');
   const factsToRank = lineItemFacts.length > 0 ? lineItemFacts : verifiedNumericFacts;
 
   // 2. Identify dominant unit and currency pairing
@@ -259,8 +257,17 @@ export function prepareTemporalTrendData(facts: DocumentFactDetail[]): PreparedT
   // Group by period
   const periodMap = new Map<string, number>();
   for (const f of uniformPeriodFacts) {
-    const period = f.period as string;
-    periodMap.set(period, (periodMap.get(period) || 0) + (f.value || 0));
+    let periodLabel = 'Unspecified';
+    if (f.period) {
+      if (typeof f.period === 'object') {
+        const basis = f.period.basis && f.period.basis !== 'none' ? `${f.period.basis} ` : '';
+        const fy = f.period.fiscalYear || '';
+        periodLabel = `${basis}${fy}`.trim() || 'Unspecified';
+      } else if (typeof f.period === 'string') {
+        periodLabel = f.period;
+      }
+    }
+    periodMap.set(periodLabel, (periodMap.get(periodLabel) || 0) + (f.value || 0));
   }
 
   const periods = Array.from(periodMap.keys()).sort();
@@ -304,7 +311,7 @@ export function prepareCategoryFactCounts(facts: DocumentFactDetail[]): Prepared
   const categoryMap = new Map<string, { count: number; verifiedCount: number }>();
 
   for (const f of facts) {
-    const cat = (f.type || 'GENERAL').toUpperCase();
+    const cat = f.type || 'general';
     const current = categoryMap.get(cat) || { count: 0, verifiedCount: 0 };
     current.count += 1;
     if (f.verified) {

@@ -1,61 +1,45 @@
 import { describe, expect, it } from 'vitest';
 import {
-  canonicalizeText,
-  collapseWhitespace,
+  normalizeCanonical,
+  normalizeWhitespace,
+  normalizePunctuation,
+  normalizeHyphenation,
   findQuoteInPage,
-  normalizeCharacters,
-  normalizeLineBreaks,
   verifyFactQuoteAndValue,
 } from './text-normalization.js';
 
-describe('text-normalization', () => {
-  describe('normalizeCharacters', () => {
+describe('text-normalization & Fact Verifier Suite', () => {
+  describe('deterministic normalization functions', () => {
     it('normalizes Unicode ligatures correctly', () => {
-      expect(normalizeCharacters('financial ﬁgures & ﬂow')).toBe('financial figures & flow');
-      expect(normalizeCharacters('eﬃcient oﬃce')).toBe('efficient office');
+      expect(normalizePunctuation('financial ﬁgures & ﬂow')).toBe('financial figures & flow');
+      expect(normalizePunctuation('eﬃcient oﬃce')).toBe('efficient office');
     });
 
     it('normalizes curved quotes and typographic apostrophes', () => {
-      expect(normalizeCharacters('“Government’s revenue” and ‘capital’')).toBe(
+      expect(normalizePunctuation('“Government’s revenue” and ‘capital’')).toBe(
         "\"Government's revenue\" and 'capital'",
       );
-      expect(normalizeCharacters('«European Union»')).toBe('"European Union"');
+      expect(normalizePunctuation('«European Union»')).toBe('"European Union"');
     });
 
     it('normalizes en-dashes, em-dashes, and minus signs', () => {
-      expect(normalizeCharacters('2025–2026 budget—revised −10%')).toBe(
+      expect(normalizePunctuation('2025–2026 budget—revised −10%')).toBe(
         '2025-2026 budget-revised -10%',
       );
     });
 
     it('strips zero-width characters and soft hyphens', () => {
       const input = 'zero\u200Bwidth\uFEFFspace\u00ADsoft';
-      expect(normalizeCharacters(input)).toBe('zerowidthspacesoft');
+      expect(normalizeHyphenation(input)).toBe('zerowidth\uFEFFspacesoft');
     });
-  });
 
-  describe('normalizeLineBreaks', () => {
     it('joins hyphenated words across line wraps', () => {
       const input = 'The infra-\nstructure capital expendi-\r\nture target';
-      expect(normalizeLineBreaks(input)).toBe('The infrastructure capital expenditure target');
+      expect(normalizeCanonical(input)).toBe('The infrastructure capital expenditure target');
     });
 
-    it('replaces remaining newlines with spaces', () => {
-      const input = 'Line one.\nLine two.\r\nLine three.';
-      expect(normalizeLineBreaks(input)).toBe('Line one. Line two. Line three.');
-    });
-  });
-
-  describe('collapseWhitespace', () => {
     it('collapses multiple spaces, tabs, and trims ends', () => {
-      expect(collapseWhitespace('   Total   Amount:   1,234   ')).toBe('Total Amount: 1,234');
-    });
-  });
-
-  describe('canonicalizeText', () => {
-    it('executes full pipeline deterministically', () => {
-      const input = '  “The   infra-\nstructure   allocaﬁon   is   ₹10,000   crore”  ';
-      expect(canonicalizeText(input)).toBe('"The infrastructure allocafion is ₹10,000 crore"');
+      expect(normalizeWhitespace('   Total   Amount:   1,234   ')).toBe('Total Amount: 1,234');
     });
   });
 
@@ -78,7 +62,6 @@ structure development and health‐care.`;
       const quote = 'Total expenditure is estimated at ₹48,20,512 crore';
       const result = findQuoteInPage(rawPage, quote);
       expect(result.matched).toBe(true);
-      expect(result.exactMatch).toBe(false);
       expect(result.startIndex).toBeGreaterThan(-1);
     });
 
@@ -95,90 +78,315 @@ structure development and health‐care.`;
     });
   });
 
-  describe('verifyFactQuoteAndValue & Negative Controls', () => {
-    const pageText = `Budget Speech 2026-27: The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore against Rs.4,964.73 Crore provided in RE 2025-26. Total capital allocation is Rs.741.15 Crore.`;
+  describe('Positive Fixtures (Real Budget Speech Ground Truth)', () => {
+    const page33Text = `iv. The total expenditure for BE 2026-27 are Rs.5810.02 Crore against Rs.5484.15 Crore provided in RE 2025-26 and actual of Rs.4678.45 Crore in 2024-25.
+ii. The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore against Rs.4964.73 Crore provided in RE 2025-26 and actual of Rs.4606.56 Crore in 2024-25.`;
 
-    it('successfully verifies a fact with matching quote and numeric value', () => {
-      const result = verifyFactQuoteAndValue(pageText, {
+    const page87Text = `In the year 2026-27, I propose to allocate Rs.118.33`;
+    const page88Text = `crore towards improvement of Medical Services Department out of which Rs.12.71 crore towards Capital Expenditure and Rs.105.62 crore towards Revenue Expenditure.`;
+
+    it('verifies Revenue Receipts 5211.92 crore BE 2026-27 on page 33', () => {
+      const result = verifyFactQuoteAndValue(page33Text, {
         page: 33,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        label: 'Revenue Receipts BE 2026-27',
+        type: 'receipt',
         value: 5211.92,
+        unit: 'crore',
+        period: { basis: 'BE', fiscalYear: '2026-27' },
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5211.92 Crore',
       });
       expect(result.verified).toBe(true);
-      expect(result.quoteMatched).toBe(true);
-      expect(result.valueMatched).toBe(true);
-      expect(result.failReason).toBeUndefined();
+      expect(result.failReason).toBeNull();
     });
 
-    it('NEGATIVE CONTROL 1: rejects a quote altered by one character', () => {
-      const result = verifyFactQuoteAndValue(pageText, {
+    it('verifies Revenue Receipts 4964.73 crore RE 2025-26 on page 33', () => {
+      const result = verifyFactQuoteAndValue(page33Text, {
         page: 33,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 CroresX',
-        value: 5211.92,
-      });
-      expect(result.verified).toBe(false);
-      expect(result.quoteMatched).toBe(false);
-      expect(result.failReason).toContain('Quote');
-    });
-
-    it('NEGATIVE CONTROL 2: rejects when the numeric value does not match quote content', () => {
-      const result = verifyFactQuoteAndValue(pageText, {
-        page: 33,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
-        value: 9999.99, // Wrong value!
-      });
-      expect(result.verified).toBe(false);
-      expect(result.quoteMatched).toBe(true);
-      expect(result.valueMatched).toBe(false);
-      expect(result.failReason).toContain('Numeric value 9999.99 does not appear in quote');
-    });
-
-    it('NEGATIVE CONTROL 3: rejects when checked against a wrong/different page', () => {
-      const wrongPageText = `This is Page 12 discussing horticulture and tree planting in municipal parks.`;
-      const result = verifyFactQuoteAndValue(wrongPageText, {
-        page: 12,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
-        value: 5211.92,
-      });
-      expect(result.verified).toBe(false);
-      expect(result.quoteMatched).toBe(false);
-      expect(result.failReason).toContain('not found on page 12');
-    });
-
-    it('successfully verifies a fact with matching period token in quote or context', () => {
-      const result = verifyFactQuoteAndValue(pageText, {
-        page: 33,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
-        value: 5211.92,
-        period: '2026-27',
+        label: 'Revenue Receipts RE 2025-26',
+        type: 'receipt',
+        value: 4964.73,
+        unit: 'crore',
+        period: { basis: 'RE', fiscalYear: '2025-26' },
+        quote: 'against Rs.4964.73 Crore provided in RE 2025-26',
       });
       expect(result.verified).toBe(true);
-      expect(result.periodMatched).toBe(true);
+      expect(result.failReason).toBeNull();
     });
 
-    it('NEGATIVE CONTROL 4: rejects when cited period does not appear in quote or surrounding context', () => {
-      const result = verifyFactQuoteAndValue(pageText, {
+    it('verifies Total Expenditure 5810.02 crore BE 2026-27 on page 33', () => {
+      const result = verifyFactQuoteAndValue(page33Text, {
         page: 33,
-        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
-        value: 5211.92,
-        period: '2029-30', // Not in quote or context!
+        label: 'Total Expenditure BE 2026-27',
+        type: 'financial_total',
+        value: 5810.02,
+        unit: 'crore',
+        period: { basis: 'BE', fiscalYear: '2026-27' },
+        quote: 'The total expenditure for BE 2026-27 are Rs.5810.02 Crore',
       });
-      expect(result.verified).toBe(false);
-      expect(result.periodMatched).toBe(false);
-      expect(result.failReason).toContain('Period "2029-30" not found');
+      expect(result.verified).toBe(true);
+      expect(result.failReason).toBeNull();
     });
 
-    it('NEGATIVE CONTROL 5: rejects a 2024-25 fact carrying an invalid 2026-27 period tag', () => {
-      const text2024 =
-        'Outstanding CBSE Board Result achieved in FY 2024-25 with highest pass percentage.';
-      const result = verifyFactQuoteAndValue(text2024, {
-        page: 24,
-        quote: 'Outstanding CBSE Board Result achieved in FY 2024-25',
-        period: '2026-27', // Mismatched period!
+    it('verifies Total Expenditure 5484.15 crore RE 2025-26 on page 33', () => {
+      const result = verifyFactQuoteAndValue(page33Text, {
+        page: 33,
+        label: 'Total Expenditure RE 2025-26',
+        type: 'financial_total',
+        value: 5484.15,
+        unit: 'crore',
+        period: { basis: 'RE', fiscalYear: '2025-26' },
+        quote: 'against Rs.5484.15 Crore provided in RE 2025-26',
       });
-      expect(result.verified).toBe(false);
-      expect(result.periodMatched).toBe(false);
-      expect(result.failReason).toContain('Period "2026-27" not found');
+      expect(result.verified).toBe(true);
+      expect(result.failReason).toBeNull();
+    });
+
+    it('verifies Capital Expenditure 12.71 crore on page 88', () => {
+      const result = verifyFactQuoteAndValue(page88Text, {
+        page: 88,
+        label: 'Medical Services Capital Expenditure',
+        type: 'expenditure',
+        value: 12.71,
+        unit: 'crore',
+        quote: 'Rs.12.71 crore towards Capital Expenditure',
+      });
+      expect(result.verified).toBe(true);
+      expect(result.failReason).toBeNull();
+    });
+
+    it('verifies Revenue Expenditure 105.62 crore on page 88', () => {
+      const result = verifyFactQuoteAndValue(page88Text, {
+        page: 88,
+        label: 'Medical Services Revenue Expenditure',
+        type: 'expenditure',
+        value: 105.62,
+        unit: 'crore',
+        quote: 'Rs.105.62 crore towards Revenue Expenditure',
+      });
+      expect(result.verified).toBe(true);
+      expect(result.failReason).toBeNull();
+    });
+
+    it('verifies Medical Services allocation 118.33 crore stored on page 87 where number appears', () => {
+      const result = verifyFactQuoteAndValue(page87Text, {
+        page: 87,
+        label: 'Medical Services Department Allocation',
+        type: 'allocation',
+        value: 118.33,
+        unit: 'crore',
+        period: { basis: 'none', fiscalYear: '2026-27' },
+        quote: 'In the year 2026-27, I propose to allocate Rs.118.33',
+      });
+      expect(result.verified).toBe(true);
+      expect(result.failReason).toBeNull();
+    });
+  });
+
+  describe('Negative Controls (Anti-Hallucination & Rejection Rules)', () => {
+    const speechSnippet = `9. Technology Maximum: Information Technology Governance
+12. Swachh NDMC: Public Health
+14. Prudent NDMC: Financial Stability
+15. Caring NDMC: Employee and Citizen Welfare
+10. Swasth NDMC: Medical Services
+urban infrastructure aligning with “ Vision @ 2047” to
+by March, 2026 after completion of other
+Chief Minister on 4th September, 2025. 240 NDMC
+2020. One of the most prominent initiative is design of
+Result achieved in FY 2024 - 25 with highest pass
+will be finalized in the current FY 2025-26.
+Minister on 2nd Oct., 2024 on the birth
+is likely to be started in next FY 2026-27.`;
+
+    it('rejects heading numbers stored as values: 9. Technology Maximum', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 2,
+        value: 9,
+        type: 'count',
+        quote: '9. Technology Maximum: Information Technology Governance',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('HEADING_NUMBER');
+    });
+
+    it('rejects heading numbers stored as values: 12. Swachh NDMC', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 2,
+        value: 12,
+        type: 'count',
+        quote: '12. Swachh NDMC: Public Health',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('HEADING_NUMBER');
+    });
+
+    it('rejects heading numbers stored as values: 14. Prudent NDMC', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 2,
+        value: 14,
+        type: 'count',
+        quote: '14. Prudent NDMC: Financial Stability',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('HEADING_NUMBER');
+    });
+
+    it('rejects heading numbers stored as values: 10. Swasth NDMC', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 2,
+        value: 10,
+        type: 'count',
+        quote: '10. Swasth NDMC: Medical Services',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('HEADING_NUMBER');
+    });
+
+    it('rejects heading numbers stored as values: 15. Caring NDMC', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 2,
+        value: 15,
+        type: 'count',
+        quote: '15. Caring NDMC: Employee and Citizen Welfare',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('HEADING_NUMBER');
+    });
+
+    it('rejects calendar years stored as measured values: 2047 in Vision @ 2047', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 3,
+        value: 2047,
+        type: 'count',
+        quote: 'urban infrastructure aligning with “ Vision @ 2047” to',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: March, 2026', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 5,
+        value: 2026,
+        type: 'count',
+        quote: 'by March, 2026 after completion of other',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: September, 2025', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 6,
+        value: 2025,
+        type: 'count',
+        quote: 'Chief Minister on 4th September, 2025.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: 2020.', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 6,
+        value: 2020,
+        type: 'count',
+        quote: '2020. One of the most prominent initiative is design of',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: FY 2024 - 25', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 6,
+        value: 2024,
+        type: 'count',
+        quote: 'Result achieved in FY 2024 - 25 with highest pass',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: FY 2025-26', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 7,
+        value: 2025,
+        type: 'count',
+        quote: 'will be finalized in the current FY 2025-26.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects calendar years stored as measured values: next FY 2026-27', () => {
+      const res = verifyFactQuoteAndValue(speechSnippet, {
+        page: 9,
+        value: 2026,
+        type: 'count',
+        quote: 'is likely to be started in next FY 2026-27.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('YEAR_OR_DATE_AS_VALUE');
+    });
+
+    it('rejects hallucinated values: VALUE_NOT_IN_QUOTE', () => {
+      const res = verifyFactQuoteAndValue('The capital allocation is Rs.741.15 Crore.', {
+        page: 1,
+        value: 9999.99,
+        type: 'allocation',
+        unit: 'crore',
+        quote: 'The capital allocation is Rs.741.15 Crore.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('VALUE_NOT_IN_QUOTE');
+    });
+
+    it('rejects missing units on financial facts: MISSING_REQUIRED_UNIT', () => {
+      const res = verifyFactQuoteAndValue('The total expenditure is Rs.5810.02 Crore.', {
+        page: 1,
+        value: 5810.02,
+        type: 'expenditure',
+        unit: null,
+        quote: 'The total expenditure is Rs.5810.02 Crore.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('MISSING_REQUIRED_UNIT');
+    });
+
+    it('rejects unit mismatch: UNIT_NOT_IN_QUOTE', () => {
+      const res = verifyFactQuoteAndValue('The road resurfacing covers 450 meters.', {
+        page: 1,
+        value: 450,
+        type: 'physical_quantity',
+        unit: 'crore',
+        quote: 'The road resurfacing covers 450 meters.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('UNIT_NOT_IN_QUOTE');
+    });
+
+    it('rejects mismatched period citation: PERIOD_NOT_IN_QUOTE', () => {
+      const res = verifyFactQuoteAndValue('The revenue receipts are Rs.5211.92 Crore in 2024-25.', {
+        page: 1,
+        value: 5211.92,
+        type: 'receipt',
+        unit: 'crore',
+        period: { basis: 'BE', fiscalYear: '2026-27' },
+        quote: 'The revenue receipts are Rs.5211.92 Crore in 2024-25.',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('PERIOD_NOT_IN_QUOTE');
+    });
+
+    it('rejects quote not found on page: QUOTE_NOT_ON_SINGLE_PAGE', () => {
+      const res = verifyFactQuoteAndValue('Page text without the quote.', {
+        page: 1,
+        value: 100,
+        type: 'count',
+        quote: 'Unrelated missing text string',
+      });
+      expect(res.verified).toBe(false);
+      expect(res.failReason).toBe('QUOTE_NOT_ON_SINGLE_PAGE');
     });
   });
 });

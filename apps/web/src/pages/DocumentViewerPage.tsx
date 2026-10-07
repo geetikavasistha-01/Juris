@@ -247,9 +247,14 @@ export const DocumentViewerPage: React.FC = () => {
                   >
                     <div className="space-y-3">
                       <div className="flex items-start justify-between gap-3">
-                        <span className="font-mono text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-surface-raised border border-border text-brand-navy dark:text-brand-navy-hover">
-                          {fact.type}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-mono text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-surface-raised border border-border text-brand-navy dark:text-brand-navy-hover w-fit">
+                            {fact.type}
+                          </span>
+                          {fact.label && (
+                            <span className="text-xs font-medium text-text mt-1">{fact.label}</span>
+                          )}
+                        </div>
                         <VerificationBadge variant={status} page={fact.page} />
                       </div>
 
@@ -266,7 +271,8 @@ export const DocumentViewerPage: React.FC = () => {
                           )}
                           {fact.period && (
                             <span className="text-xs font-mono text-text-muted ml-auto">
-                              ({fact.period})
+                              ({fact.period.basis !== 'none' ? `${fact.period.basis} ` : ''}
+                              {fact.period.fiscalYear || ''})
                             </span>
                           )}
                         </div>

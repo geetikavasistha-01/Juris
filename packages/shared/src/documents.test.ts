@@ -57,11 +57,15 @@ describe('Document Contracts', () => {
       facts: [
         {
           id: '44444444-4444-4444-4444-444444444444',
-          type: 'financial_total',
+          label: 'Revenue receipts BE 2026-27',
+          type: 'receipt',
           value: 5211.92,
           unit: 'crore',
           currency: 'INR',
-          period: '2026-27',
+          period: {
+            basis: 'BE',
+            fiscalYear: '2026-27',
+          },
           page: 33,
           quote: 'BE 2026-27 for revenue receipts are Rs.5211.92 Crore',
           verified: true,

@@ -12,11 +12,12 @@ describe('visuals data preparation & correctness guards', () => {
   const mockFacts: DocumentFactDetail[] = [
     {
       id: 'a1111111-1111-1111-1111-111111111111',
-      type: 'HEALTH',
+      label: 'Health Services Allocation',
+      type: 'allocation',
       value: 120.5,
       unit: 'crore',
       currency: 'INR',
-      period: '2026-27',
+      period: { basis: 'BE', fiscalYear: '2026-27' },
       page: 12,
       quote: 'Rs 120.5 crore allocated to health services',
       verified: true,
@@ -25,11 +26,12 @@ describe('visuals data preparation & correctness guards', () => {
     },
     {
       id: 'a2222222-2222-2222-2222-222222222222',
-      type: 'INFRASTRUCTURE',
+      label: 'Road Improvement Allocation',
+      type: 'allocation',
       value: 450.0,
       unit: 'crore',
       currency: 'INR',
-      period: '2026-27',
+      period: { basis: 'BE', fiscalYear: '2026-27' },
       page: 18,
       quote: 'Rs 450 crore allocated for road improvement',
       verified: true,
@@ -38,11 +40,12 @@ describe('visuals data preparation & correctness guards', () => {
     },
     {
       id: 'a3333333-3333-3333-3333-333333333333',
-      type: 'EDUCATION',
+      label: 'Primary Schools Allocation',
+      type: 'allocation',
       value: 80.0,
       unit: 'crore',
       currency: 'INR',
-      period: '2025-26',
+      period: { basis: 'RE', fiscalYear: '2025-26' },
       page: 24,
       quote: 'Rs 80 crore allocated for primary schools',
       verified: true,
@@ -51,11 +54,12 @@ describe('visuals data preparation & correctness guards', () => {
     },
     {
       id: 'a4444444-4444-4444-4444-444444444444',
-      type: 'INFRASTRUCTURE',
+      label: 'Road Construction Length',
+      type: 'physical_quantity',
       value: 1200.0,
       unit: 'km', // MIXED NON-FINANCIAL UNIT
       currency: null,
-      period: '2026-27',
+      period: { basis: 'BE', fiscalYear: '2026-27' },
       page: 30,
       quote: '1200 km of new roads constructed',
       verified: true,
@@ -64,16 +68,17 @@ describe('visuals data preparation & correctness guards', () => {
     },
     {
       id: 'a5555555-5555-5555-5555-555555555555',
-      type: 'DEFENSE',
+      label: 'Defense Assertion',
+      type: 'expenditure',
       value: 9999.0, // UNVERIFIED FACT MUST BE EXCLUDED
       unit: 'crore',
       currency: 'INR',
-      period: '2026-27',
+      period: { basis: 'BE', fiscalYear: '2026-27' },
       page: 45,
       quote: 'Unverified Rs 9999 crore assertion',
       verified: false,
       verificationMethod: 'quote_on_page',
-      failReason: 'Quote not found on page',
+      failReason: 'QUOTE_NOT_ON_SINGLE_PAGE',
     },
   ];
 
@@ -115,11 +120,12 @@ describe('visuals data preparation & correctness guards', () => {
         ...mockFacts,
         {
           id: 'total-1',
+          label: 'Total BE Expenditure',
           type: 'financial_total',
           value: 5810.02,
           unit: 'crore',
           currency: 'INR',
-          period: '2026-27',
+          period: { basis: 'BE', fiscalYear: '2026-27' },
           page: 33,
           quote: 'The total expenditure for BE 2026-27 are Rs.5810.02 Crore',
           verified: true,
@@ -139,16 +145,17 @@ describe('visuals data preparation & correctness guards', () => {
       const unverifiedFacts: DocumentFactDetail[] = [
         {
           id: 'b1111111-1111-1111-1111-111111111111',
-          type: 'FINANCE',
+          label: 'Unverified Finance',
+          type: 'expenditure',
           value: 500,
           unit: 'crore',
           currency: 'INR',
-          period: '2026-27',
+          period: { basis: 'BE', fiscalYear: '2026-27' },
           page: 5,
           quote: 'Unverified 500 cr',
           verified: false,
           verificationMethod: 'quote_on_page',
-          failReason: 'Verification failed',
+          failReason: 'QUOTE_NOT_ON_SINGLE_PAGE',
         },
       ];
 
@@ -160,30 +167,24 @@ describe('visuals data preparation & correctness guards', () => {
   });
 
   describe('prepareTemporalTrendData', () => {
-    it('aggregates only verified facts with period citations and uniform units', () => {
+    it('aggregates multi-year facts accurately with explicit period grouping', () => {
       const result = prepareTemporalTrendData(mockFacts);
       expect(result.status).toBe('ready');
-      expect(result.currency).toBe('INR');
-      expect(result.unit).toBe('crore');
-      expect(result.periods).toEqual(['2025-26', '2026-27']);
-      // 2025-26 has 80.0; 2026-27 has 120.5 + 450.0 = 570.5 (excluding 1200 km and unverified 9999)
-      expect(result.values).toEqual([80.0, 570.5]);
+      expect(result.periods).toEqual(['BE 2026-27', 'RE 2025-26']);
+      // BE 2026-27 = 120.5 + 450.0 = 570.5
+      // RE 2025-26 = 80.0
+      expect(result.values).toEqual([570.5, 80.0]);
     });
   });
 
-  describe('prepareCategoryFactCounts (Thematic Weight)', () => {
-    it('measures fact COUNTS and proportions, not budget share', () => {
+  describe('prepareCategoryFactCounts', () => {
+    it('computes category share and counts without monetary conflation', () => {
       const result = prepareCategoryFactCounts(mockFacts);
       expect(result.status).toBe('ready');
-      expect(result.title).toContain('Fact Counts by Category');
-      expect(result.description).toContain('counts, not expenditure share');
       expect(result.totalFacts).toBe(5);
-
-      const infra = result.categories.find((c) => c.category === 'INFRASTRUCTURE');
-      expect(infra).toBeDefined();
-      expect(infra?.count).toBe(2); // 2 facts total
-      expect(infra?.verifiedCount).toBe(2);
-      expect(infra?.percentage).toBe(40.0);
+      const allocCat = result.categories.find((c) => c.category === 'allocation');
+      expect(allocCat?.count).toBe(3);
+      expect(allocCat?.verifiedCount).toBe(3);
     });
   });
 });

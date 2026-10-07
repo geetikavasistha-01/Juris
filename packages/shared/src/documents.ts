@@ -41,18 +41,50 @@ export const DocumentAnalysisDetailSchema = z.object({
 });
 export type DocumentAnalysisDetail = z.infer<typeof DocumentAnalysisDetailSchema>;
 
+export const FactTypeSchema = z.enum([
+  'financial_total',
+  'receipt',
+  'expenditure',
+  'allocation',
+  'tax_collection',
+  'physical_quantity',
+  'count',
+  'percentage',
+]);
+export type FactType = z.infer<typeof FactTypeSchema>;
+
+export const FactPeriodSchema = z.object({
+  basis: z.enum(['BE', 'RE', 'actual', 'none']),
+  fiscalYear: z.string().nullable(),
+});
+export type FactPeriod = z.infer<typeof FactPeriodSchema>;
+
+export const FactFailReasonSchema = z.enum([
+  'HEADING_NUMBER',
+  'YEAR_OR_DATE_AS_VALUE',
+  'PAGE_OR_ID_NUMBER',
+  'VALUE_NOT_IN_QUOTE',
+  'UNIT_NOT_IN_QUOTE',
+  'PERIOD_NOT_IN_QUOTE',
+  'QUOTE_NOT_ON_SINGLE_PAGE',
+  'MISSING_REQUIRED_UNIT',
+  'PAGE_TEXT_MISSING',
+]);
+export type FactFailReason = z.infer<typeof FactFailReasonSchema>;
+
 export const DocumentFactDetailSchema = z.object({
   id: z.string().uuid(),
-  type: z.string(),
+  label: z.string().min(1),
+  type: FactTypeSchema,
   value: z.number().nullable(),
   unit: z.string().nullable(),
   currency: z.string().nullable(),
-  period: z.string().nullable(),
+  period: FactPeriodSchema.nullable(),
   page: z.number().int().positive(),
   quote: z.string(),
   verified: z.boolean(),
   verificationMethod: VerificationMethodSchema.default('quote_on_page'),
-  failReason: z.string().nullable().default(null),
+  failReason: FactFailReasonSchema.nullable().default(null),
 });
 export type DocumentFactDetail = z.infer<typeof DocumentFactDetailSchema>;
 
