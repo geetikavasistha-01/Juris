@@ -189,6 +189,7 @@ export function findQuoteInPage(pageText: string, quote: string): QuoteMatchResu
 export interface FactVerificationInput {
   quote: string;
   value?: number | null;
+  period?: string | null;
   page: number;
 }
 
@@ -197,12 +198,14 @@ export interface FactVerificationResult {
   failReason?: string;
   quoteMatched: boolean;
   valueMatched: boolean;
+  periodMatched: boolean;
   exactMatch: boolean;
 }
 
 /**
  * Verifies that a fact's verbatim quote appears on the specified page AND
- * that the fact's numeric value (if provided) appears inside the quote.
+ * that the fact's numeric value (if provided) appears inside the quote AND
+ * that the fact's cited fiscal period (if provided) appears in the quote or surrounding sentence context.
  */
 export function verifyFactQuoteAndValue(
   pageText: string,
@@ -214,6 +217,7 @@ export function verifyFactQuoteAndValue(
       failReason: `Page ${fact.page} text is empty or missing`,
       quoteMatched: false,
       valueMatched: false,
+      periodMatched: false,
       exactMatch: false,
     };
   }
@@ -226,6 +230,7 @@ export function verifyFactQuoteAndValue(
       failReason: `Quote "${fact.quote}" not found on page ${fact.page}`,
       quoteMatched: false,
       valueMatched: false,
+      periodMatched: false,
       exactMatch: false,
     };
   }
@@ -252,6 +257,45 @@ export function verifyFactQuoteAndValue(
         failReason: `Numeric value ${val} does not appear in quote "${fact.quote}"`,
         quoteMatched: true,
         valueMatched: false,
+        periodMatched: false,
+        exactMatch: quoteResult.exactMatch,
+      };
+    }
+  }
+
+  // 3. If period is provided, verify period token appears in the quote or surrounding sentence
+  if (fact.period && fact.period.trim().length > 0) {
+    const rawPeriod = fact.period.trim();
+    const periodTokens = [
+      rawPeriod,
+      rawPeriod.replace('-', '–'), // en-dash
+      rawPeriod.replace('–', '-'), // hyphen
+      rawPeriod.replace('/', '-'),
+      rawPeriod.replace('/', '–'),
+    ];
+
+    const normQuote = quoteResult.normalizedQuote;
+    const normPage = quoteResult.normalizedPageText;
+
+    // Check if period token is directly in the quote
+    const inQuote = periodTokens.some((t) => normQuote.includes(t.toLowerCase()));
+
+    // Check if period token appears in the surrounding sentence context around the quote match
+    let inSurroundingContext = false;
+    if (!inQuote && quoteResult.startIndex >= 0) {
+      const windowStart = Math.max(0, quoteResult.startIndex - 120);
+      const windowEnd = Math.min(normPage.length, quoteResult.endIndex + 120);
+      const surroundingSnippet = normPage.slice(windowStart, windowEnd);
+      inSurroundingContext = periodTokens.some((t) => surroundingSnippet.includes(t.toLowerCase()));
+    }
+
+    if (!inQuote && !inSurroundingContext) {
+      return {
+        verified: false,
+        failReason: `Period "${rawPeriod}" not found in quote or surrounding sentence context on page ${fact.page}`,
+        quoteMatched: true,
+        valueMatched: true,
+        periodMatched: false,
         exactMatch: quoteResult.exactMatch,
       };
     }
@@ -261,6 +305,7 @@ export function verifyFactQuoteAndValue(
     verified: true,
     quoteMatched: true,
     valueMatched: true,
+    periodMatched: true,
     exactMatch: quoteResult.exactMatch,
   };
 }

@@ -19,6 +19,8 @@ export interface PreparedBarChartData {
   categories: string[];
   values: number[];
   items: ChartSeriesDataPoint[];
+  excludedCount: number;
+  excludedReason?: string;
   emptyReason?: string;
 }
 
@@ -29,6 +31,8 @@ export interface PreparedTrendChartData {
   currency: string | null;
   periods: string[];
   values: number[];
+  excludedCount: number;
+  excludedReason?: string;
   emptyReason?: string;
 }
 
@@ -106,6 +110,7 @@ export function prepareTopAllocationsData(
       categories: [],
       values: [],
       items: [],
+      excludedCount: facts.length,
       emptyReason:
         unverifiedCount > 0
           ? `All ${unverifiedCount} numerical facts in this document are unverified or unapproved. Excluded to ensure verifiability (VIZ-01).`
@@ -113,9 +118,15 @@ export function prepareTopAllocationsData(
     };
   }
 
+  // Filter out aggregate totals so individual allocations and aggregate sums don't share a ranking
+  const lineItemFacts = verifiedNumericFacts.filter(
+    (f) => f.type !== 'financial_total' && f.type !== 'total',
+  );
+  const factsToRank = lineItemFacts.length > 0 ? lineItemFacts : verifiedNumericFacts;
+
   // 2. Identify dominant unit and currency pairing
   const pairCounts = new Map<string, { count: number; unit: string; currency: string }>();
-  for (const f of verifiedNumericFacts) {
+  for (const f of factsToRank) {
     const normUnit = normalizeUnit(f.unit);
     const normCurr = normalizeCurrency(f.currency);
     const key = `${normCurr}|${normUnit}`;
@@ -138,9 +149,11 @@ export function prepareTopAllocationsData(
   const dominantUnit = parts[1] ?? 'unitless';
 
   // Filter strictly to the dominant uniform unit/currency
-  const uniformFacts = verifiedNumericFacts.filter((f) => {
+  const uniformFacts = factsToRank.filter((f) => {
     return normalizeCurrency(f.currency) === dominantCurr && normalizeUnit(f.unit) === dominantUnit;
   });
+
+  const excludedCount = facts.length - uniformFacts.length;
 
   if (uniformFacts.length === 0) {
     return {
@@ -151,6 +164,7 @@ export function prepareTopAllocationsData(
       categories: [],
       values: [],
       items: [],
+      excludedCount: facts.length,
       emptyReason:
         'Extracted verified facts contain conflicting incompatible units with no clear financial series.',
     };
@@ -182,6 +196,11 @@ export function prepareTopAllocationsData(
     categories: items.map((i) => i.name),
     values: items.map((i) => i.value),
     items,
+    excludedCount,
+    excludedReason:
+      excludedCount > 0
+        ? `${excludedCount} facts in other units, aggregate totals, or unverified facts not shown in this chart.`
+        : undefined,
   };
 }
 
@@ -209,6 +228,7 @@ export function prepareTemporalTrendData(facts: DocumentFactDetail[]): PreparedT
       currency: null,
       periods: [],
       values: [],
+      excludedCount: facts.length,
       emptyReason: 'No verified numerical facts with explicit fiscal period citations.',
     };
   }
@@ -247,6 +267,7 @@ export function prepareTemporalTrendData(facts: DocumentFactDetail[]): PreparedT
   const values = periods.map((p) => periodMap.get(p) || 0);
 
   const unitLabel = dominantCurr !== 'NONE' ? `${dominantCurr} (${dominantUnit})` : dominantUnit;
+  const excludedCount = facts.length - uniformPeriodFacts.length;
 
   return {
     status: 'ready',
@@ -255,6 +276,11 @@ export function prepareTemporalTrendData(facts: DocumentFactDetail[]): PreparedT
     currency: dominantCurr === 'NONE' ? null : dominantCurr,
     periods,
     values,
+    excludedCount,
+    excludedReason:
+      excludedCount > 0
+        ? `${excludedCount} facts without explicit period citations or in other units not shown in this trend.`
+        : undefined,
   };
 }
 

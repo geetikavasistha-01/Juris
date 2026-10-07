@@ -104,6 +104,35 @@ describe('visuals data preparation & correctness guards', () => {
       expect(result.items.length).toBe(3);
       expect(result.items[0]?.value).toBe(450.0);
       expect(result.items[0]?.page).toBe(18);
+
+      // Excluded count should report exactly 2 excluded facts (1 km fact + 1 unverified)
+      expect(result.excludedCount).toBe(2);
+      expect(result.excludedReason).toContain('2 facts in other units');
+    });
+
+    it('excludes aggregate financial_total facts from departmental line-item allocations', () => {
+      const factsWithTotal: DocumentFactDetail[] = [
+        ...mockFacts,
+        {
+          id: 'total-1',
+          type: 'financial_total',
+          value: 5810.02,
+          unit: 'crore',
+          currency: 'INR',
+          period: '2026-27',
+          page: 33,
+          quote: 'The total expenditure for BE 2026-27 are Rs.5810.02 Crore',
+          verified: true,
+          verificationMethod: 'quote_on_page',
+          failReason: null,
+        },
+      ];
+
+      const result = prepareTopAllocationsData(factsWithTotal);
+      expect(result.status).toBe('ready');
+      // Total (5810.02) must not hijack the top line-item ranking
+      expect(result.values).not.toContain(5810.02);
+      expect(result.values).toEqual([450.0, 120.5, 80.0]);
     });
 
     it('returns an honest empty state when all numeric facts are unverified', () => {
@@ -126,6 +155,7 @@ describe('visuals data preparation & correctness guards', () => {
       const result = prepareTopAllocationsData(unverifiedFacts);
       expect(result.status).toBe('empty');
       expect(result.emptyReason).toContain('unverified');
+      expect(result.excludedCount).toBe(1);
     });
   });
 

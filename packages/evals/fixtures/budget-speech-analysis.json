@@ -21,7 +21,7 @@
       "value": 110001,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 1,
       "quote": "Palika Kendra, New Delhi-110001"
     },
@@ -30,7 +30,7 @@
       "value": 1,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "1.  Introduction"
     },
@@ -39,7 +39,7 @@
       "value": 2,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "2.  Future Ready NDMC: Education"
     },
@@ -48,7 +48,7 @@
       "value": 3,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "3.  Reliable NDMC: Discom Operations"
     },
@@ -57,7 +57,7 @@
       "value": 4,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "4.  Reliable NDMC: Roads And Lanes"
     },
@@ -66,7 +66,7 @@
       "value": 5,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "5.  Reliable NDMC: Water Supply"
     },
@@ -75,7 +75,7 @@
       "value": 6,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "6.  Reliable NDMC: Sewerage System"
     },
@@ -84,7 +84,7 @@
       "value": 7,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "7.  Reliable NDMC: Drainage System"
     },
@@ -93,7 +93,7 @@
       "value": 8,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "8.  Strong NDMC: Building, Bridges & Urban Assets"
     },
@@ -102,7 +102,7 @@
       "value": 9,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "9.  Technology Maximum: Information Technology Governance"
     },
@@ -111,7 +111,7 @@
       "value": 10,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "10.  Swasth NDMC: Medical Services"
     },
@@ -120,7 +120,7 @@
       "value": 11,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "11.  Swasth NDMC: AYUSH Services"
     },
@@ -129,7 +129,7 @@
       "value": 12,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "12.  Swachh NDMC: Public Health"
     },
@@ -138,7 +138,7 @@
       "value": 13,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "13.  Green NDMC: Natural Resource Conservation / Horticulture"
     },
@@ -147,7 +147,7 @@
       "value": 14,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "14.  Prudent NDMC: Financial Stability"
     },
@@ -156,7 +156,7 @@
       "value": 15,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "15.  Caring NDMC: Employee and Citizen Welfare"
     },
@@ -165,7 +165,7 @@
       "value": 16,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "16.  Inclusive NDMC: Protection of Weaker Sections"
     },
@@ -174,7 +174,7 @@
       "value": 17,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "17.  Resilient NDMC: Disaster Management"
     },
@@ -183,7 +183,7 @@
       "value": 18,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "18.  Comprehensive Municipal Services"
     },
@@ -192,7 +192,7 @@
       "value": 19,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "19  Smart Parking System"
     },
@@ -201,7 +201,7 @@
       "value": 20,
       "unit": null,
       "currency": "INR",
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "20  Durdarshi NDMC :Vision and Urban Design Strategy"
     },
@@ -210,7 +210,7 @@
       "value": 21,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 2,
       "quote": "21  Human Resource Management"
     },
@@ -228,7 +228,7 @@
       "value": 2047,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2047",
       "page": 3,
       "quote": "urban infrastructure aligning with “ Vision @ 2047”  to"
     },
@@ -237,7 +237,7 @@
       "value": 20,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "contribution of NDMC  employees during the G-20"
     },
@@ -246,7 +246,7 @@
       "value": 1,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "A.1  Settlement of Long Pending Pay and Pension"
     },
@@ -255,7 +255,7 @@
       "value": 15,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "been constituted which has resolved  15 pay/pension"
     },
@@ -264,7 +264,7 @@
       "value": 814,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "related issues covering 814 employee s ."
     },
@@ -273,7 +273,7 @@
       "value": 4,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "eligibl e  regular  employees.  A  total  of  4,357"
     },
@@ -282,7 +282,7 @@
       "value": 2,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "A.2  Appointment/ Promotion"
     },
@@ -291,7 +291,7 @@
       "value": 81,
       "unit": null,
       "currency": "INR",
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "The personnel department conducted 81 DPCs,"
     },
@@ -300,7 +300,7 @@
       "value": 954,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 4,
       "quote": "resultin g in promotion of 954 officials in various"
     },
@@ -309,7 +309,7 @@
       "value": 32,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 5,
       "quote": "for  DPC  of  32  vacancies  and  similarly  32"
     },
@@ -318,7 +318,7 @@
       "value": 354,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 5,
       "quote": "requisitions have been sent  to  DSSSB for 354"
     },
@@ -327,7 +327,7 @@
       "value": 2026,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2026",
       "page": 5,
       "quote": "by  March,  2026  after  completion  of  other"
     },
@@ -336,7 +336,7 @@
       "value": 3,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 5,
       "quote": "A.3  L M H Scheme for Contractual Employees"
     },
@@ -345,7 +345,7 @@
       "value": 4,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 5,
       "quote": "A.4  Implementation of e-HRMS and payroll"
     },
@@ -354,7 +354,7 @@
       "value": 2020,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2020",
       "page": 6,
       "quote": "2020. One of the most prominent initiative is design of"
     },
@@ -363,7 +363,7 @@
       "value": 2025,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2025",
       "page": 6,
       "quote": "Chief Minister on 4th September, 2025. 240 NDMC"
     },
@@ -372,7 +372,7 @@
       "value": 15,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 6,
       "quote": "basics of AI, 15+ AI tools with its ethical use. Now"
     },
@@ -381,7 +381,7 @@
       "value": 300,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 6,
       "quote": "NDMC has 300 ACES of AI.  Outstanding CBSE Board"
     },
@@ -390,7 +390,7 @@
       "value": 2024,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2024",
       "page": 6,
       "quote": "Result  achieved  in  FY  2024 - 25  with  highest  pass"
     },
@@ -399,7 +399,7 @@
       "value": 10,
       "unit": "percent",
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 6,
       "quote": "percentage in the history of NDMC in Class - 10  and  12"
     },
@@ -408,7 +408,7 @@
       "value": 99.44,
       "unit": "percent",
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 6,
       "quote": "is  99.44% and 98.46%  respectively."
     },
@@ -417,7 +417,7 @@
       "value": 14,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 6,
       "quote": "engaged  14  coaches  across  10  sports"
     },
@@ -426,7 +426,7 @@
       "value": 2025,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2025-26",
       "page": 7,
       "quote": "will be finalized in the current FY 2025-26."
     },
@@ -435,7 +435,7 @@
       "value": 2024,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": "2024",
       "page": 7,
       "quote": "Minister  on  2nd  Oct.,  2024  on  the  birth"
     },
@@ -444,7 +444,7 @@
       "value": 3,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 8,
       "quote": "with rich in Omega 3 Acids, protein and other"
     },
@@ -453,7 +453,7 @@
       "value": 3,
       "unit": null,
       "currency": "INR",
-      "period": "2026-27",
+      "period": null,
       "page": 8,
       "quote": "of  3  e - karts,  15  battery - operated  sweepers  and  27"
     },
@@ -462,7 +462,7 @@
       "value": 14,
       "unit": null,
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 9,
       "quote": "expanded in entire NDMC area which has 14 markets"
     },
@@ -471,7 +471,7 @@
       "value": 150,
       "unit": "km",
       "currency": null,
-      "period": "2026-27",
+      "period": null,
       "page": 9,
       "quote": "having 150 km. major footpaths and 132 avenues roads"
     },

@@ -144,5 +144,41 @@ structure development and health‐care.`;
       expect(result.quoteMatched).toBe(false);
       expect(result.failReason).toContain('not found on page 12');
     });
+
+    it('successfully verifies a fact with matching period token in quote or context', () => {
+      const result = verifyFactQuoteAndValue(pageText, {
+        page: 33,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        value: 5211.92,
+        period: '2026-27',
+      });
+      expect(result.verified).toBe(true);
+      expect(result.periodMatched).toBe(true);
+    });
+
+    it('NEGATIVE CONTROL 4: rejects when cited period does not appear in quote or surrounding context', () => {
+      const result = verifyFactQuoteAndValue(pageText, {
+        page: 33,
+        quote: 'The BE 2026-27 for the revenue receipts are Rs.5,211.92 Crore',
+        value: 5211.92,
+        period: '2029-30', // Not in quote or context!
+      });
+      expect(result.verified).toBe(false);
+      expect(result.periodMatched).toBe(false);
+      expect(result.failReason).toContain('Period "2029-30" not found');
+    });
+
+    it('NEGATIVE CONTROL 5: rejects a 2024-25 fact carrying an invalid 2026-27 period tag', () => {
+      const text2024 =
+        'Outstanding CBSE Board Result achieved in FY 2024-25 with highest pass percentage.';
+      const result = verifyFactQuoteAndValue(text2024, {
+        page: 24,
+        quote: 'Outstanding CBSE Board Result achieved in FY 2024-25',
+        period: '2026-27', // Mismatched period!
+      });
+      expect(result.verified).toBe(false);
+      expect(result.periodMatched).toBe(false);
+      expect(result.failReason).toContain('Period "2026-27" not found');
+    });
   });
 });
