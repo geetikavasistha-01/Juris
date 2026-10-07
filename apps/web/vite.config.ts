@@ -15,4 +15,25 @@ export default defineConfig({
     __APP_VERSION__: JSON.stringify(process.env.npm_package_version || '0.1.0'),
     __GIT_SHA__: JSON.stringify(process.env.GIT_SHA || 'dev'),
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/echarts') || id.includes('node_modules/zrender')) {
+            return 'echarts-vendor';
+          }
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase-vendor';
+          }
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router')
+          ) {
+            return 'react-vendor';
+          }
+        },
+      },
+    },
+  },
 });

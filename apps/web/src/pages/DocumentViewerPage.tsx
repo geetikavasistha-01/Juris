@@ -28,7 +28,14 @@ import {
   ArrowLeft,
   Sparkles,
   Filter,
+  BarChart3,
 } from 'lucide-react';
+
+const DocumentVisuals = React.lazy(() =>
+  import('../components/visuals/DocumentVisuals.js').then((m) => ({
+    default: m.DocumentVisuals,
+  })),
+);
 
 export const DocumentViewerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,6 +142,10 @@ export const DocumentViewerPage: React.FC = () => {
           <TabsTrigger value="facts" className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-accent-teal" />
             <span>Extracted Facts ({allFacts.length})</span>
+          </TabsTrigger>
+          <TabsTrigger value="visuals" className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-accent-teal" />
+            <span>Visual Analytics</span>
           </TabsTrigger>
           <TabsTrigger value="summary" className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-brand-navy dark:text-brand-navy-hover" />
@@ -265,6 +276,20 @@ export const DocumentViewerPage: React.FC = () => {
               })}
             </div>
           )}
+        </TabsContent>
+
+        {/* Tab: Visual Analytics */}
+        <TabsContent value="visuals" className="space-y-6">
+          <React.Suspense
+            fallback={
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Skeleton className="h-80 w-full" />
+                <Skeleton className="h-80 w-full" />
+              </div>
+            }
+          >
+            <DocumentVisuals facts={allFacts} documentName={doc.filename} />
+          </React.Suspense>
         </TabsContent>
 
         {/* Tab 2: Executive Findings & Risks */}
