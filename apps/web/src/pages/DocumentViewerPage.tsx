@@ -33,10 +33,13 @@ import {
 
 import { DocumentVisuals } from '../components/visuals/DocumentVisuals.js';
 import { OverviewStoryboard } from '../components/visuals/OverviewStoryboard.js';
+import { InsightPanel } from '../components/insights/InsightPanel.js';
+import type { VisualSpec } from '@juris/shared';
 
 export const DocumentViewerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selectedFact, setSelectedFact] = useState<DocumentFactDetail | null>(null);
+  const [activeInsightSpec, setActiveInsightSpec] = useState<VisualSpec | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [factFilter, setFactFilter] = useState<'all' | 'verified' | 'unverified' | 'failed'>('all');
   const [chunkSearch, setChunkSearch] = useState('');
@@ -161,6 +164,17 @@ export const DocumentViewerPage: React.FC = () => {
 
         {/* Tab 0: Document at a Glance Overview Storyboard (v2 PRD Section 6.3) */}
         <TabsContent value="overview" className="space-y-6">
+          {activeInsightSpec && (
+            <InsightPanel
+              spec={activeInsightSpec}
+              facts={allFacts}
+              onSelectFact={(factId: string) => {
+                const found = allFacts.find((f) => f.id === factId);
+                if (found) setSelectedFact(found);
+              }}
+              onClose={() => setActiveInsightSpec(null)}
+            />
+          )}
           <OverviewStoryboard
             facts={allFacts}
             documentName={doc.filename}
@@ -170,6 +184,7 @@ export const DocumentViewerPage: React.FC = () => {
               const found = allFacts.find((f) => f.id === factId);
               if (found) setSelectedFact(found);
             }}
+            onOpenInsight={(spec) => setActiveInsightSpec(spec)}
           />
         </TabsContent>
 

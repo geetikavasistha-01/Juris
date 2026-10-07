@@ -86,3 +86,5 @@ export * from './evidence.js';
 export * from './verifiers/index.js';
 export * from './visual-spec.js';
 export * from './chart-selector.js';
+export * from './insights.js';
+export * from './grounding.js';

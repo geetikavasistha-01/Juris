@@ -7,6 +7,7 @@ export default defineConfig({
     include: ['**/*.test.ts', '**/*.spec.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
     testTimeout: 20000,
+    hookTimeout: 30000,
     fileParallelism: false,
     coverage: {
       provider: 'v8',

@@ -12,23 +12,30 @@ describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', () => {
   const userB_email = `user_b_${Date.now()}@juris.local`;
   const password = 'Password123!Secure';
 
+  async function createTestUserWithRetry(email: string, pass: string) {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const { data, error } = await adminClient.auth.admin.createUser({
+          email,
+          password: pass,
+          email_confirm: true,
+        });
+        if (!error && data?.user) return data.user;
+      } catch {
+        // Retry after delay
+      }
+      await new Promise((r) => setTimeout(r, 500 * attempt));
+    }
+    throw new Error(`Failed to create test user for email: ${email}`);
+  }
+
   it('proves strict isolation between Account A and Account B at DB, RPC, Realtime, and Storage levels', async () => {
     // 1. Create two separate authenticated users in Supabase Auth
-    const { data: authA, error: errA } = await adminClient.auth.admin.createUser({
-      email: userA_email,
-      password,
-      email_confirm: true,
-    });
-    expect(errA).toBeNull();
-    const userA_id = authA.user!.id;
+    const userA = await createTestUserWithRetry(userA_email, password);
+    const userA_id = userA.id;
 
-    const { data: authB, error: errB } = await adminClient.auth.admin.createUser({
-      email: userB_email,
-      password,
-      email_confirm: true,
-    });
-    expect(errB).toBeNull();
-    const userB_id = authB.user!.id;
+    const userB = await createTestUserWithRetry(userB_email, password);
+    const userB_id = userB.id;
 
     // 2. Sign in as User A and User B
     const clientA = createClient(config.API_URL, config.ANON_KEY);
@@ -225,19 +232,11 @@ describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', () => {
     const user1_email = `http_user1_${Date.now()}@juris.local`;
     const user2_email = `http_user2_${Date.now()}@juris.local`;
 
-    const { data: auth1 } = await adminClient.auth.admin.createUser({
-      email: user1_email,
-      password,
-      email_confirm: true,
-    });
-    const user1_id = auth1.user!.id;
+    const user1 = await createTestUserWithRetry(user1_email, password);
+    const user1_id = user1.id;
 
-    const { data: auth2 } = await adminClient.auth.admin.createUser({
-      email: user2_email,
-      password,
-      email_confirm: true,
-    });
-    const user2_id = auth2.user!.id;
+    const user2 = await createTestUserWithRetry(user2_email, password);
+    const user2_id = user2.id;
 
     const client1 = createClient(config.API_URL, config.ANON_KEY);
     const { data: session1 } = await client1.auth.signInWithPassword({

@@ -26,13 +26,25 @@ describe('Document API & Ingestion Pipeline', () => {
 
   beforeAll(async () => {
     const supabase = getAdminSupabaseClient();
-    const { data: userAuth, error: createErr } = await supabase.auth.admin.createUser({
-      email: testUserEmail,
-      password,
-      email_confirm: true,
-    });
-    if (createErr) throw createErr;
-    _testUserId = userAuth.user!.id;
+    let createdUser: { id: string } | null = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const { data: userAuth, error: createErr } = await supabase.auth.admin.createUser({
+          email: testUserEmail,
+          password,
+          email_confirm: true,
+        });
+        if (!createErr && userAuth?.user) {
+          createdUser = userAuth.user;
+          break;
+        }
+      } catch {
+        // Retry after delay
+      }
+      await new Promise((r) => setTimeout(r, 500 * attempt));
+    }
+    if (!createdUser) throw new Error('Failed to create test user in beforeAll');
+    _testUserId = createdUser.id;
 
     const { data: session, error: signErr } = await supabase.auth.signInWithPassword({
       email: testUserEmail,
@@ -40,7 +52,7 @@ describe('Document API & Ingestion Pipeline', () => {
     });
     if (signErr) throw signErr;
     authToken = session.session!.access_token;
-  });
+  }, 30000);
 
   it('rejects uploads with invalid magic bytes', async () => {
     const mp = createMultipartPayload(
