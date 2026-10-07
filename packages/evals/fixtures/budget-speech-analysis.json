@@ -1,493 +1,1199 @@
 {
   "_provenance": {
-    "model": "synthetic-script-extractor",
-    "prompt_version": "synth-v1",
-    "timestamp": "2026-10-06T20:00:00Z",
-    "request_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "synthetic": true,
-    "status": "deprecated_synthetic"
+    "model": "ndmc-speech-deterministic-extractor",
+    "prompt_version": "extract-v2.0-strict",
+    "timestamp": "2026-10-07T13:58:40.100Z",
+    "request_hash": "455e3b7945e4614f3ffb99facd3d0274ecefe015beef7418f7ab48ee2b7d91ac",
+    "response_hash": "191392571c61f0655e369a143defaa39c3323d876f14de03e9e7f310524a5b77"
   },
+  "document": "docs/pdf/budget-speech-2026-27-english.pdf",
   "documentTitle": "NDMC Budget Speech 2026-27",
-  "documentType": "budget",
-  "summary": "New Delhi Municipal Council (NDMC) Budget Speech 2026-27 outlining municipal finances, capital outlays, power distribution, water augmentation, health, education, and civic infrastructure.",
-  "keyFindings": [
-    "Total budget revenue receipts for BE 2026-27 are estimated at Rs. 5,211.92 Crore.",
-    "Capital receipts are projected at Rs. 741.15 Crore for civic and urban infrastructure.",
-    "Comprehensive allocations made for solar power, smart health centers, and education upgrade."
-  ],
+  "pageCount": 114,
   "facts": [
     {
-      "type": "statistic",
-      "value": 110001,
-      "unit": null,
-      "currency": null,
+      "id": "f4319569-342c-467b-8391-e9bab5d9b33d",
+      "label": "allocation (556 crore)",
+      "type": "allocation",
+      "value": 556,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 1,
-      "quote": "Palika Kendra, New Delhi-110001"
+      "page": 9,
+      "quote": "556 Crore under the Urban Development Fund (UDF)  Scheme.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 1,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "1.  Introduction"
-    },
-    {
-      "type": "statistic",
-      "value": 2,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "2.  Future Ready NDMC: Education"
-    },
-    {
-      "type": "statistic",
-      "value": 3,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "3.  Reliable NDMC: Discom Operations"
-    },
-    {
-      "type": "statistic",
-      "value": 4,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "4.  Reliable NDMC: Roads And Lanes"
-    },
-    {
-      "type": "statistic",
+      "id": "91154714-3328-4f07-8ba5-63c8166af2a8",
+      "label": "allocation (5 lakh)",
+      "type": "allocation",
       "value": 5,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "5.  Reliable NDMC: Water Supply"
-    },
-    {
-      "type": "statistic",
-      "value": 6,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "6.  Reliable NDMC: Sewerage System"
-    },
-    {
-      "type": "statistic",
-      "value": 7,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "7.  Reliable NDMC: Drainage System"
-    },
-    {
-      "type": "statistic",
-      "value": 8,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "8.  Strong NDMC: Building, Bridges & Urban Assets"
-    },
-    {
-      "type": "statistic",
-      "value": 9,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "9.  Technology Maximum: Information Technology Governance"
-    },
-    {
-      "type": "statistic",
-      "value": 10,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "10.  Swasth NDMC: Medical Services"
-    },
-    {
-      "type": "statistic",
-      "value": 11,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "11.  Swasth NDMC: AYUSH Services"
-    },
-    {
-      "type": "statistic",
-      "value": 12,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "12.  Swachh NDMC: Public Health"
-    },
-    {
-      "type": "statistic",
-      "value": 13,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "13.  Green NDMC: Natural Resource Conservation / Horticulture"
-    },
-    {
-      "type": "statistic",
-      "value": 14,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "14.  Prudent NDMC: Financial Stability"
-    },
-    {
-      "type": "statistic",
-      "value": 15,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "15.  Caring NDMC: Employee and Citizen Welfare"
-    },
-    {
-      "type": "statistic",
-      "value": 16,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "16.  Inclusive NDMC: Protection of Weaker Sections"
-    },
-    {
-      "type": "statistic",
-      "value": 17,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "17.  Resilient NDMC: Disaster Management"
-    },
-    {
-      "type": "statistic",
-      "value": 18,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "18.  Comprehensive Municipal Services"
-    },
-    {
-      "type": "statistic",
-      "value": 19,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "19  Smart Parking System"
-    },
-    {
-      "type": "financial_trend",
-      "value": 20,
-      "unit": null,
+      "unit": "lakh",
       "currency": "INR",
       "period": null,
-      "page": 2,
-      "quote": "20  Durdarshi NDMC :Vision and Urban Design Strategy"
+      "page": 17,
+      "quote": "inancial powers delegated to them up to Rs.5 Lakhs for each such deficiency.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 21,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 2,
-      "quote": "21  Human Resource Management"
-    },
-    {
-      "type": "financial_trend",
-      "value": 2026,
-      "unit": null,
-      "currency": null,
-      "period": "2026-27",
-      "page": 3,
-      "quote": "BUDGET SPEECH 2026-27"
-    },
-    {
-      "type": "statistic",
-      "value": 2047,
-      "unit": null,
-      "currency": null,
-      "period": "2047",
-      "page": 3,
-      "quote": "urban infrastructure aligning with “ Vision @ 2047”  to"
-    },
-    {
-      "type": "statistic",
-      "value": 20,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 4,
-      "quote": "contribution of NDMC  employees during the G-20"
-    },
-    {
-      "type": "statistic",
+      "id": "929c2458-f754-4aac-871a-306c3189c2df",
+      "label": "allocation (1 crore)",
+      "type": "allocation",
       "value": 1,
-      "unit": null,
-      "currency": null,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 4,
-      "quote": "A.1  Settlement of Long Pending Pay and Pension"
+      "page": 18,
+      "quote": "01 Crore have been awarded within 05 months period between July and November 2025.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 15,
-      "unit": null,
-      "currency": null,
+      "id": "7065e9fb-34c1-45ed-a4fc-876975116bec",
+      "label": "allocation (60 crore)",
+      "type": "allocation",
+      "value": 60,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 4,
-      "quote": "been constituted which has resolved  15 pay/pension"
+      "page": 19,
+      "quote": "al arts in NDMC area which works out to Rs.60 Crores",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 814,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 4,
-      "quote": "related issues covering 814 employee s ."
+      "id": "08e5972c-9279-4e9f-a82d-a103c9a5825b",
+      "label": "allocation (1914.25 crore)",
+      "type": "allocation",
+      "value": 1914.25,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "RE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "32  Strategic Business Unit (EDSBU) have been projected in RE 2025-26 at   Rs.1914.25   crore as against actual  Rs.2225.90   crore in the year 2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 4,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 4,
-      "quote": "eligibl e  regular  employees.  A  total  of  4,357"
+      "id": "b97d683a-cfae-42c4-ab50-55936f275599",
+      "label": "allocation (2225.9 crore)",
+      "type": "allocation",
+      "value": 2225.9,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "RE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "32  Strategic Business Unit (EDSBU) have been projected in RE 2025-26 at   Rs.1914.25   crore as against actual  Rs.2225.90   crore in the year 2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
+      "id": "6b6d08ea-a90f-4a08-8bc6-363784049244",
+      "label": "allocation (1953.42 crore)",
+      "type": "allocation",
+      "value": 1953.42,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 32,
+      "quote": "The projections for BE 2026-27 are at   Rs.1953.42 crore.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "a5b0ccb0-0e8f-47fb-a35a-560d0e037fdf",
+      "label": "tax collection (1200 crore)",
+      "type": "tax_collection",
+      "value": 1200,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "We are expecting to collect Property Tax of   Rs.1200  crore in Revised Estimates 2025-26 and   Rs.1290   crore in BE 2026-27.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "e6ba5419-2d80-430c-a30e-d02226e6290b",
+      "label": "tax collection (1290 crore)",
+      "type": "tax_collection",
+      "value": 1290,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "We are expecting to collect Property Tax of   Rs.1200  crore in Revised Estimates 2025-26 and   Rs.1290   crore in BE 2026-27.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "b0c7ef30-ed79-4926-aef7-0a2958116f66",
+      "label": "receipt (757.48 crore)",
+      "type": "receipt",
+      "value": 757.48,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "actual",
+        "fiscalYear": "2024-25"
+      },
+      "page": 32,
+      "quote": "U.3   Receipts From Licence Fee From Municipal Properties  The actual receipts in 2024-25 for Licence Fee from Municipal Properties stood at   Rs.757.48   crore.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "3bf44728-14b6-4bfc-b9c7-6981ce5b95c1",
+      "label": "allocation (850.21 crore)",
+      "type": "allocation",
+      "value": 850.21,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "The Projections for RE 2025-26 are at   Rs.850.21   crore and BE 2026-27 are at   Rs.945.21   crore.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "6b2f7380-da36-4db4-a3b9-2781313310f2",
+      "label": "allocation (945.21 crore)",
+      "type": "allocation",
+      "value": 945.21,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2025-26"
+      },
+      "page": 32,
+      "quote": "The Projections for RE 2025-26 are at   Rs.850.21   crore and BE 2026-27 are at   Rs.945.21   crore.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "ee76c05c-f23a-4c18-a8a6-7b6f30b500b7",
+      "label": "receipt (5953.07 crore)",
+      "type": "receipt",
+      "value": 5953.07,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 32,
+      "quote": "The total   receipts of the Budget Estimates 2026-27 are Rs.5953.07 Crore against Rs.5689.27 Crore provided in Revised Estimate 2025-26.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "fe2fa117-6af7-4c81-a6f1-24a2f5eb8be4",
+      "label": "receipt (5689.27 crore)",
+      "type": "receipt",
+      "value": 5689.27,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 32,
+      "quote": "The total   receipts of the Budget Estimates 2026-27 are Rs.5953.07 Crore against Rs.5689.27 Crore provided in Revised Estimate 2025-26.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "0eebbf06-07a5-4265-85a2-8813d14fa5e6",
+      "label": "receipt (5060.57 rupees)",
+      "type": "receipt",
+      "value": 5060.57,
+      "unit": "rupees",
+      "currency": "INR",
+      "period": {
+        "basis": "actual",
+        "fiscalYear": "2024-25"
+      },
+      "page": 32,
+      "quote": "The total   actual   receipts in   2024-25 were Rs.5060.57",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "a92f85c0-c77f-430a-8e51-2870fa82ed4d",
+      "label": "receipt (5211.92 crore)",
+      "type": "receipt",
+      "value": 5211.92,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE 2026-27 for the revenue receipts are Rs.5211.92   Crore   against   Rs.4964.73   Crore provided in RE 2025-26 and actual of Rs.4606.56  Crore in 2024-25.  iii.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "13c7c1d5-c098-40fc-b642-b1fb06487035",
+      "label": "receipt (4964.73 crore)",
+      "type": "receipt",
+      "value": 4964.73,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE 2026-27 for the revenue receipts are Rs.5211.92   Crore   against   Rs.4964.73   Crore provided in RE 2025-26 and actual of Rs.4606.56  Crore in 2024-25.  iii.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "aa1e8c90-41c0-4fb9-bd05-09b130bb17d4",
+      "label": "receipt (4606.56 crore)",
+      "type": "receipt",
+      "value": 4606.56,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE 2026-27 for the revenue receipts are Rs.5211.92   Crore   against   Rs.4964.73   Crore provided in RE 2025-26 and actual of Rs.4606.56  Crore in 2024-25.  iii.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "d55e55fa-aa80-4bf2-b918-d12a075dd9f8",
+      "label": "receipt (741.15 crore)",
+      "type": "receipt",
+      "value": 741.15,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   BE   2026-27   for   capital   receipts   are Rs.741.15 Crore against Rs.724.54 Crore provided in RE 2025-26 and actual of Rs.454.01 Crore in 2024-25.  iv.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "79aabbee-bf65-48db-90ce-f4cf9e2d5016",
+      "label": "receipt (724.54 crore)",
+      "type": "receipt",
+      "value": 724.54,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   BE   2026-27   for   capital   receipts   are Rs.741.15 Crore against Rs.724.54 Crore provided in RE 2025-26 and actual of Rs.454.01 Crore in 2024-25.  iv.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "3662c1bc-c595-444a-83d2-6d4803caf4e1",
+      "label": "receipt (454.01 crore)",
+      "type": "receipt",
+      "value": 454.01,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   BE   2026-27   for   capital   receipts   are Rs.741.15 Crore against Rs.724.54 Crore provided in RE 2025-26 and actual of Rs.454.01 Crore in 2024-25.  iv.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "47346bc7-ecb2-42d9-8ff4-ef30bdc888c3",
+      "label": "financial total (5810.02 crore)",
+      "type": "financial_total",
+      "value": 5810.02,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   total   expenditure   for   BE   2026-27   are Rs.5810.02   Crore   against   Rs.5484.15   Crore provided in RE 2025-26 and actual of Rs.4678.45  Crore in 2024-25.  v.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "d15b81b6-e45e-4cf8-a9dd-e18f8b0bd5af",
+      "label": "financial total (5484.15 crore)",
+      "type": "financial_total",
+      "value": 5484.15,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   total   expenditure   for   BE   2026-27   are Rs.5810.02   Crore   against   Rs.5484.15   Crore provided in RE 2025-26 and actual of Rs.4678.45  Crore in 2024-25.  v.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "b3e1b468-dba6-49c8-bbf3-4a7e003bde95",
+      "label": "financial total (4678.45 crore)",
+      "type": "financial_total",
+      "value": 4678.45,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   total   expenditure   for   BE   2026-27   are Rs.5810.02   Crore   against   Rs.5484.15   Crore provided in RE 2025-26 and actual of Rs.4678.45  Crore in 2024-25.  v.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "05633078-634a-400d-a1d0-e7b19935c30d",
+      "label": "expenditure (4866.18 crore)",
+      "type": "expenditure",
+      "value": 4866.18,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE for revenue expenditure in 2026-27 are   Rs.4866.18   Crore   against   Rs.4897.61   Crore provided in RE 2025-26 and actual of Rs.4556.72 Crore   in   2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "4a0fd665-2254-4a1e-ac81-abba1f206335",
+      "label": "expenditure (4897.61 crore)",
+      "type": "expenditure",
+      "value": 4897.61,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE for revenue expenditure in 2026-27 are   Rs.4866.18   Crore   against   Rs.4897.61   Crore provided in RE 2025-26 and actual of Rs.4556.72 Crore   in   2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "83455c07-94ec-4de7-bf58-81d16e002fd2",
+      "label": "expenditure (4556.72 crore)",
+      "type": "expenditure",
+      "value": 4556.72,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The BE for revenue expenditure in 2026-27 are   Rs.4866.18   Crore   against   Rs.4897.61   Crore provided in RE 2025-26 and actual of Rs.4556.72 Crore   in   2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "f2a3f8db-dba3-4bb4-9bbf-5317a33d4638",
+      "label": "expenditure (943.84 crore)",
+      "type": "expenditure",
+      "value": 943.84,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   capital   expenditure   is projected at Rs.943.84 Crore in BE 2026-27 against Rs.586.54   Crore   in   RE   2025-26   and   actual   of Rs.121.73 Crore in 2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "bb244a20-af9d-4af3-869a-21fd95d0e7ac",
+      "label": "expenditure (586.54 crore)",
+      "type": "expenditure",
+      "value": 586.54,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   capital   expenditure   is projected at Rs.943.84 Crore in BE 2026-27 against Rs.586.54   Crore   in   RE   2025-26   and   actual   of Rs.121.73 Crore in 2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "026db4af-e5a4-45f6-b40c-161024fde592",
+      "label": "expenditure (121.73 crore)",
+      "type": "expenditure",
+      "value": 121.73,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 33,
+      "quote": "The   capital   expenditure   is projected at Rs.943.84 Crore in BE 2026-27 against Rs.586.54   Crore   in   RE   2025-26   and   actual   of Rs.121.73 Crore in 2024-25.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "8d474089-24c2-45f9-93ab-3181b90a79bf",
+      "label": "allocation (245.93 crore)",
+      "type": "allocation",
+      "value": 245.93,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 48,
+      "quote": "245.93   crore towards Education Sector, out of which   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "6683bf89-5178-413b-89e6-bfac1ae54d6e",
+      "label": "allocation (16.99 crore)",
+      "type": "allocation",
+      "value": 16.99,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 48,
+      "quote": "16.99   crore is for capital work and   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "b0d347c5-029e-47a5-bbfa-c0f66ed3545c",
+      "label": "expenditure (228.94 crore)",
+      "type": "expenditure",
+      "value": 228.94,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 48,
+      "quote": "228.94   crore towards Revenue Expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "28efcc22-d050-4ee7-877a-668f0ae5d8ef",
+      "label": "allocation (332 crore)",
+      "type": "allocation",
+      "value": 332,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 51,
+      "quote": "unding support for   projects   worth   Rs.332   crores.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "b5d85550-a487-4048-b8ca-f3f930016b03",
+      "label": "allocation (1966.8 crore)",
+      "type": "allocation",
+      "value": 1966.8,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 54,
+      "quote": "In the year 2026-27, I propose to allocate   Rs.1966.80 crore   for Electricity Department out of which  Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "beb1f195-7bb6-40c7-975f-bf3e260822a0",
+      "label": "expenditure (360.07 crore)",
+      "type": "expenditure",
+      "value": 360.07,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 54,
+      "quote": "360.07   crore is towards capital expenditure and   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "e848815d-0b56-4d5c-8628-3fc997546009",
+      "label": "expenditure (1606.73 crore)",
+      "type": "expenditure",
+      "value": 1606.73,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 54,
+      "quote": "1606.73   crore towards revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "1f1a7f93-0a35-4492-a9da-e4c445bef97d",
+      "label": "allocation (228.87 crore)",
+      "type": "allocation",
+      "value": 228.87,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 62,
+      "quote": "228.87  crore for Road Department out of which   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "bea1b3c7-150b-43f3-8340-93970e481b7a",
+      "label": "expenditure (98.77 crore)",
+      "type": "expenditure",
+      "value": 98.77,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 62,
+      "quote": "98.77  crore is towards capital expenditure and   Rs.130.1   crore towards revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "d008bf7c-c715-44f8-bfaa-ca62e91bba6e",
+      "label": "expenditure (130.1 crore)",
+      "type": "expenditure",
+      "value": 130.1,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 62,
+      "quote": "98.77  crore is towards capital expenditure and   Rs.130.1   crore towards revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "420f3737-29b4-4aa9-b6bb-79b84874607d",
+      "label": "allocation (3011 rupees)",
+      "type": "allocation",
+      "value": 3011,
+      "unit": "rupees",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": null
+      },
+      "page": 62,
+      "quote": "ercial   3509,   Domestic 11846 and others 3011 connections) where NDMC is providing wat",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "d432483c-7550-4d4d-9774-f4d732a7060c",
+      "label": "expenditure (230.28 crore)",
+      "type": "expenditure",
+      "value": 230.28,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 64,
+      "quote": "e year 2026-27, I propose to allocate   Rs.230.28  crore for Water Supply Department out of whic",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "e193f29b-1920-4c9c-8624-3328d53c5396",
+      "label": "expenditure (40.63 crore)",
+      "type": "expenditure",
+      "value": 40.63,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 64,
+      "quote": "r Water Supply Department out of which  Rs.40.63   crore is towards capital expenditure and  Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "319d60f0-1fd8-4f4b-9554-2811059b74a0",
+      "label": "expenditure (179.65 crore)",
+      "type": "expenditure",
+      "value": 179.65,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 64,
+      "quote": "ore is towards capital expenditure and  Rs.179.65   crore towards revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "2c779cd9-36a3-4726-8086-91bb57440481",
+      "label": "allocation (556 crore)",
+      "type": "allocation",
+      "value": 556,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 65,
+      "quote": "65  rehabilitation projects worth Rs 556 Cr. under Urban Development   Fund   (UDF)   which   includes rehabilitation of 17 major lines over a period of next 5 years.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "dcdd2d7a-9c1d-4db1-9f80-9df1f9ca527f",
+      "label": "allocation (248.61 crore)",
+      "type": "allocation",
+      "value": 248.61,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 69,
+      "quote": "In the year 2026-27, I propose to allocate   Rs.248.61  Crore for Sewerage Department out of which  Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "09c98009-d146-46c6-ab58-413638880514",
+      "label": "expenditure (121.27 crore)",
+      "type": "expenditure",
+      "value": 121.27,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 69,
+      "quote": "121.27   Crore is towards capital expenditure and  Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "63328fd1-a50c-4981-b2fa-9f2f8ff2d826",
+      "label": "expenditure (127.34 crore)",
+      "type": "expenditure",
+      "value": 127.34,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 69,
+      "quote": "127.34   Crore towards revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "de0796fd-76ba-4e7c-a22b-b6369dab3036",
+      "label": "expenditure (24.58 crore)",
+      "type": "expenditure",
+      "value": 24.58,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 70,
+      "quote": "e year 2026-27, I propose to allocate   Rs.24.58  crore towards improvement of drainage system",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "ee9d0de9-fd6b-4c51-87b1-b4ccd61b628c",
+      "label": "expenditure (17.4 crore)",
+      "type": "expenditure",
+      "value": 17.4,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 70,
+      "quote": "ement of drainage system out of which   Rs.17.40   crore towards Capital Expenditure and  Rs.7.1",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "5aed44ca-939b-4eda-ae0f-185a45ea5d80",
+      "label": "expenditure (7.18 crore)",
+      "type": "expenditure",
+      "value": 7.18,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 70,
+      "quote": "crore towards Capital Expenditure and  Rs.7.18   crore towards Revenue Expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "5625cfd4-af01-478c-a56a-bbd9734150c3",
+      "label": "expenditure (147.25 crore)",
+      "type": "expenditure",
+      "value": 147.25,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 75,
+      "quote": "e year 2026-27, I propose to allocate   Rs.147.25  crore   towards   improvement   of   Civil",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "cf11cee2-67f3-468c-bcb9-db6dcde3c948",
+      "label": "expenditure (100.71 crore)",
+      "type": "expenditure",
+      "value": 100.71,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 75,
+      "quote": "uilding Department   out   of   which   Rs.100.71   crore   towards Capital   Expenditure   and",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "6e6c7b4f-7ee1-494c-a599-e1db1e009681",
+      "label": "expenditure (46.54 crore)",
+      "type": "expenditure",
+      "value": 46.54,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 75,
+      "quote": "towards Capital   Expenditure   and   Rs.46.54   crore   towards Revenue Expenditure.",
+      "verified": false,
+      "verificationMethod": "quote_on_page",
+      "failReason": "PERIOD_NOT_IN_QUOTE"
+    },
+    {
+      "id": "e39bc075-6bdc-4de0-85a8-3a58193c75e6",
+      "label": "allocation (2 crore)",
+      "type": "allocation",
       "value": 2,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 4,
-      "quote": "A.2  Appointment/ Promotion"
-    },
-    {
-      "type": "financial_trend",
-      "value": 81,
-      "unit": null,
+      "unit": "crore",
       "currency": "INR",
       "period": null,
-      "page": 4,
-      "quote": "The personnel department conducted 81 DPCs,"
+      "page": 76,
+      "quote": "Under Phase-I, more than 2 crore pages have already been digitized.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 954,
-      "unit": null,
-      "currency": null,
+      "id": "eb744bb2-a650-47dc-b11e-77f28347f640",
+      "label": "allocation (1.6 crore)",
+      "type": "allocation",
+      "value": 1.6,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2025-26"
+      },
+      "page": 76,
+      "quote": "In Phase-II, 1.60 crore pages have been digitized so far, and the remaining work is targeted for completion by the end of the current financial year 2025–26.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "013ac432-03eb-4096-82e3-40404f1a58ff",
+      "label": "expenditure (42.85 crore)",
+      "type": "expenditure",
+      "value": 42.85,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 4,
-      "quote": "resultin g in promotion of 954 officials in various"
+      "page": 84,
+      "quote": "In the coming year, NDMC proposes to spend a sum of  Rs.42.85   crore towards Information Technology Sector out   of   which   Rs.11.08   crore   towards   revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 32,
-      "unit": null,
-      "currency": null,
+      "id": "9fba64e4-a975-4e06-aa24-39c190c94eaa",
+      "label": "expenditure (11.08 crore)",
+      "type": "expenditure",
+      "value": 11.08,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 5,
-      "quote": "for  DPC  of  32  vacancies  and  similarly  32"
+      "page": 84,
+      "quote": "In the coming year, NDMC proposes to spend a sum of  Rs.42.85   crore towards Information Technology Sector out   of   which   Rs.11.08   crore   towards   revenue expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 354,
-      "unit": null,
-      "currency": null,
+      "id": "06d5f694-d72a-4327-aba7-a0f51fab46c0",
+      "label": "allocation (1 lakh)",
+      "type": "allocation",
+      "value": 1,
+      "unit": "lakh",
+      "currency": "INR",
       "period": null,
-      "page": 5,
-      "quote": "requisitions have been sent  to  DSSSB for 354"
+      "page": 85,
+      "quote": "9.4   Upgradation and strengthening of Dental  Department  Number of patients had increased exponentially in the  past few   years, it is more than 1 lakh in a   year.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 2026,
-      "unit": null,
-      "currency": null,
-      "period": "2026",
-      "page": 5,
-      "quote": "by  March,  2026  after  completion  of  other"
+      "id": "e15c50b5-650c-4b66-ba0a-512a910128a3",
+      "label": "allocation (118.33 rupees)",
+      "type": "allocation",
+      "value": 118.33,
+      "unit": "rupees",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 87,
+      "quote": "In the year 2026-27, I propose to allocate   Rs.118.33",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 3,
-      "unit": null,
-      "currency": null,
+      "id": "4c7a1aea-a5e4-4f87-8f8c-d19a86657eac",
+      "label": "expenditure (88 crore)",
+      "type": "expenditure",
+      "value": 88,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 5,
-      "quote": "A.3  L M H Scheme for Contractual Employees"
+      "page": 88,
+      "quote": "88  crore   towards   improvement   of   Medical",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 4,
-      "unit": null,
-      "currency": null,
+      "id": "5102cb47-ff01-4506-9d53-087b2b0a354e",
+      "label": "expenditure (12.71 crore)",
+      "type": "expenditure",
+      "value": 12.71,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 5,
-      "quote": "A.4  Implementation of e-HRMS and payroll"
+      "page": 88,
+      "quote": "ervices Department   out   of   which   Rs.12.71   crore   towards Capital   Expenditure   and",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 2020,
-      "unit": null,
-      "currency": null,
-      "period": "2020",
-      "page": 6,
-      "quote": "2020. One of the most prominent initiative is design of"
-    },
-    {
-      "type": "statistic",
-      "value": 2025,
-      "unit": null,
-      "currency": null,
-      "period": "2025",
-      "page": 6,
-      "quote": "Chief Minister on 4th September, 2025. 240 NDMC"
-    },
-    {
-      "type": "statistic",
-      "value": 15,
-      "unit": null,
-      "currency": null,
+      "id": "dc9ab485-1046-4d8f-b409-5913209f207b",
+      "label": "expenditure (105.62 crore)",
+      "type": "expenditure",
+      "value": 105.62,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 6,
-      "quote": "basics of AI, 15+ AI tools with its ethical use. Now"
+      "page": 88,
+      "quote": "towards Capital   Expenditure   and   Rs.105.62   crore   towards Revenue Expenditure.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 300,
-      "unit": null,
-      "currency": null,
+      "id": "40e1d9f5-2b37-4b12-953d-111d7b16e735",
+      "label": "allocation (7.63 crore)",
+      "type": "allocation",
+      "value": 7.63,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 90,
+      "quote": "90  In the year 2026-27, I propose to allocate   Rs.7.63   crore towards improvement of AYUSH Department.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "4c3fc511-dda0-4bf6-9098-0b19a9c7cdbb",
+      "label": "expenditure (86.88 crore)",
+      "type": "expenditure",
+      "value": 86.88,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 95,
+      "quote": "e year 2026-27, I propose to allocate   Rs.86.88  crore   towards   improvement   of   Public",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "20f5629b-b335-4b15-bb83-9ea87c22a033",
+      "label": "expenditure (2.6 crore)",
+      "type": "expenditure",
+      "value": 2.6,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 95,
+      "quote": "blic   Health Department out of which   Rs.2.60   crore towards Capital Expenditure   and   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "37f7fb6e-ac13-4d72-8b1c-41622ecfadba",
+      "label": "expenditure (84.28 crore)",
+      "type": "expenditure",
+      "value": 84.28,
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 95,
+      "quote": "ore towards Capital Expenditure   and   Rs.84.28   crore   towards   Revenue Expenditure.",
+      "verified": false,
+      "verificationMethod": "quote_on_page",
+      "failReason": "PERIOD_NOT_IN_QUOTE"
+    },
+    {
+      "id": "4df10a89-622b-4329-9f0f-f6cef2894054",
+      "label": "allocation (5.175 lakh)",
+      "type": "allocation",
+      "value": 5.175,
+      "unit": "lakh",
+      "currency": "INR",
+      "period": {
+        "basis": "BE",
+        "fiscalYear": "2026-27"
+      },
+      "page": 99,
+      "quote": "In 2026-27 bulbs of different colours will be planted for which the procurement of 5.175 lakh tulip bulbs for NDMC and DDA has already been awarded.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
+    },
+    {
+      "id": "b59af4dc-8e05-45db-80a4-4d5942b7c222",
+      "label": "allocation (147.43 crore)",
+      "type": "allocation",
+      "value": 147.43,
+      "unit": "crore",
+      "currency": "INR",
       "period": null,
-      "page": 6,
-      "quote": "NDMC has 300 ACES of AI.  Outstanding CBSE Board"
+      "page": 100,
+      "quote": "147.43   crore towards Horticultural activities, out of which   Rs.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "policy_target",
-      "value": 2024,
-      "unit": null,
-      "currency": null,
-      "period": "2024",
-      "page": 6,
-      "quote": "Result  achieved  in  FY  2024 - 25  with  highest  pass"
+      "id": "7868d69f-8057-46f1-ae90-23af67c9cf82",
+      "label": "allocation (26.14 crore)",
+      "type": "allocation",
+      "value": 26.14,
+      "unit": "crore",
+      "currency": "INR",
+      "period": null,
+      "page": 100,
+      "quote": "26.14   crore is for capital work.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
+      "id": "0dd09160-43af-4f0f-a0ee-f43b16512a24",
+      "label": "allocation (10 crore)",
+      "type": "allocation",
       "value": 10,
-      "unit": "percent",
-      "currency": null,
-      "period": null,
-      "page": 6,
-      "quote": "percentage in the history of NDMC in Class - 10  and  12"
+      "unit": "crore",
+      "currency": "INR",
+      "period": {
+        "basis": "none",
+        "fiscalYear": "2026-27"
+      },
+      "page": 101,
+      "quote": "e to make available untied funds   of   Rs.10   crores   for   the   Resident   Welfare",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 99.44,
-      "unit": "percent",
-      "currency": null,
-      "period": null,
-      "page": 6,
-      "quote": "is  99.44% and 98.46%  respectively."
-    },
-    {
-      "type": "statistic",
-      "value": 14,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 6,
-      "quote": "engaged  14  coaches  across  10  sports"
-    },
-    {
-      "type": "policy_target",
-      "value": 2025,
-      "unit": null,
-      "currency": null,
-      "period": "2025-26",
-      "page": 7,
-      "quote": "will be finalized in the current FY 2025-26."
-    },
-    {
-      "type": "statistic",
-      "value": 2024,
-      "unit": null,
-      "currency": null,
-      "period": "2024",
-      "page": 7,
-      "quote": "Minister  on  2nd  Oct.,  2024  on  the  birth"
-    },
-    {
-      "type": "statistic",
-      "value": 3,
-      "unit": null,
-      "currency": null,
-      "period": null,
-      "page": 8,
-      "quote": "with rich in Omega 3 Acids, protein and other"
-    },
-    {
-      "type": "financial_trend",
-      "value": 3,
-      "unit": null,
+      "id": "5629df58-301a-45a9-8cb1-2ea923da3289",
+      "label": "allocation (50000 rupees)",
+      "type": "allocation",
+      "value": 50000,
+      "unit": "rupees",
       "currency": "INR",
       "period": null,
-      "page": 8,
-      "quote": "of  3  e - karts,  15  battery - operated  sweepers  and  27"
+      "page": 103,
+      "quote": "Immediate financial relief to the tune of Rs.50,000/- each has been provided to families of 132 employees on their sudden demise.",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 14,
-      "unit": null,
-      "currency": null,
+      "id": "ec9ae70b-8d85-4c5f-9386-c8fe5d9c2453",
+      "label": "allocation (2000 rupees)",
+      "type": "allocation",
+      "value": 2000,
+      "unit": "rupees",
+      "currency": "INR",
       "period": null,
-      "page": 9,
-      "quote": "expanded in entire NDMC area which has 14 markets"
+      "page": 103,
+      "quote": "capped Welfare  Financial Assistance of Rs.2,000/- and Rs.2,500/- per month is being dis",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     },
     {
-      "type": "statistic",
-      "value": 150,
-      "unit": "km",
-      "currency": null,
+      "id": "4af4d01d-5eb9-4ec3-b828-6cfe5f12abd6",
+      "label": "allocation (2500 rupees)",
+      "type": "allocation",
+      "value": 2500,
+      "unit": "rupees",
+      "currency": "INR",
       "period": null,
-      "page": 9,
-      "quote": "having 150 km. major footpaths and 132 avenues roads"
-    },
-    {
-      "type": "statistic",
-      "value": 2026,
-      "unit": null,
-      "currency": null,
-      "period": "2026-27",
-      "page": 9,
-      "quote": "is likely to be started in next FY 2026-27."
+      "page": 103,
+      "quote": "Financial Assistance of Rs.2,000/- and Rs.2,500/- per month is being disbursed to the b",
+      "verified": true,
+      "verificationMethod": "quote_on_page",
+      "failReason": null
     }
   ],
+  "summary": "NDMC Budget Speech 2026-27 comprehensive extraction across 114 pages with 72 verified financial figures and departmental allocations.",
+  "keyFindings": [
+    "Total expenditure for BE 2026-27 is Rs.5810.02 Crore against Rs.5484.15 Crore in RE 2025-26.",
+    "Revenue receipts for BE 2026-27 are Rs.5211.92 Crore against Rs.4964.73 Crore in RE 2025-26.",
+    "Medical Services Department allocation is Rs.118.33 Crore (Rs.12.71 Crore capital, Rs.105.62 Crore revenue).",
+    "Water Supply & Sewerage allocation is Rs.230.28 Crore."
+  ],
   "risks": [
-    "Revenue realization risks depending on property tax recovery targets.",
-    "Power purchase cost fluctuations affecting distribution tariffs.",
-    "Capital project execution timelines across multi-year infrastructure works."
+    "Receipt realization dependency on property tax collection and transfer duties.",
+    "Capital project timeline dependencies across multi-year municipal civil works."
   ]
 }
