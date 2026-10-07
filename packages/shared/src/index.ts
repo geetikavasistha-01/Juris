@@ -82,3 +82,5 @@ export * from './jobs.js';
 export * from './modality.js';
 export * from './documents.js';
 export * from './visuals.js';
+export * from './evidence.js';
+export * from './verifiers/index.js';
