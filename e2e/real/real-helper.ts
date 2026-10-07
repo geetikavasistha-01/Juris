@@ -1,5 +1,4 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import { execSync } from 'node:child_process';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 
@@ -14,33 +13,39 @@ let cachedConfig: LocalSupabaseConfig | null = null;
 export function getLocalConfig(): LocalSupabaseConfig {
   if (cachedConfig) return cachedConfig;
 
-  let apiUrl = process.env.SUPABASE_URL || 'http://127.0.0.1:54321';
-  let anonKey = process.env.SUPABASE_ANON_KEY || '';
-  let serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-  if (!anonKey || !serviceKey) {
-    const envPath = path.resolve('apps/api/.env');
-    if (fs.existsSync(envPath)) {
-      const content = fs.readFileSync(envPath, 'utf8');
-      for (const line of content.split('\n')) {
-        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-        if (match) {
-          const key = match[1];
-          const value = (match[2] || '').trim().replace(/^['"]|['"]$/g, '');
-          if (key === 'SUPABASE_URL' && !process.env.SUPABASE_URL) apiUrl = value;
-          if (key === 'SUPABASE_ANON_KEY' && !anonKey) anonKey = value;
-          if (key === 'SUPABASE_SERVICE_ROLE_KEY' && !serviceKey) serviceKey = value;
-        }
-      }
-    }
+  if (
+    process.env.SUPABASE_URL &&
+    process.env.SUPABASE_ANON_KEY &&
+    process.env.SUPABASE_SERVICE_ROLE_KEY
+  ) {
+    cachedConfig = {
+      apiUrl: process.env.SUPABASE_URL,
+      anonKey: process.env.SUPABASE_ANON_KEY,
+      serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    };
+    return cachedConfig;
   }
 
-  cachedConfig = {
-    apiUrl,
-    anonKey,
-    serviceKey,
-  };
-  return cachedConfig;
+  try {
+    const raw = execSync('supabase status -o json', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    const parsed = JSON.parse(raw);
+    cachedConfig = {
+      apiUrl: parsed.API_URL || 'http://127.0.0.1:54321',
+      anonKey: parsed.ANON_KEY || '',
+      serviceKey: parsed.SERVICE_ROLE_KEY || '',
+    };
+    return cachedConfig;
+  } catch {
+    cachedConfig = {
+      apiUrl: 'http://127.0.0.1:54321',
+      anonKey: '',
+      serviceKey: '',
+    };
+    return cachedConfig;
+  }
 }
 
 export function getAdminClient(): SupabaseClient {

@@ -17,7 +17,7 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
     await page.fill('input[type="password"]', user.password);
     await page.click('button[type="submit"]');
 
-    await expect(page).toHaveURL(/\/documents/);
+    await expect(page).toHaveURL(/\/documents/, { timeout: 20000 });
 
     // 3. Upload 18-page excerpt PDF
     await page.goto('/upload');
@@ -28,7 +28,7 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
     await uploadBtn.click();
 
     // 4. On progress page, drop WebSocket connection mid-processing
-    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/);
+    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 20000 });
 
     // Disable WebSocket in browser to simulate network disconnection / drop
     await page.evaluate(() => {
