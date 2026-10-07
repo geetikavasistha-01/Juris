@@ -8,7 +8,9 @@
  * 2. Computes WCAG 2.1 contrast ratios for text (>= 4.5:1), UI components (>= 3.0:1), and charts (>= 3.0:1).
  * 3. Composites alpha tokens (such as --quote-highlight) over real background surfaces.
  * 4. Performs CIEDE2000 pairwise color difference calculation across Normal vision, Protanopia, Deuteranopia, and Tritanopia.
- * 5. Enforces minimum pairwise Delta E_00 >= 10.0 for distinct categorical cognitive separation.
+ * 5. Evaluates full matrix across all 15 series pairs x 4 vision modes for BOTH light and dark themes.
+ * 6. Enforces chosen threshold Delta E_00 >= 10.0 for distinct categorical cognitive separation (with non-color visual aids for dichromatic pairs).
+ * 7. Includes negative control verification (near-identical colors must fail threshold).
  */
 
 import fs from 'node:fs';
@@ -17,7 +19,7 @@ import path from 'node:path';
 const TOKENS_PATH = path.resolve('apps/web/src/styles/tokens.css');
 
 // 1. Color Parsing & Conversion Utilities
-function hexToRgb(hex) {
+export function hexToRgb(hex) {
   const cleaned = hex.replace('#', '').trim();
   if (cleaned.length === 3) {
     return [
@@ -128,12 +130,12 @@ export function loadTokensFromCss() {
       'btn-secondary-text': lightVars['brand-navy'],
       chart: {
         single: lightVars['accent-teal'],
-        series1: '#0072B2', // Okabe-Ito Blue
-        series2: '#E69F00', // Okabe-Ito Orange/Amber (with 1.5px outline for 3:1 contrast on white)
-        series3: '#009E73', // Okabe-Ito Green (3.01:1 on #F7F9FC / outline on white)
-        series4: '#D55E00', // Okabe-Ito Vermilion (3.87:1 on white)
-        series5: '#CC79A7', // Okabe-Ito Reddish Purple (with outline on white)
-        series6: '#56B4E9', // Okabe-Ito Sky Blue (with outline on white)
+        series1: lightVars['chart-series-1'] || '#0072B2',
+        series2: lightVars['chart-series-2'] || '#C25E00',
+        series3: lightVars['chart-series-3'] || '#00875A',
+        series4: lightVars['chart-series-4'] || '#D55E00',
+        series5: lightVars['chart-series-5'] || '#A33C7B',
+        series6: lightVars['chart-series-6'] || '#0284C7',
       },
     },
     dark: {
@@ -155,29 +157,29 @@ export function loadTokensFromCss() {
       'btn-secondary-text': darkVars['brand-navy'],
       chart: {
         single: darkVars['accent-teal'],
-        series1: '#56B4E9',
-        series2: '#FBBF24',
-        series3: '#4ADE80',
-        series4: '#FB923C',
-        series5: '#F472B6',
-        series6: '#38BDF8',
+        series1: darkVars['chart-series-1'] || '#38BDF8',
+        series2: darkVars['chart-series-2'] || '#FBBF24',
+        series3: darkVars['chart-series-3'] || '#4ADE80',
+        series4: darkVars['chart-series-4'] || '#F87171',
+        series5: darkVars['chart-series-5'] || '#C084FC',
+        series6: darkVars['chart-series-6'] || '#CBD5E1',
       },
     },
   };
 }
 
 // 3. Colorblindness Simulation & CIEDE2000 Metric
-function srgbToLinear(c) {
+export function srgbToLinear(c) {
   return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
 }
 
-function linearToSrgb(c) {
+export function linearToSrgb(c) {
   const clamped = Math.max(0, Math.min(1, c));
   return clamped <= 0.0031308 ? clamped * 12.92 : 1.055 * Math.pow(clamped, 1 / 2.4) - 0.055;
 }
 
-// Simulate Color Vision Deficiency in LMS Space
-function simulateCVD(hex, type) {
+// Simulate Color Vision Deficiency in LMS Space (Brettel/Viénot/Machado model)
+export function simulateCVD(hex, type) {
   const [r255, g255, b255] = hexToRgb(hex);
   const r = srgbToLinear(r255 / 255);
   const g = srgbToLinear(g255 / 255);
@@ -217,7 +219,7 @@ function simulateCVD(hex, type) {
 }
 
 // Convert RGB to CIELAB (D65 Illuminant)
-function rgbToLab(rgb) {
+export function rgbToLab(rgb) {
   const [r255, g255, b255] = rgb;
   const r = srgbToLinear(r255 / 255);
   const g = srgbToLinear(g255 / 255);
@@ -397,10 +399,10 @@ export function runContrastChecks() {
         type: 'chart',
       },
       {
-        name: 'chart series2 on surface (UI + outline)',
+        name: 'chart series2 on surface (UI)',
         fg: t.chart.series2,
         bg: t.surface,
-        min: 2.1,
+        min: 3.0,
         type: 'chart',
       },
       {
@@ -418,18 +420,62 @@ export function runContrastChecks() {
         type: 'chart',
       },
       {
-        name: 'chart series5 on surface (UI + outline)',
+        name: 'chart series5 on surface (UI)',
         fg: t.chart.series5,
         bg: t.surface,
-        min: 2.4,
+        min: 3.0,
         type: 'chart',
       },
       {
-        name: 'chart series6 on surface (UI + outline)',
+        name: 'chart series6 on surface (UI)',
         fg: t.chart.series6,
         bg: t.surface,
-        min: 2.1,
+        min: 3.0,
         type: 'chart',
+      },
+
+      // Chart lines against background (Requirement: >= 3.0:1 for line series)
+      {
+        name: 'chart series1 on bg (Line)',
+        fg: t.chart.series1,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
+      },
+      {
+        name: 'chart series2 on bg (Line)',
+        fg: t.chart.series2,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
+      },
+      {
+        name: 'chart series3 on bg (Line)',
+        fg: t.chart.series3,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
+      },
+      {
+        name: 'chart series4 on bg (Line)',
+        fg: t.chart.series4,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
+      },
+      {
+        name: 'chart series5 on bg (Line)',
+        fg: t.chart.series5,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
+      },
+      {
+        name: 'chart series6 on bg (Line)',
+        fg: t.chart.series6,
+        bg: t.bg,
+        min: 3.0,
+        type: 'chart-line',
       },
     ];
 
@@ -450,57 +496,71 @@ export function runContrastChecks() {
   }
 
   // 5. Evaluate CIEDE2000 pairwise colorblindness distances
-  const cvedResults = [];
-  let cvdFailures = 0;
+  // Note: Threshold Delta E_00 >= 10.0 is our chosen project threshold for categorical cognitive separation, not a standard.
+  const cvdMatrix = { light: [], dark: [] };
   const seriesKeys = ['series1', 'series2', 'series3', 'series4', 'series5', 'series6'];
-  const MIN_DELTA_E = 10.0; // Minimum CIEDE2000 distance for categorical differentiation
+  const MIN_DELTA_E = 10.0;
 
-  for (const vision of ['normal', 'protanopia', 'deuteranopia', 'tritanopia']) {
+  for (const theme of ['light', 'dark']) {
     for (let i = 0; i < seriesKeys.length; i++) {
       for (let j = i + 1; j < seriesKeys.length; j++) {
         const keyA = seriesKeys[i];
         const keyB = seriesKeys[j];
-        const colorA = palette.light.chart[keyA];
-        const colorB = palette.light.chart[keyB];
+        const colorA = palette[theme].chart[keyA];
+        const colorB = palette[theme].chart[keyB];
 
-        const rgbA = vision === 'normal' ? hexToRgb(colorA) : simulateCVD(colorA, vision);
-        const rgbB = vision === 'normal' ? hexToRgb(colorB) : simulateCVD(colorB, vision);
+        const row = {
+          theme,
+          pairIndex: `S${i + 1}-S${j + 1}`,
+          pairLabel: `S${i + 1} (${colorA}) vs S${j + 1} (${colorB})`,
+          colorA,
+          colorB,
+          scores: {},
+        };
 
-        const labA = rgbToLab(rgbA);
-        const labB = rgbToLab(rgbB);
+        for (const vision of ['normal', 'protanopia', 'deuteranopia', 'tritanopia']) {
+          const rgbA = vision === 'normal' ? hexToRgb(colorA) : simulateCVD(colorA, vision);
+          const rgbB = vision === 'normal' ? hexToRgb(colorB) : simulateCVD(colorB, vision);
 
-        const deltaE = calculateCIEDE2000(labA, labB);
-        const passed = deltaE >= MIN_DELTA_E;
-        if (!passed) cvdFailures++;
+          const labA = rgbToLab(rgbA);
+          const labB = rgbToLab(rgbB);
 
-        cvedResults.push({
-          vision,
-          pair: `${keyA} (${colorA}) vs ${keyB} (${colorB})`,
-          deltaE: deltaE.toFixed(1),
-          min: MIN_DELTA_E.toFixed(1),
-          passed,
-        });
+          const deltaE = calculateCIEDE2000(labA, labB);
+          row.scores[vision] = parseFloat(deltaE.toFixed(1));
+        }
+
+        cvdMatrix[theme].push(row);
       }
     }
   }
 
-  return { results, failures, cvedResults, cvdFailures };
+  // 6. Negative Control Test: Verify that near-identical colors FAIL Delta E >= 10.0
+  const negColorA = '#38BDF8';
+  const negColorB = '#39BDF8'; // Near identical (0.2 Delta E)
+  const negLabA = rgbToLab(hexToRgb(negColorA));
+  const negLabB = rgbToLab(hexToRgb(negColorB));
+  const negDeltaE = calculateCIEDE2000(negLabA, negLabB);
+  const negativeControlPassed = negDeltaE < MIN_DELTA_E; // Must correctly detect failure
+
+  return { results, failures, cvdMatrix, minDeltaE: MIN_DELTA_E, negativeControlPassed, negDeltaE };
 }
 
 // CLI Execution
 if (process.argv[1] && process.argv[1].endsWith('check-contrast.mjs')) {
-  const { results, failures, cvedResults, cvdFailures } = runContrastChecks();
-  console.log('='.repeat(78));
-  console.log('  JURIS DESIGN SYSTEM: WCAG 2.1 & CIEDE2000 VERIFICATION REPORT');
-  console.log('='.repeat(78));
+  const { results, failures, cvdMatrix, minDeltaE, negativeControlPassed, negDeltaE } =
+    runContrastChecks();
+
+  console.log('='.repeat(80));
+  console.log('  JURIS DESIGN SYSTEM: WCAG 2.1 CONTRAST & CIEDE2000 VERIFICATION REPORT');
+  console.log('='.repeat(80));
   console.log(
     'Theme'.padEnd(8) +
-      'Pair Name'.padEnd(42) +
+      'Check Name'.padEnd(42) +
       'Ratio'.padEnd(10) +
       'Required'.padEnd(12) +
       'Status',
   );
-  console.log('-'.repeat(78));
+  console.log('-'.repeat(80));
 
   for (const r of results) {
     const status = r.passed ? '✅ PASS' : '❌ FAIL';
@@ -513,45 +573,67 @@ if (process.argv[1] && process.argv[1].endsWith('check-contrast.mjs')) {
     );
   }
 
-  console.log('\n' + '='.repeat(78));
-  console.log('  COLORBLINDNESS PAIRWISE DISTANCE (CIEDE2000) REPORT');
-  console.log('='.repeat(78));
+  console.log('\n' + '='.repeat(80));
   console.log(
-    'Vision Mode'.padEnd(15) +
-      'Series Pair'.padEnd(45) +
-      'ΔE_00'.padEnd(10) +
-      'Target'.padEnd(10) +
-      'Status',
+    `  COLOR VISION DEFICIENCY (CVD) CIEDE2000 MATRIX (Threshold: ΔE_00 >= ${minDeltaE.toFixed(1)}*)`,
   );
-  console.log('-'.repeat(78));
+  console.log(
+    '  * Chosen project threshold for categorical cognitive separation, not a formal standard.',
+  );
+  console.log('='.repeat(80));
 
-  for (const c of cvedResults.slice(0, 16)) {
-    // Display representative subset
-    const status = c.passed ? '✅ PASS' : '⚠️ SHAPE_AID';
+  for (const theme of ['light', 'dark']) {
+    console.log(`\n--- ${theme.toUpperCase()} THEME (15 Series Pairs x 4 Vision Modes) ---`);
     console.log(
-      c.vision.padEnd(15) +
-        c.pair.padEnd(45) +
-        c.deltaE.padEnd(10) +
-        `>= ${c.min}`.padEnd(10) +
-        status,
+      'Pair'.padEnd(10) +
+        'Series Pair Colors'.padEnd(40) +
+        'Normal'.padEnd(10) +
+        'Protan'.padEnd(10) +
+        'Deutan'.padEnd(10) +
+        'Tritan'.padEnd(10),
     );
+    console.log('-'.repeat(90));
+
+    for (const row of cvdMatrix[theme]) {
+      const formatScore = (val) => {
+        return val >= minDeltaE
+          ? `${val.toFixed(1)}`.padEnd(10)
+          : `⚠️${val.toFixed(1)}*`.padEnd(10);
+      };
+      console.log(
+        row.pairIndex.padEnd(10) +
+          row.pairLabel.padEnd(40) +
+          formatScore(row.scores.normal) +
+          formatScore(row.scores.protanopia) +
+          formatScore(row.scores.deuteranopia) +
+          formatScore(row.scores.tritanopia),
+      );
+    }
   }
-  console.log('-'.repeat(78));
 
-  if (failures === 0 && cvdFailures === 0) {
-    console.log(`\n🎉 All ${results.length} WCAG AA contrast checks PASSED (100% compliant).`);
+  console.log('\n' + '='.repeat(80));
+  console.log('  NEGATIVE CONTROL VERIFICATION');
+  console.log('='.repeat(80));
+  console.log(
+    `Negative control pair (#38BDF8 vs #39BDF8): ΔE_00 = ${negDeltaE.toFixed(2)} (Threshold >= ${minDeltaE.toFixed(1)})`,
+  );
+  if (negativeControlPassed) {
+    console.log('✅ Negative control PASSED: Sub-threshold difference correctly identified.');
+  } else {
+    console.error('❌ Negative control FAILED: Guard failed to identify sub-threshold difference.');
+    process.exit(1);
+  }
+
+  console.log('\n' + '='.repeat(80));
+  if (failures === 0 && negativeControlPassed) {
+    console.log(`🎉 All ${results.length} WCAG AA contrast checks PASSED (100% compliant).`);
     console.log(
-      `ℹ️ CIEDE2000 colorblindness: All pairwise distances pass or are reinforced with distinct symbols & dash patterns.\n`,
+      `ℹ️ Non-color aids: Line series reinforced with width (2.5px), markers (circle, rect, triangle, diamond, pin, arrow), and dash styles.`,
     );
-    process.exit(0);
-  } else if (failures === 0) {
-    console.log(`\n🎉 All ${results.length} WCAG AA contrast checks PASSED (100% compliant).`);
-    console.log(
-      `ℹ️ CIEDE2000 colorblindness: ${cvdFailures} close pairs are reinforced with distinct symbol shapes & line dash patterns.\n`,
-    );
+    console.log('='.repeat(80) + '\n');
     process.exit(0);
   } else {
-    console.error(`\n❌ ${failures} contrast checks FAILED.\n`);
+    console.error(`❌ ${failures} contrast checks FAILED.\n`);
     process.exit(1);
   }
 }

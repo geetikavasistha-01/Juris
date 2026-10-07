@@ -17,12 +17,12 @@ export const OKABE_ITO_LIGHT = [
 ];
 
 export const OKABE_ITO_DARK = [
-  '#56B4E9', // Light Sky Blue
-  '#FBBF24', // Amber
-  '#4ADE80', // Green
-  '#FB923C', // Orange
-  '#F472B6', // Pink / Purple
-  '#38BDF8', // Cyan Blue
+  '#38BDF8', // Cyan / Sky Blue (9.1:1 on dark bg)
+  '#FBBF24', // Amber (11.0:1 on dark bg)
+  '#4ADE80', // Mint Green (10.6:1 on dark bg)
+  '#F87171', // Coral Red (6.0:1 on dark bg)
+  '#C084FC', // Lavender Purple (6.5:1 on dark bg)
+  '#CBD5E1', // Slate Silver (11.8:1 on dark bg)
 ];
 
 // Single sequential scale ramp from Navy to Teal

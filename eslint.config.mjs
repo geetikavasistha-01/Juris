@@ -8,6 +8,7 @@ export default tseslint.config(
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/dist-*/**',
       '**/build/**',
       '**/coverage/**',
       '**/supabase/.temp/**',
@@ -38,7 +39,14 @@ export default tseslint.config(
     },
   },
   {
-    files: ['scripts/**/*.mjs', 'scripts/**/*.js', 'scripts/**/*.ts'],
+    files: [
+      'scripts/**/*.mjs',
+      'scripts/**/*.js',
+      'scripts/**/*.ts',
+      'spikes/**/*.ts',
+      'spikes/**/*.js',
+      'spikes/**/*.mjs',
+    ],
     rules: {
       'no-console': 'off',
     },
