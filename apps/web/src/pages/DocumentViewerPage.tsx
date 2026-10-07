@@ -32,11 +32,12 @@ import {
 } from 'lucide-react';
 
 import { DocumentVisuals } from '../components/visuals/DocumentVisuals.js';
+import { OverviewStoryboard } from '../components/visuals/OverviewStoryboard.js';
 
 export const DocumentViewerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [selectedFact, setSelectedFact] = useState<DocumentFactDetail | null>(null);
-  const [activeTab, setActiveTab] = useState('facts');
+  const [activeTab, setActiveTab] = useState('overview');
   const [factFilter, setFactFilter] = useState<'all' | 'verified' | 'unverified' | 'failed'>('all');
   const [chunkSearch, setChunkSearch] = useState('');
 
@@ -51,6 +52,7 @@ export const DocumentViewerPage: React.FC = () => {
     queryKey: ['document', id],
     queryFn: () => (id ? fetchDocumentDetail(id) : Promise.reject('No ID')),
     enabled: Boolean(id),
+    retry: false,
   });
 
   // 2. Fetch document chunks
@@ -133,25 +135,43 @@ export const DocumentViewerPage: React.FC = () => {
       </div>
 
       {/* Main Tabs Navigation */}
-      <Tabs defaultValue="facts" value={activeTab} onValueChange={setActiveTab}>
+      <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
+          <TabsTrigger value="overview" className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-accent-teal" />
+            <span>Overview & Visuals</span>
+          </TabsTrigger>
           <TabsTrigger value="facts" className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-accent-teal" />
             <span>Extracted Facts ({allFacts.length})</span>
           </TabsTrigger>
           <TabsTrigger value="visuals" className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-accent-teal" />
-            <span>Visual Analytics</span>
+            <span>Legacy Charts</span>
           </TabsTrigger>
           <TabsTrigger value="summary" className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-brand-navy dark:text-brand-navy-hover" />
+            <BookOpen className="w-4 h-4 text-brand-navy dark:text-brand-navy-hover" />
             <span>Executive Findings</span>
           </TabsTrigger>
           <TabsTrigger value="chunks" className="flex items-center gap-2">
-            <BookOpen className="w-4 h-4" />
-            <span>Text & Chunks</span>
+            <Search className="w-4 h-4" />
+            <span>Text Chunks</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Tab 0: Document at a Glance Overview Storyboard (v2 PRD Section 6.3) */}
+        <TabsContent value="overview" className="space-y-6">
+          <OverviewStoryboard
+            facts={allFacts}
+            documentName={doc.filename}
+            verificationRate={allFacts.length > 0 ? (verifiedCount / allFacts.length) * 100 : 100}
+            pageCount={doc.pageCount}
+            onSelectFact={(factId: string) => {
+              const found = allFacts.find((f) => f.id === factId);
+              if (found) setSelectedFact(found);
+            }}
+          />
+        </TabsContent>
 
         {/* Tab 1: Extracted Facts & Evidence */}
         <TabsContent value="facts" className="space-y-6">

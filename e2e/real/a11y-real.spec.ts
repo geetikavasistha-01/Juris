@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AxeBuilder } from '@axe-core/playwright';
 import * as path from 'node:path';
-import { createRealTestUser } from './real-helper.js';
+import { createRealTestUser, loginTestUser } from './real-helper.js';
 
 const viewports = [
   { name: 'desktop', width: 1280, height: 800 },
@@ -20,11 +20,7 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
     testUser = await createRealTestUser('a11y_real_user');
 
     // Sign in and upload real 18-page excerpt to populate DB
-    await page.goto('/login');
-    await page.fill('input[type="email"]', testUser.email);
-    await page.fill('input[type="password"]', testUser.password);
-    await page.click('button[type="submit"]');
-    await expect(page).toHaveURL(/\/documents/);
+    await loginTestUser(page, testUser);
 
     await page.goto('/upload');
     const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
@@ -48,11 +44,7 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
     for (const theme of themes) {
       test(`Axe scan: Real Populated /documents (${vp.name} - ${theme})`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
-        await page.goto('/login');
-        await page.fill('input[type="email"]', testUser.email);
-        await page.fill('input[type="password"]', testUser.password);
-        await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/\/documents/, { timeout: 15000 });
+        await loginTestUser(page, testUser);
 
         // Apply theme
         if (theme === 'dark') {
@@ -80,13 +72,12 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
 
       test(`Axe scan: Real /documents/:id Facts Tab (${vp.name} - ${theme})`, async ({ page }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
-        await page.goto('/login');
-        await page.fill('input[type="email"]', testUser.email);
-        await page.fill('input[type="password"]', testUser.password);
-        await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/\/documents/, { timeout: 15000 });
+        await loginTestUser(page, testUser);
 
         await page.goto(`/documents/${docId}`);
+        const factsTab = page.locator('button[role="tab"]:has-text("Extracted Facts")');
+        await expect(factsTab).toBeVisible({ timeout: 15000 });
+        await factsTab.click();
         await page.waitForSelector('div[role="button"][aria-label*="Inspect citation"]');
 
         if (theme === 'dark') {
@@ -113,20 +104,16 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
         page,
       }) => {
         await page.setViewportSize({ width: vp.width, height: vp.height });
-        await page.goto('/login');
-        await page.fill('input[type="email"]', testUser.email);
-        await page.fill('input[type="password"]', testUser.password);
-        await page.click('button[type="submit"]');
-        await expect(page).toHaveURL(/\/documents/, { timeout: 15000 });
+        await loginTestUser(page, testUser);
 
         await page.goto(`/documents/${docId}`);
-        const visualsTab = page.locator('button[role="tab"]:has-text("Visual Analytics")');
+        const visualsTab = page.locator('button[role="tab"]:has-text("Overview & Visuals")');
         await expect(visualsTab).toBeVisible({ timeout: 15000 });
         await visualsTab.click();
-        await page.waitForSelector('text=Verification Coverage:');
+        await page.waitForSelector('text=Document at a Glance');
 
-        // Click Accessible Tables toggle button
-        const tableToggle = page.locator('button:has-text("Show Accessible Tables")');
+        // Click Accessible Tables toggle button if present
+        const tableToggle = page.locator('button:has-text("Data Table")').first();
         if ((await tableToggle.count()) > 0) {
           await tableToggle.click();
           await page.waitForSelector('table');

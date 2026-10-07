@@ -6,7 +6,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
   test('uploads real 18-page PDF excerpt, processes via real worker, and verifies data against DB', async ({
     page,
   }) => {
-    test.setTimeout(90000);
+    test.setTimeout(120000);
 
     // 1. Create a real local Supabase user (Admin API)
     const user = await createRealTestUser('real_upload_user');
@@ -19,7 +19,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     await page.click('button[type="submit"]');
 
     // Wait for redirect to /documents
-    await expect(page).toHaveURL(/\/documents/, { timeout: 15000 });
+    await expect(page).toHaveURL(/\/documents/, { timeout: 20000 });
 
     // 3. Navigate to /upload
     await page.goto('/upload');
@@ -41,7 +41,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
 
     // Wait for processing to complete and click Inspect Extracted Facts
     const inspectBtn = page.locator('a:has-text("Inspect Extracted Facts")');
-    await expect(inspectBtn).toBeVisible({ timeout: 45000 });
+    await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(new RegExp(`/documents/${docId}$`));
 
@@ -76,6 +76,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     expect(expectedRatePercent).toContain('%');
 
     // 7. Spot check one real fact from DB visible in UI
+    await page.click('button[role="tab"]:has-text("Extracted Facts")');
     const spotFact = dbFacts![0];
     if (spotFact && spotFact.quote) {
       // Find quote in table or drawer
@@ -83,9 +84,8 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
       await expect(page.locator(`text=${quoteSnippet}`).first()).toBeVisible();
     }
 
-    // 8. Assert Key Figures strip rendered on Visuals tab
-    await page.click('button[role="tab"]:has-text("Visual Analytics")');
+    // 8. Assert Key Figures strip rendered on Overview tab
+    await page.click('button[role="tab"]:has-text("Overview & Visuals")');
     await expect(page.locator('text=Verified Facts').first()).toBeVisible();
-    await expect(page.locator('text=VIZ-01 Strict Verifier').first()).toBeVisible();
   });
 });

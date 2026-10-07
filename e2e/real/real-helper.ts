@@ -1,4 +1,5 @@
 import { execSync } from 'node:child_process';
+import type { Page } from '@playwright/test';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 
@@ -27,24 +28,34 @@ export function getLocalConfig(): LocalSupabaseConfig {
   }
 
   try {
-    const raw = execSync('supabase status -o json', {
+    const supabaseBin =
+      execSync('which supabase || echo "/opt/homebrew/bin/supabase"', {
+        encoding: 'utf8',
+      }).trim() || '/opt/homebrew/bin/supabase';
+
+    const raw = execSync(`${supabaseBin} status -o json`, {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      env: { ...process.env, PATH: `/opt/homebrew/bin:/usr/local/bin:${process.env.PATH || ''}` },
     });
-    const parsed = JSON.parse(raw);
-    cachedConfig = {
-      apiUrl: parsed.API_URL || 'http://127.0.0.1:54321',
-      anonKey: parsed.ANON_KEY || '',
-      serviceKey: parsed.SERVICE_ROLE_KEY || '',
-    };
-    return cachedConfig;
-  } catch {
-    cachedConfig = {
-      apiUrl: 'http://127.0.0.1:54321',
-      anonKey: '',
-      serviceKey: '',
-    };
-    return cachedConfig;
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+      if (parsed.SERVICE_ROLE_KEY) {
+        cachedConfig = {
+          apiUrl: parsed.API_URL || 'http://127.0.0.1:54321',
+          anonKey: parsed.ANON_KEY || '',
+          serviceKey: parsed.SERVICE_ROLE_KEY,
+        };
+        return cachedConfig;
+      }
+    }
+    throw new Error('No valid keys in supabase status output');
+  } catch (err) {
+    throw new Error(
+      `Failed to resolve local Supabase configuration: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
@@ -84,4 +95,25 @@ export async function createRealTestUser(prefix = 'real_user') {
   }
 
   throw new Error(`Failed to create real test user: ${lastError?.message || 'unknown'}`);
+}
+
+export async function loginTestUser(page: Page, user: { email: string; password: string }) {
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    await page.goto('/login');
+    await page.fill('input[type="email"]', user.email);
+    await page.fill('input[type="password"]', user.password);
+    await page.click('button[type="submit"]');
+
+    try {
+      await page.waitForURL(/\/documents/, { timeout: 15000 });
+      return;
+    } catch {
+      // Check if error toast is present and retry after brief delay
+      const toast = page.locator('div[role="alert"]');
+      if (await toast.isVisible()) {
+        await page.waitForTimeout(1000 * attempt);
+      }
+    }
+  }
+  await page.waitForURL(/\/documents/, { timeout: 15000 });
 }

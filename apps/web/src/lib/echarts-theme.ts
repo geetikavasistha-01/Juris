@@ -33,6 +33,31 @@ export const SEQUENTIAL_RAMP_DARK = ['#1E3A8A', '#0F766E', '#2DD4BF', '#99F6E4']
 export const ACCESSIBLE_SERIES_SYMBOLS = ['circle', 'rect', 'triangle', 'diamond', 'pin', 'arrow'];
 export const ACCESSIBLE_LINE_STYLES = ['solid', 'dashed', 'dotted', 'dashdot'];
 
+export const ECHARTS_COLORS = {
+  light: {
+    text: '#0F172A',
+    subtext: '#475569',
+    border: '#E2E8F0',
+    surface: '#FFFFFF',
+    gridLine: '#E2E8F0',
+    primary: '#0072B2',
+    accentTeal: '#0F766E',
+    areaTeal: 'rgba(15, 118, 110, 0.12)',
+    whiteText: '#FFFFFF',
+  },
+  dark: {
+    text: '#E6EDF7',
+    subtext: '#9FB0C8',
+    border: '#1E2D47',
+    surface: '#101C30',
+    gridLine: '#1E2D47',
+    primary: '#38BDF8',
+    accentTeal: '#2DD4BF',
+    areaTeal: 'rgba(45, 212, 191, 0.15)',
+    whiteText: '#FFFFFF',
+  },
+};
+
 export function buildEChartsTheme(isDark: boolean) {
   const textColor = isDark ? '#E6EDF7' : '#0F172A';
   const textMuted = isDark ? '#9FB0C8' : '#475569';

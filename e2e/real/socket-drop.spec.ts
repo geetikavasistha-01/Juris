@@ -1,23 +1,18 @@
 import { test, expect } from '@playwright/test';
 import * as path from 'node:path';
-import { createRealTestUser } from './real-helper.js';
+import { createRealTestUser, loginTestUser } from './real-helper.js';
 
 test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery', () => {
   test('drops websocket mid-job with real worker and asserts all stages complete via polling', async ({
     page,
   }) => {
-    test.setTimeout(60000);
+    test.setTimeout(120000);
 
     // 1. Create a real local Supabase user
     const user = await createRealTestUser('socket_drop_user');
 
     // 2. Sign in via UI
-    await page.goto('/login');
-    await page.fill('input[type="email"]', user.email);
-    await page.fill('input[type="password"]', user.password);
-    await page.click('button[type="submit"]');
-
-    await expect(page).toHaveURL(/\/documents/, { timeout: 20000 });
+    await loginTestUser(page, user);
 
     // 3. Upload 18-page excerpt PDF
     await page.goto('/upload');

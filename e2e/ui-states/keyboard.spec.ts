@@ -89,6 +89,10 @@ test.describe('Mocked UI State Suite: Keyboard Navigation & Focus Trapping', () 
     await page.goto(`/documents/${mockDocumentId}`);
     await page.waitForSelector('h1');
 
+    // Switch to facts tab
+    const factsTab = page.getByRole('tab', { name: /Extracted Facts/ });
+    await factsTab.click();
+
     const factCard = page.locator('div[role="button"][aria-label*="Inspect citation"]').first();
     await factCard.focus();
     await expect(factCard).toBeFocused();
@@ -111,12 +115,17 @@ test.describe('Mocked UI State Suite: Keyboard Navigation & Focus Trapping', () 
     await page.goto(`/documents/${mockDocumentId}`);
     await page.waitForSelector('h1');
 
+    const overviewTab = page.getByRole('tab', { name: /Overview & Visuals/ });
     const factsTab = page.getByRole('tab', { name: /Extracted Facts/ });
-    const visualsTab = page.getByRole('tab', { name: /Visual Analytics/ });
+    const visualsTab = page.getByRole('tab', { name: /Legacy Charts/ });
     const summaryTab = page.getByRole('tab', { name: /Executive Findings/ });
-    const chunksTab = page.getByRole('tab', { name: /Text & Chunks/ });
+    const chunksTab = page.getByRole('tab', { name: /Text Chunks/ });
 
-    await factsTab.focus();
+    await overviewTab.focus();
+    await expect(overviewTab).toHaveAttribute('aria-selected', 'true');
+
+    await page.keyboard.press('ArrowRight');
+    await expect(factsTab).toBeFocused();
     await expect(factsTab).toHaveAttribute('aria-selected', 'true');
 
     await page.keyboard.press('ArrowRight');

@@ -70,7 +70,7 @@ export const LiveProgressPage: React.FC = () => {
     enabled: Boolean(id),
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === 'queued' || status === 'processing' ? 2000 : false;
+      return status === 'done' || status === 'failed' ? false : 1000;
     },
   });
 
@@ -81,7 +81,7 @@ export const LiveProgressPage: React.FC = () => {
     enabled: Boolean(id),
     refetchInterval: () => {
       const status = doc?.status;
-      return status === 'queued' || status === 'processing' ? 2000 : false;
+      return status === 'done' || status === 'failed' ? false : 1000;
     },
   });
 

@@ -84,3 +84,5 @@ export * from './documents.js';
 export * from './visuals.js';
 export * from './evidence.js';
 export * from './verifiers/index.js';
+export * from './visual-spec.js';
+export * from './chart-selector.js';

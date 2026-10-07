@@ -30,15 +30,21 @@ export function getLocalSupabaseConfig(): SupabaseStatus {
     const raw = execSync('supabase status -o json', {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
+      env: { ...process.env, PATH: `/opt/homebrew/bin:/usr/local/bin:${process.env.PATH || ''}` },
     });
-    const parsed = JSON.parse(raw);
-    cachedStatus = {
-      API_URL: parsed.API_URL || 'http://127.0.0.1:54321',
-      ANON_KEY: parsed.ANON_KEY,
-      SERVICE_ROLE_KEY: parsed.SERVICE_ROLE_KEY,
-      DB_URL: parsed.DB_URL || 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
-    };
-    return cachedStatus;
+    const jsonStart = raw.indexOf('{');
+    const jsonEnd = raw.lastIndexOf('}');
+    if (jsonStart !== -1 && jsonEnd !== -1) {
+      const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1));
+      cachedStatus = {
+        API_URL: parsed.API_URL || 'http://127.0.0.1:54321',
+        ANON_KEY: parsed.ANON_KEY,
+        SERVICE_ROLE_KEY: parsed.SERVICE_ROLE_KEY,
+        DB_URL: parsed.DB_URL || 'postgresql://postgres:postgres@127.0.0.1:54322/postgres',
+      };
+      return cachedStatus;
+    }
+    throw new Error('No JSON found in supabase status output');
   } catch {
     return {
       API_URL: 'http://127.0.0.1:54321',

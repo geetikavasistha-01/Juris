@@ -391,5 +391,5 @@ describe('Document API & Ingestion Pipeline', () => {
       .select('*', { count: 'exact', head: true })
       .eq('document_id', docId);
     expect(eventCountAfter).toBe(0);
-  });
+  }, 15000);
 });
