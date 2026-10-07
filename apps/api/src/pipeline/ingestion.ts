@@ -3,6 +3,8 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {
   verifyFactQuoteAndValue,
   assertAnalysisDerivedFromVerifiedFacts,
+  parseCsvTable,
+  validateGeoJson,
   type ProcessingStage,
 } from '@juris/shared';
 import { getAdminSupabaseClient } from '../supabase.js';
@@ -83,13 +85,14 @@ export async function runDocumentIngestionPipeline(
   documentId: string,
   jobId: string,
   ownerId: string,
-  pdfBuffer: Buffer,
+  fileBuffer: Buffer,
+  filename: string = 'uploaded_document.pdf',
 ) {
   const supabase = getAdminSupabaseClient();
   let sequence = 1;
 
   try {
-    logger.info({ documentId, jobId }, 'Starting document ingestion pipeline...');
+    logger.info({ documentId, jobId, filename }, 'Starting document ingestion pipeline...');
 
     // 1. STAGE: validating
     await supabase
@@ -97,20 +100,20 @@ export async function runDocumentIngestionPipeline(
       .update({ status: 'running', stage: 'validating', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    // Verify magic bytes (%PDF-)
+    const lowerFilename = filename.toLowerCase();
+    const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]);
     const isPdf =
-      pdfBuffer.length >= 5 &&
-      pdfBuffer[0] === 0x25 &&
-      pdfBuffer[1] === 0x50 &&
-      pdfBuffer[2] === 0x44 &&
-      pdfBuffer[3] === 0x46 &&
-      pdfBuffer[4] === 0x2d;
+      fileBuffer.subarray(0, 5).compare(pdfMagic) === 0 || lowerFilename.endsWith('.pdf');
+    const isCsv = lowerFilename.endsWith('.csv');
+    const isGeoJson = lowerFilename.endsWith('.geojson') || lowerFilename.endsWith('.geo.json');
 
-    if (!isPdf) {
-      throw new Error('MAGIC_BYTES_MISMATCH: Uploaded file is not a valid PDF document');
+    if (!isPdf && !isCsv && !isGeoJson) {
+      throw new Error(
+        'UNSUPPORTED_FORMAT: Uploaded file is neither a valid PDF, CSV, nor GeoJSON document',
+      );
     }
 
-    const sha256 = crypto.createHash('sha256').update(pdfBuffer).digest('hex');
+    const sha256 = crypto.createHash('sha256').update(fileBuffer).digest('hex');
 
     await publishJobEvent(
       supabase,
@@ -121,16 +124,774 @@ export async function runDocumentIngestionPipeline(
       10,
       sequence++,
       'Completed file validation and checksum verification',
-      { sha256, sizeBytes: pdfBuffer.length },
+      { sha256, sizeBytes: fileBuffer.length, isPdf, isCsv, isGeoJson },
     );
 
+    // ==========================================
+    // BRANCH A: TABULAR / CSV INGESTION
+    // ==========================================
+    if (isCsv) {
+      // 2. STAGE: extracting
+      await supabase
+        .from('jobs')
+        .update({ stage: 'extracting', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const csvContent = fileBuffer.toString('utf-8');
+      const parsedTable = parseCsvTable(csvContent);
+
+      const { data: sourceRecord, error: srcErr } = await supabase
+        .from('sources')
+        .insert({
+          document_id: documentId,
+          modality: 'tabular',
+          page_or_sheet: 1,
+          sha256,
+        })
+        .select()
+        .single();
+
+      if (srcErr || !sourceRecord) {
+        logger.error({ srcErr, documentId }, 'Error inserting tabular source');
+        throw new Error(`SOURCE_INSERT_FAILED: ${srcErr?.message}`);
+      }
+
+      const sourceId = sourceRecord.id;
+
+      // Extract column definitions from parsed columns
+      const columnDefs = parsedTable.columns.map((col) => ({
+        name: col.name,
+        type: col.inferredType,
+        index: col.index,
+      }));
+
+      await supabase.from('datasets').insert({
+        document_id: documentId,
+        columns: columnDefs,
+        row_count: parsedTable.rowCount,
+        profile: {
+          columnCount: parsedTable.columnCount,
+          rowCount: parsedTable.rowCount,
+          columns: columnDefs,
+        },
+      });
+
+      if (sourceId) {
+        await supabase.from('tables').insert({
+          source_id: sourceId,
+          document_id: documentId,
+          caption: filename,
+          header: parsedTable.headers,
+          cells: parsedTable.rows.slice(0, 100),
+          structure_confidence: 1.0,
+        });
+      }
+
+      await supabase
+        .from('documents')
+        .update({ page_count: 1, status: 'processing', updated_at: new Date().toISOString() })
+        .eq('id', documentId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'extracting',
+        20,
+        sequence++,
+        `Extracted structured table with ${parsedTable.columnCount} columns and ${parsedTable.rowCount} rows`,
+        { columnCount: parsedTable.columnCount, rowCount: parsedTable.rowCount },
+      );
+
+      // 3. STAGE: chunking & 4. STAGE: embedding
+      await supabase
+        .from('jobs')
+        .update({ stage: 'chunking', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const chunksToInsert: IngestionChunk[] = [];
+      const schemaSummary = `Dataset ${filename} with columns: ${parsedTable.headers.join(', ')}`;
+      chunksToInsert.push({
+        pageNumber: 1,
+        chunkIndex: 0,
+        content: schemaSummary,
+        embedding: generate768DimEmbedding(schemaSummary),
+      });
+
+      // Sample row chunks
+      for (let i = 0; i < Math.min(parsedTable.rowCount, 10); i++) {
+        const row = parsedTable.rows[i];
+        if (!row) continue;
+        const rowText = parsedTable.headers
+          .map((h, colIdx) => `${h}: ${row[colIdx] ?? ''}`)
+          .join(' | ');
+        chunksToInsert.push({
+          pageNumber: 1,
+          chunkIndex: i + 1,
+          content: rowText,
+          embedding: generate768DimEmbedding(rowText),
+        });
+      }
+
+      if (chunksToInsert.length > 0) {
+        await supabase.from('chunks').insert(
+          chunksToInsert.map((c) => ({
+            document_id: documentId,
+            owner_id: ownerId,
+            page_number: c.pageNumber,
+            chunk_index: c.chunkIndex,
+            content: c.content,
+            embedding: `[${c.embedding.join(',')}]`,
+          })),
+        );
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'chunking',
+        30,
+        sequence++,
+        `Indexed schema and sample rows into ${chunksToInsert.length} chunks`,
+        { totalChunks: chunksToInsert.length },
+      );
+
+      await supabase
+        .from('jobs')
+        .update({ stage: 'embedding', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'embedding',
+        40,
+        sequence++,
+        'Generated tabular embeddings',
+      );
+
+      // 5. STAGE: classification
+      await supabase
+        .from('jobs')
+        .update({ stage: 'classification', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const docType = /budget|alloc|spend|expend/i.test(csvContent) ? 'budget_table' : 'tabular';
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'classification',
+        50,
+        sequence++,
+        `Classified tabular dataset as "${docType}"`,
+        { documentType: docType },
+      );
+
+      // 6. STAGE: fact_extraction & 7. STAGE: verification
+      await supabase
+        .from('jobs')
+        .update({ stage: 'fact_extraction', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await supabase
+        .from('jobs')
+        .update({ stage: 'verification', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const verifiedFacts = [];
+
+      // Create evidence span for table cells
+      let spanId: string | null = null;
+      if (sourceId) {
+        const { data: spanRecord } = await supabase
+          .from('evidence_spans')
+          .insert({
+            source_id: sourceId,
+            document_id: documentId,
+            kind: 'table_cell',
+            locator: { type: 'table_cell', row: 0, column: parsedTable.headers[0] ?? '0' },
+            text: `Table with ${parsedTable.rowCount} rows`,
+          })
+          .select()
+          .single();
+        spanId = spanRecord?.id ?? null;
+      }
+
+      // Compute statistics for numeric columns
+      for (const col of parsedTable.columns) {
+        if (col.inferredType === 'number' || col.inferredType === 'currency') {
+          const numbers = parsedTable.rows
+            .map((r) => {
+              const cellVal = r[col.index];
+              return typeof cellVal === 'number'
+                ? cellVal
+                : typeof cellVal === 'string'
+                  ? parseFloat(cellVal.replace(/,/g, ''))
+                  : NaN;
+            })
+            .filter((n) => !isNaN(n));
+
+          if (numbers.length > 0) {
+            const sum = numbers.reduce((acc, v) => acc + v, 0);
+            const max = Math.max(...numbers);
+
+            verifiedFacts.push({
+              document_id: documentId,
+              owner_id: ownerId,
+              type: 'financial_total',
+              value: sum,
+              unit: null,
+              currency: null,
+              period: null,
+              page: 1,
+              quote: `Computed total sum of column "${col.name}" across ${numbers.length} rows`,
+              verified: true,
+              proof_type: 'computed_from_table',
+              confidence_level: 'high',
+              span_id: spanId,
+              fail_reason: null,
+            });
+
+            verifiedFacts.push({
+              document_id: documentId,
+              owner_id: ownerId,
+              type: 'statistic',
+              value: max,
+              unit: null,
+              currency: null,
+              period: null,
+              page: 1,
+              quote: `Computed maximum value of column "${col.name}" across ${numbers.length} rows`,
+              verified: true,
+              proof_type: 'computed_from_table',
+              confidence_level: 'high',
+              span_id: spanId,
+              fail_reason: null,
+            });
+          }
+        }
+      }
+
+      // Add row facts for first 5 rows
+      for (let rIdx = 0; rIdx < Math.min(parsedTable.rowCount, 5); rIdx++) {
+        const row = parsedTable.rows[rIdx];
+        if (!row) continue;
+        const firstNumCol = parsedTable.columns.find(
+          (c) => c.inferredType === 'number' || c.inferredType === 'currency',
+        );
+        if (firstNumCol) {
+          const cell = row[firstNumCol.index];
+          const rawNum =
+            typeof cell === 'number'
+              ? cell
+              : typeof cell === 'string'
+                ? parseFloat(cell.replace(/,/g, ''))
+                : NaN;
+          if (!isNaN(rawNum)) {
+            const labelCol =
+              parsedTable.columns.find((c) => c.inferredType === 'string') ??
+              parsedTable.columns[0];
+            const label = labelCol
+              ? String(row[labelCol.index] ?? `Row ${rIdx + 1}`)
+              : `Row ${rIdx + 1}`;
+            verifiedFacts.push({
+              document_id: documentId,
+              owner_id: ownerId,
+              type: 'financial_allocation',
+              value: rawNum,
+              unit: null,
+              currency: null,
+              period: null,
+              page: 1,
+              quote: `${label}: ${firstNumCol.name} = ${rawNum}`,
+              verified: true,
+              proof_type: 'computed_from_table',
+              confidence_level: 'high',
+              span_id: spanId,
+              fail_reason: null,
+            });
+          }
+        }
+      }
+
+      let insertedFactRecords: Array<Record<string, unknown>> = [];
+      if (verifiedFacts.length > 0) {
+        const { data: insData, error: factsErr } = await supabase
+          .from('facts')
+          .insert(verifiedFacts)
+          .select();
+
+        if (factsErr) {
+          logger.error({ factsErr }, 'Error inserting verified tabular facts');
+        } else if (insData) {
+          insertedFactRecords = insData;
+        }
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'verification',
+        70,
+        sequence++,
+        `Verified and computed ${verifiedFacts.length} deterministic tabular facts`,
+        { verifiedFactCount: verifiedFacts.length },
+      );
+
+      // 8. STAGE: synthesis
+      await supabase
+        .from('jobs')
+        .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await supabase.from('analyses').insert({
+        document_id: documentId,
+        owner_id: ownerId,
+        doc_type: docType,
+        summary: null,
+        key_findings: [],
+        risks: [],
+        verification_rate: 1.0,
+      });
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'synthesis',
+        80,
+        sequence++,
+        'Tabular analysis initialized with verified metrics',
+        { verifiedFactCount: verifiedFacts.length, verificationRate: 1.0 },
+      );
+
+      // 9. STAGE: building_visuals
+      await supabase
+        .from('jobs')
+        .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const visualConfigs = [
+        {
+          document_id: documentId,
+          owner_id: ownerId,
+          title: 'Tabular Overview',
+          kind: 'key_figures',
+          spec: {
+            metrics: insertedFactRecords.slice(0, 4).map((f) => ({
+              label: f.type,
+              value: f.value,
+              unit: f.unit,
+              currency: f.currency,
+              page: f.page,
+              quote: f.quote,
+            })),
+          },
+          source_pages: [1],
+          fact_ids: insertedFactRecords
+            .slice(0, 4)
+            .map((f) => f.id)
+            .filter(Boolean),
+          position: 0,
+        },
+      ];
+
+      if (insertedFactRecords.length > 0) {
+        await supabase.from('visualizations').insert(visualConfigs);
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'building_visuals',
+        90,
+        sequence++,
+        'Constructed tabular visualization widgets',
+        { visualCount: visualConfigs.length },
+      );
+
+      // 10. STAGE: done
+      await supabase
+        .from('documents')
+        .update({ status: 'done', updated_at: new Date().toISOString() })
+        .eq('id', documentId);
+
+      await supabase
+        .from('jobs')
+        .update({
+          status: 'completed',
+          stage: 'done',
+          progress: 100,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'done',
+        100,
+        sequence++,
+        'CSV tabular ingestion completed successfully',
+        { status: 'done' },
+      );
+
+      return { success: true, documentId, jobId };
+    }
+
+    // ==========================================
+    // BRANCH B: GEOSPATIAL / GEOJSON INGESTION
+    // ==========================================
+    if (isGeoJson) {
+      // 2. STAGE: extracting
+      await supabase
+        .from('jobs')
+        .update({ stage: 'extracting', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const geoJsonText = fileBuffer.toString('utf-8');
+      const geoResult = validateGeoJson(geoJsonText);
+
+      if (!geoResult.isValid) {
+        throw new Error('INVALID_GEOMETRY: Invalid GeoJSON payload');
+      }
+
+      const parsedGeo = JSON.parse(geoJsonText) as {
+        type: string;
+        features?: Array<{ geometry?: { type: string }; properties?: Record<string, unknown> }>;
+      };
+      const rawFeatures = parsedGeo.features ?? [];
+      const featureCount = geoResult.featureCount;
+
+      const { data: sourceRecord, error: srcErr } = await supabase
+        .from('sources')
+        .insert({
+          document_id: documentId,
+          modality: 'spatial',
+          page_or_sheet: 1,
+          sha256,
+        })
+        .select()
+        .single();
+
+      if (srcErr || !sourceRecord) {
+        logger.error({ srcErr, documentId }, 'Error inserting spatial source');
+        throw new Error(`SOURCE_INSERT_FAILED: ${srcErr?.message}`);
+      }
+
+      const sourceId = sourceRecord.id;
+
+      await supabase.from('geo_layers').insert({
+        document_id: documentId,
+        crs: 'WGS84',
+        feature_count: featureCount,
+        simplified: {
+          type: 'FeatureCollection',
+          features: rawFeatures.slice(0, 100),
+        },
+      });
+
+      await supabase
+        .from('documents')
+        .update({ page_count: 1, status: 'processing', updated_at: new Date().toISOString() })
+        .eq('id', documentId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'extracting',
+        20,
+        sequence++,
+        `Extracted GeoJSON layer with ${featureCount} spatial features`,
+        { featureCount },
+      );
+
+      // 3. STAGE: chunking & 4. STAGE: embedding
+      await supabase
+        .from('jobs')
+        .update({ stage: 'chunking', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const chunksToInsert: IngestionChunk[] = [];
+      const spatialSummary = `Spatial dataset ${filename} with ${featureCount} features`;
+      chunksToInsert.push({
+        pageNumber: 1,
+        chunkIndex: 0,
+        content: spatialSummary,
+        embedding: generate768DimEmbedding(spatialSummary),
+      });
+
+      for (let i = 0; i < Math.min(featureCount, 10); i++) {
+        const feat = rawFeatures[i];
+        if (!feat) continue;
+        const featSummary = `Feature ${i + 1} (${feat.geometry?.type}): ${JSON.stringify(feat.properties ?? {})}`;
+        chunksToInsert.push({
+          pageNumber: 1,
+          chunkIndex: i + 1,
+          content: featSummary,
+          embedding: generate768DimEmbedding(featSummary),
+        });
+      }
+
+      if (chunksToInsert.length > 0) {
+        await supabase.from('chunks').insert(
+          chunksToInsert.map((c) => ({
+            document_id: documentId,
+            owner_id: ownerId,
+            page_number: c.pageNumber,
+            chunk_index: c.chunkIndex,
+            content: c.content,
+            embedding: `[${c.embedding.join(',')}]`,
+          })),
+        );
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'chunking',
+        30,
+        sequence++,
+        `Indexed spatial layer into ${chunksToInsert.length} chunks`,
+        { totalChunks: chunksToInsert.length },
+      );
+
+      await supabase
+        .from('jobs')
+        .update({ stage: 'embedding', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'embedding',
+        40,
+        sequence++,
+        'Generated geospatial embeddings',
+      );
+
+      // 5. STAGE: classification
+      await supabase
+        .from('jobs')
+        .update({ stage: 'classification', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const docType = 'spatial';
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'classification',
+        50,
+        sequence++,
+        'Classified document as spatial layer',
+        { documentType: docType },
+      );
+
+      // 6. STAGE: fact_extraction & 7. STAGE: verification
+      await supabase
+        .from('jobs')
+        .update({ stage: 'fact_extraction', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await supabase
+        .from('jobs')
+        .update({ stage: 'verification', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      let spanId: string | null = null;
+      if (sourceId) {
+        const { data: spanRecord } = await supabase
+          .from('evidence_spans')
+          .insert({
+            source_id: sourceId,
+            document_id: documentId,
+            kind: 'geo_feature',
+            locator: { type: 'geo_feature', feature_count: featureCount },
+            text: `GeoJSON layer containing ${featureCount} features`,
+          })
+          .select()
+          .single();
+        spanId = spanRecord?.id ?? null;
+      }
+
+      const verifiedFacts = [
+        {
+          document_id: documentId,
+          owner_id: ownerId,
+          type: 'statistic',
+          value: featureCount,
+          unit: 'features',
+          currency: null,
+          period: null,
+          page: 1,
+          quote: `Geospatial feature collection contains ${featureCount} features`,
+          verified: true,
+          proof_type: 'geo_parsed',
+          confidence_level: 'high',
+          span_id: spanId,
+          fail_reason: null,
+        },
+      ];
+
+      let insertedFactRecords: Array<Record<string, unknown>> = [];
+      if (verifiedFacts.length > 0) {
+        const { data: insData, error: factsErr } = await supabase
+          .from('facts')
+          .insert(verifiedFacts)
+          .select();
+
+        if (factsErr) {
+          logger.error({ factsErr }, 'Error inserting verified spatial facts');
+        } else if (insData) {
+          insertedFactRecords = insData;
+        }
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'verification',
+        70,
+        sequence++,
+        `Verified ${verifiedFacts.length} spatial facts`,
+        { verifiedFactCount: verifiedFacts.length },
+      );
+
+      // 8. STAGE: synthesis
+      await supabase
+        .from('jobs')
+        .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      await supabase.from('analyses').insert({
+        document_id: documentId,
+        owner_id: ownerId,
+        doc_type: docType,
+        summary: null,
+        key_findings: [],
+        risks: [],
+        verification_rate: 1.0,
+      });
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'synthesis',
+        80,
+        sequence++,
+        'Spatial analysis record initialized',
+        { verifiedFactCount: verifiedFacts.length, verificationRate: 1.0 },
+      );
+
+      // 9. STAGE: building_visuals
+      await supabase
+        .from('jobs')
+        .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
+        .eq('id', jobId);
+
+      const visualConfigs = [
+        {
+          document_id: documentId,
+          owner_id: ownerId,
+          title: 'Geospatial Map Layer',
+          kind: 'choropleth',
+          spec: {
+            features: rawFeatures.slice(0, 50),
+          },
+          source_pages: [1],
+          fact_ids: insertedFactRecords
+            .slice(0, 4)
+            .map((f) => f.id)
+            .filter(Boolean),
+          position: 0,
+        },
+      ];
+
+      if (insertedFactRecords.length > 0) {
+        await supabase.from('visualizations').insert(visualConfigs);
+      }
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'building_visuals',
+        90,
+        sequence++,
+        'Constructed map layer visualization widgets',
+        { visualCount: visualConfigs.length },
+      );
+
+      // 10. STAGE: done
+      await supabase
+        .from('documents')
+        .update({ status: 'done', updated_at: new Date().toISOString() })
+        .eq('id', documentId);
+
+      await supabase
+        .from('jobs')
+        .update({
+          status: 'completed',
+          stage: 'done',
+          progress: 100,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'done',
+        100,
+        sequence++,
+        'GeoJSON spatial ingestion completed successfully',
+        { status: 'done' },
+      );
+
+      return { success: true, documentId, jobId };
+    }
+
+    // ==========================================
+    // BRANCH C: PDF DOCUMENT INGESTION
+    // ==========================================
     // 2. STAGE: extracting
     await supabase
       .from('jobs')
       .update({ stage: 'extracting', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    const pdfData = new Uint8Array(pdfBuffer);
+    const pdfData = new Uint8Array(fileBuffer);
     const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
     const pageCount = pdfDoc.numPages;
 
@@ -158,6 +919,14 @@ export async function runDocumentIngestionPipeline(
         pageNumber: p,
         rawText: lines.join('\n'),
         lines,
+      });
+
+      // Insert source record for page
+      await supabase.from('sources').insert({
+        document_id: documentId,
+        modality: 'document',
+        page_or_sheet: p,
+        sha256,
       });
     }
 
@@ -188,7 +957,6 @@ export async function runDocumentIngestionPipeline(
     let globalChunkIdx = 0;
 
     for (const page of extractedPages) {
-      // Create semantic chunks from paragraphs
       const paragraphs = page.rawText
         .split(/\n\s*\n/)
         .map((p) => p.trim())
@@ -209,9 +977,7 @@ export async function runDocumentIngestionPipeline(
       }
     }
 
-    // Insert chunks into database
     if (chunksToInsert.length > 0) {
-      // Chunk inserts in batches of 50
       for (let i = 0; i < chunksToInsert.length; i += 50) {
         const batch = chunksToInsert.slice(i, i + 50).map((c) => ({
           document_id: documentId,
@@ -308,7 +1074,6 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'verification', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    // Extract and verify facts deterministically from document pages
     const rawFactCandidates: Array<{
       type: string;
       value: number | null;
@@ -343,8 +1108,6 @@ export async function runDocumentIngestionPipeline(
           else if (/%/.test(trimmed)) unit = 'percent';
 
           const currency = /Rs\.?|crore|lakh/i.test(trimmed) ? 'INR' : null;
-
-          // Extract explicit fiscal period token if mentioned
           const periodMatch = trimmed.match(/(?:(?:FY|BE|RE)\s*)?(20\d{2}[-–]\d{2,4}|20\d{2})/i);
           const period = periodMatch && periodMatch[1] ? periodMatch[1].replace('–', '-') : null;
 
@@ -388,6 +1151,8 @@ export async function runDocumentIngestionPipeline(
           page: cand.page,
           quote: cand.quote,
           verified: true,
+          proof_type: 'verified',
+          confidence_level: 'high',
           fail_reason: null,
         });
       }
@@ -425,8 +1190,6 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    // Honest synthesis: Do not fabricate summaries or findings.
-    // Analysis text can only be produced via verified fact-driven synthesis (EVD-03).
     assertAnalysisDerivedFromVerifiedFacts({
       verifiedFactIds: verifiedFacts
         .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
@@ -466,7 +1229,6 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    // Create default visualization configs strictly from verified facts
     const visualConfigs = [
       {
         document_id: documentId,

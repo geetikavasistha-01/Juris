@@ -273,6 +273,7 @@ export const QueryFilterSchema = z
       ctx.addIssue({ code: 'custom', path: ['value'], message: `${f.op} requires a scalar` });
     }
   });
+export type QueryFilter = z.infer<typeof QueryFilterSchema>;
 
 export const AggregateFnSchema = z.enum(['sum', 'avg', 'min', 'max', 'count', 'count_distinct']);
 
@@ -286,6 +287,7 @@ export const QueryAggregateSchema = z
     message: 'column is required unless fn is count',
     path: ['column'],
   });
+export type QueryAggregate = z.infer<typeof QueryAggregateSchema>;
 
 export const QueryPlanSchema = z.object({
   version: z.literal(1),

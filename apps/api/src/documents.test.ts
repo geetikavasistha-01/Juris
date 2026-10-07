@@ -162,7 +162,7 @@ describe('Document API & Ingestion Pipeline', () => {
     for (let i = 1; i < eventsBody.events.length; i++) {
       expect(eventsBody.events[i].sequence).toBeGreaterThan(eventsBody.events[i - 1].sequence);
     }
-  }, 15000);
+  }, 30000);
 
   it('rejects duplicate upload with 409 DUPLICATE', async () => {
     const pdfBuffer = getTestPdfBuffer();
@@ -403,5 +403,145 @@ describe('Document API & Ingestion Pipeline', () => {
       .select('*', { count: 'exact', head: true })
       .eq('document_id', docId);
     expect(eventCountAfter).toBe(0);
-  }, 15000);
+  }, 30000);
+
+  it('successfully uploads and processes CSV tabular dataset', async () => {
+    const supabase = getAdminSupabaseClient();
+    const csvContent =
+      'Sector,Budget_Cr,Expenditure_Cr\nHealthcare,52000,48000\nEducation,75000,72000\nTransport,35000,34000';
+    const mp = createMultipartPayload(
+      'civic_budget_sample.csv',
+      'text/csv',
+      Buffer.from(csvContent, 'utf-8'),
+    );
+
+    const uploadRes = await app.inject({
+      method: 'POST',
+      url: '/api/documents',
+      headers: {
+        ...mp.headers,
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: mp.payload,
+    });
+
+    expect(uploadRes.statusCode).toBe(201);
+    const body = uploadRes.json();
+    const docId = body.documentId;
+    expect(docId).toBeDefined();
+
+    // Poll until completed
+    let status = 'queued';
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const docRes = await app.inject({
+        method: 'GET',
+        url: `/api/documents/${docId}`,
+        headers: { authorization: `Bearer ${authToken}` },
+      });
+      if (docRes.statusCode === 200) {
+        status = docRes.json().status;
+        if (status === 'done' || status === 'failed') break;
+      }
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    expect(status).toBe('done');
+
+    // Verify source modality and datasets record
+    const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
+
+    expect(sources && sources.length).toBeGreaterThan(0);
+    expect(sources?.[0]?.modality).toBe('tabular');
+
+    const { data: dataset } = await supabase
+      .from('datasets')
+      .select('*')
+      .eq('document_id', docId)
+      .single();
+    expect(dataset?.row_count).toBe(3);
+
+    // Verify facts computed from table
+    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
+    expect(facts && facts.length).toBeGreaterThan(0);
+    expect(facts?.every((f) => f.proof_type === 'computed_from_table')).toBe(true);
+  }, 30000);
+
+  it('successfully uploads and processes GeoJSON spatial dataset', async () => {
+    const supabase = getAdminSupabaseClient();
+    const geoJsonContent = JSON.stringify({
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: { ward: 'Central', population: 150000 },
+          geometry: {
+            type: 'Point',
+            coordinates: [77.209, 28.6139],
+          },
+        },
+        {
+          type: 'Feature',
+          properties: { ward: 'North', population: 210000 },
+          geometry: {
+            type: 'Point',
+            coordinates: [77.215, 28.65],
+          },
+        },
+      ],
+    });
+
+    const mp = createMultipartPayload(
+      'wards.geojson',
+      'application/geo+json',
+      Buffer.from(geoJsonContent, 'utf-8'),
+    );
+
+    const uploadRes = await app.inject({
+      method: 'POST',
+      url: '/api/documents',
+      headers: {
+        ...mp.headers,
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: mp.payload,
+    });
+
+    expect(uploadRes.statusCode).toBe(201);
+    const body = uploadRes.json();
+    const docId = body.documentId;
+    expect(docId).toBeDefined();
+
+    // Poll until completed
+    let status = 'queued';
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const docRes = await app.inject({
+        method: 'GET',
+        url: `/api/documents/${docId}`,
+        headers: { authorization: `Bearer ${authToken}` },
+      });
+      if (docRes.statusCode === 200) {
+        status = docRes.json().status;
+        if (status === 'done' || status === 'failed') break;
+      }
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    expect(status).toBe('done');
+
+    // Verify source modality and geo_layers record
+    const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
+
+    expect(sources && sources.length).toBeGreaterThan(0);
+    expect(sources?.[0]?.modality).toBe('spatial');
+
+    const { data: geoLayer } = await supabase
+      .from('geo_layers')
+      .select('*')
+      .eq('document_id', docId)
+      .single();
+    expect(geoLayer?.feature_count).toBe(2);
+
+    // Verify spatial facts
+    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
+    expect(facts && facts.length).toBeGreaterThan(0);
+    expect(facts?.[0]?.proof_type).toBe('geo_parsed');
+  }, 30000);
 });

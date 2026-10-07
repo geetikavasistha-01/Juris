@@ -32,15 +32,24 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     }
 
     const admin = getAdminSupabaseClient();
-    const { data, error } = await admin.auth.getUser(token);
-    if (error || !data.user) {
-      server.log.warn(
-        { error, tokenSubstring: token.substring(0, 10) },
-        'Failed to resolve user from auth header',
-      );
-      return null;
+    let user = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const { data, error } = await admin.auth.getUser(token);
+      if (data?.user) {
+        user = data.user;
+        break;
+      }
+      if (error && attempt === 2) {
+        server.log.warn(
+          { error, tokenSubstring: token.substring(0, 10) },
+          'Failed to resolve user from auth header after retries',
+        );
+      }
+      if (attempt < 2) await new Promise((r) => setTimeout(r, 150 * (attempt + 1)));
     }
-    return { id: data.user.id, token, isAnonymous: false };
+
+    if (!user) return null;
+    return { id: user.id, token, isAnonymous: false };
   }
 
   // 1. POST /api/documents - Upload & enqueue processing
@@ -85,9 +94,15 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         );
     }
 
-    // 2. Validate PDF magic bytes: %PDF-
+    // 2. Validate file format by extension and magic bytes (ING-01, ING-05, ING-07)
+    const lowerFilename = filename.toLowerCase();
     const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]);
-    if (buffer.subarray(0, 5).compare(pdfMagic) !== 0) {
+    const isCsv = lowerFilename.endsWith('.csv') || data.mimetype === 'text/csv';
+    const isGeoJson = lowerFilename.endsWith('.geojson') || lowerFilename.endsWith('.geo.json');
+    const hasPdfMagic = buffer.length >= 5 && buffer.subarray(0, 5).compare(pdfMagic) === 0;
+    const isPdf = hasPdfMagic || lowerFilename.endsWith('.pdf');
+
+    if (!isCsv && !isGeoJson && !hasPdfMagic) {
       return reply
         .status(400)
         .send(
@@ -122,34 +137,37 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         );
     }
 
-    // 5. Extract PDF page count
+    // 5. Extract page / row count
     let pageCount = 1;
-    try {
-      const uint8 = new Uint8Array(buffer);
-      const loadingTask = pdfjsLib.getDocument({
-        data: uint8,
-        useWorkerFetch: false,
-        useSystemFonts: true,
-      });
-      const pdfDoc = await loadingTask.promise;
-      pageCount = pdfDoc.numPages;
+    if (isPdf) {
+      try {
+        const uint8 = new Uint8Array(buffer);
+        const loadingTask = pdfjsLib.getDocument({
+          data: uint8,
+          useWorkerFetch: false,
+          useSystemFonts: true,
+        });
+        const pdfDoc = await loadingTask.promise;
+        pageCount = pdfDoc.numPages;
 
-      if (pageCount > config.MAX_PDF_PAGES) {
-        return reply
-          .status(400)
-          .send(
-            createErrorResponse(
-              'VALIDATION_ERROR',
-              `Document has ${pageCount} pages, exceeding the maximum limit of ${config.MAX_PDF_PAGES} pages`,
-            ),
-          );
+        if (pageCount > config.MAX_PDF_PAGES) {
+          return reply
+            .status(400)
+            .send(
+              createErrorResponse(
+                'VALIDATION_ERROR',
+                `Document has ${pageCount} pages, exceeding the maximum limit of ${config.MAX_PDF_PAGES} pages`,
+              ),
+            );
+        }
+      } catch (pdfErr) {
+        server.log.warn({ pdfErr }, 'Warning inspecting PDF metadata');
       }
-    } catch (pdfErr) {
-      server.log.warn({ pdfErr }, 'Warning inspecting PDF metadata');
     }
 
     // 6. Create document record
-    const storagePath = `${auth.id}/${sha256}.pdf`;
+    const ext = isPdf ? 'pdf' : isCsv ? 'csv' : 'geojson';
+    const storagePath = `${auth.id}/${sha256}.${ext}`;
     const { data: docRecord, error: docError } = await supabase
       .from('documents')
       .insert({
@@ -207,9 +225,11 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
 
     // 8. Launch background ingestion pipeline asynchronously
     setImmediate(() => {
-      runDocumentIngestionPipeline(docRecord.id, jobRecord.id, auth.id, buffer).catch((err) => {
-        server.log.error({ err, documentId: docRecord.id }, 'Background pipeline error');
-      });
+      runDocumentIngestionPipeline(docRecord.id, jobRecord.id, auth.id, buffer, filename).catch(
+        (err) => {
+          server.log.error({ err, documentId: docRecord.id }, 'Background pipeline error');
+        },
+      );
     });
 
     const responsePayload = {

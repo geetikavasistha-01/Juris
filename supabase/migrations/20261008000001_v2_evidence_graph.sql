@@ -204,12 +204,19 @@ BEGIN
   FOREACH tbl IN ARRAY tables LOOP
     EXECUTE format('
       DROP POLICY IF EXISTS "Users can read own %1$I" ON public.%1$I;
-      CREATE POLICY "Users can read own %1$I" ON public.%1$I
-        FOR SELECT TO authenticated
+      DROP POLICY IF EXISTS "Users can manage own %1$I" ON public.%1$I;
+      CREATE POLICY "Users can manage own %1$I" ON public.%1$I
+        FOR ALL TO authenticated
         USING (
           EXISTS (
             SELECT 1 FROM public.documents d
             WHERE d.id = %1$I.document_id AND (d.owner_id = auth.uid() OR d.is_sample = true)
+          )
+        )
+        WITH CHECK (
+          EXISTS (
+            SELECT 1 FROM public.documents d
+            WHERE d.id = %1$I.document_id AND d.owner_id = auth.uid()
           )
         );
 
