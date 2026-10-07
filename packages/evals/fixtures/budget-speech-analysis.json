@@ -1184,16 +1184,5 @@
       "verificationMethod": "quote_on_page",
       "failReason": null
     }
-  ],
-  "summary": "NDMC Budget Speech 2026-27 comprehensive extraction across 114 pages with 72 verified financial figures and departmental allocations.",
-  "keyFindings": [
-    "Total expenditure for BE 2026-27 is Rs.5810.02 Crore against Rs.5484.15 Crore in RE 2025-26.",
-    "Revenue receipts for BE 2026-27 are Rs.5211.92 Crore against Rs.4964.73 Crore in RE 2025-26.",
-    "Medical Services Department allocation is Rs.118.33 Crore (Rs.12.71 Crore capital, Rs.105.62 Crore revenue).",
-    "Water Supply & Sewerage allocation is Rs.230.28 Crore."
-  ],
-  "risks": [
-    "Receipt realization dependency on property tax collection and transfer duties.",
-    "Capital project timeline dependencies across multi-year municipal civil works."
   ]
 }

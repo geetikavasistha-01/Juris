@@ -58,7 +58,7 @@ export function checkExternalHosts(distPath = DIST_DIR) {
       const fullPath = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         scanDir(fullPath);
-      } else if (/\.(html|css|js)$/i.test(entry.name)) {
+      } else if (/\.(html|css|js|svg)$/i.test(entry.name)) {
         filesToScan.push(fullPath);
       }
     }

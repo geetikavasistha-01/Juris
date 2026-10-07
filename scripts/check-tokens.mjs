@@ -28,7 +28,7 @@ function scanDirectory(dir, fileList = []) {
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) {
       scanDirectory(fullPath, fileList);
-    } else if (/\.(tsx?|jsx?|css)$/.test(file)) {
+    } else if (/\.(tsx?|jsx?|css|svg)$/.test(file)) {
       fileList.push(fullPath);
     }
   }

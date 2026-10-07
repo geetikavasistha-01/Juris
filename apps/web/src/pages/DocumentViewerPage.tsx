@@ -31,11 +31,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 
-const DocumentVisuals = React.lazy(() =>
-  import('../components/visuals/DocumentVisuals.js').then((m) => ({
-    default: m.DocumentVisuals,
-  })),
-);
+import { DocumentVisuals } from '../components/visuals/DocumentVisuals.js';
 
 export const DocumentViewerPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -171,30 +167,30 @@ export const DocumentViewerPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setFactFilter('all')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                   factFilter === 'all'
-                    ? 'bg-brand-navy text-[var(--btn-primary-text)] shadow-xs'
-                    : 'text-text-muted hover:text-text bg-surface-raised'
+                    ? 'bg-brand-navy text-[var(--btn-primary-text)] shadow-xs border border-brand-navy'
+                    : 'text-text hover:text-text-subtle bg-surface-raised border border-border'
                 }`}
               >
                 All Facts ({allFacts.length})
               </button>
               <button
                 onClick={() => setFactFilter('verified')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                   factFilter === 'verified'
                     ? 'bg-verified-bg text-verified border border-verified-border font-bold'
-                    : 'text-text-muted hover:text-verified bg-surface-raised'
+                    : 'text-text hover:text-verified bg-surface-raised border border-border'
                 }`}
               >
                 Verified ({verifiedCount})
               </button>
               <button
                 onClick={() => setFactFilter('unverified')}
-                className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                   factFilter === 'unverified'
                     ? 'bg-unverified-bg text-unverified border border-unverified-border font-bold'
-                    : 'text-text-muted hover:text-unverified bg-surface-raised'
+                    : 'text-text hover:text-unverified bg-surface-raised border border-border'
                 }`}
               >
                 Unverified ({unverifiedCount})
@@ -202,10 +198,10 @@ export const DocumentViewerPage: React.FC = () => {
               {failedCount > 0 && (
                 <button
                   onClick={() => setFactFilter('failed')}
-                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
                     factFilter === 'failed'
                       ? 'bg-failed-bg text-failed border border-failed-border font-bold'
-                      : 'text-text-muted hover:text-failed bg-surface-raised'
+                      : 'text-text hover:text-failed bg-surface-raised border border-border'
                   }`}
                 >
                   Failed ({failedCount})
@@ -295,16 +291,7 @@ export const DocumentViewerPage: React.FC = () => {
 
         {/* Tab: Visual Analytics */}
         <TabsContent value="visuals" className="space-y-6">
-          <React.Suspense
-            fallback={
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Skeleton className="h-80 w-full" />
-                <Skeleton className="h-80 w-full" />
-              </div>
-            }
-          >
-            <DocumentVisuals facts={allFacts} documentName={doc.filename} />
-          </React.Suspense>
+          <DocumentVisuals facts={allFacts} documentName={doc.filename} />
         </TabsContent>
 
         {/* Tab 2: Executive Findings & Risks */}
@@ -313,8 +300,13 @@ export const DocumentViewerPage: React.FC = () => {
             <div>
               <h2 className="font-serif text-xl font-bold text-text mb-2">Executive Summary</h2>
               <p className="text-sm text-text-muted leading-relaxed">
-                {doc.analysis?.summary ||
-                  'Deterministic summary generated from verified document facts.'}
+                {doc.analysis?.summary ? (
+                  doc.analysis.summary
+                ) : (
+                  <span className="text-text-muted italic">
+                    An analysis summary has not been generated for this document.
+                  </span>
+                )}
               </p>
             </div>
 

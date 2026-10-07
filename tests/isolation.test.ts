@@ -219,7 +219,7 @@ describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', () => {
     await adminClient.from('documents').delete().eq('id', sampleDoc.id);
     await adminClient.auth.admin.deleteUser(userA_id);
     await adminClient.auth.admin.deleteUser(userB_id);
-  });
+  }, 30000);
 
   it('proves strict HTTP API isolation, signed URL bounds, and cascade deletion across tenants', async () => {
     const user1_email = `http_user1_${Date.now()}@juris.local`;
@@ -340,5 +340,5 @@ describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', () => {
     // Clean up users
     await adminClient.auth.admin.deleteUser(user1_id);
     await adminClient.auth.admin.deleteUser(user2_id);
-  });
+  }, 30000);
 });

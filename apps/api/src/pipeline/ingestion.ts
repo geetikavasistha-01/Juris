@@ -1,6 +1,10 @@
 import crypto from 'node:crypto';
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { verifyFactQuoteAndValue, type ProcessingStage } from '@juris/shared';
+import {
+  verifyFactQuoteAndValue,
+  assertAnalysisDerivedFromVerifiedFacts,
+  type ProcessingStage,
+} from '@juris/shared';
 import { getAdminSupabaseClient } from '../supabase.js';
 import { logger } from '../logger.js';
 
@@ -384,14 +388,23 @@ export async function runDocumentIngestionPipeline(
           page: cand.page,
           quote: cand.quote,
           verified: true,
-          verification_method: 'quote_on_page',
           fail_reason: null,
         });
       }
     }
 
+    let insertedFactRecords: Array<Record<string, unknown>> = [];
     if (verifiedFacts.length > 0) {
-      await supabase.from('facts').insert(verifiedFacts);
+      const { data: insData, error: factsErr } = await supabase
+        .from('facts')
+        .insert(verifiedFacts)
+        .select();
+
+      if (factsErr) {
+        logger.error({ factsErr }, 'Error inserting verified facts into database');
+      } else if (insData) {
+        insertedFactRecords = insData;
+      }
     }
 
     await publishJobEvent(
@@ -412,23 +425,27 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    const summary = `Comprehensive analysis of ${docType} document spanning ${pageCount} pages with ${verifiedFacts.length} verified key facts and ${chunksToInsert.length} semantic chunks.`;
-    const keyFindings = [
-      `Extracted ${verifiedFacts.length} verified quantitative figures with source page citations.`,
-      `Semantic search index established with ${chunksToInsert.length} vectors for high-recall Q&A.`,
-      `Document structure and civic departmental allocations cataloged.`,
-    ];
-    const risks = [
-      'Multi-year capital project timeline variations.',
-      'Revenue receipt target dependencies.',
-    ];
+    // Honest synthesis: Do not fabricate summaries or findings.
+    // Analysis text can only be produced via verified fact-driven synthesis (EVD-03).
+    assertAnalysisDerivedFromVerifiedFacts({
+      verifiedFactIds: verifiedFacts
+        .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
+        .filter(Boolean),
+      summary: null,
+      keyFindings: [],
+    });
+
+    const verificationRate =
+      rawFactCandidates.length > 0 ? verifiedFacts.length / rawFactCandidates.length : 0.0;
 
     await supabase.from('analyses').insert({
       document_id: documentId,
       owner_id: ownerId,
-      summary,
-      key_findings: keyFindings,
-      risks,
+      doc_type: docType,
+      summary: null,
+      key_findings: [],
+      risks: [],
+      verification_rate: verificationRate,
     });
 
     await publishJobEvent(
@@ -439,8 +456,8 @@ export async function runDocumentIngestionPipeline(
       'synthesis',
       80,
       sequence++,
-      'Generated executive summary and key findings synthesis',
-      { keyFindingsCount: keyFindings.length },
+      'Analysis record initialized with verified facts and metrics',
+      { verifiedFactCount: verifiedFacts.length, verificationRate },
     );
 
     // 9. STAGE: building_visuals
@@ -449,41 +466,40 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    // Create default visualization configs
+    // Create default visualization configs strictly from verified facts
     const visualConfigs = [
       {
         document_id: documentId,
         owner_id: ownerId,
         title: 'Key Figures Overview',
-        chart_type: 'key_figures',
-        config: {
-          metrics: verifiedFacts.slice(0, 4).map((f) => ({
+        kind: 'key_figures',
+        spec: {
+          metrics: insertedFactRecords.slice(0, 4).map((f) => ({
             label: f.type,
             value: f.value,
             unit: f.unit,
             currency: f.currency,
             page: f.page,
+            quote: f.quote,
           })),
         },
-      },
-      {
-        document_id: documentId,
-        owner_id: ownerId,
-        title: 'Departmental Allocations Breakdown',
-        chart_type: 'bar',
-        config: {
-          categories: [
-            'Revenue Receipts',
-            'Capital Outlay',
-            'Water & Sewerage',
-            'Medical Services',
-          ],
-          series: [5211.92, 741.15, 230.28, 118.33],
-        },
+        source_pages: Array.from(
+          new Set(insertedFactRecords.slice(0, 4).map((f) => Number(f.page))),
+        ),
+        fact_ids: insertedFactRecords
+          .slice(0, 4)
+          .map((f) => f.id)
+          .filter(Boolean),
+        position: 0,
       },
     ];
 
-    await supabase.from('visualizations').insert(visualConfigs);
+    if (insertedFactRecords.length > 0) {
+      const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
+      if (visErr) {
+        logger.error({ visErr }, 'Error inserting visualizations');
+      }
+    }
 
     await publishJobEvent(
       supabase,

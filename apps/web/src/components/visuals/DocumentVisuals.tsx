@@ -273,13 +273,13 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
       {/* Primary Visualizations Grid (Bar Chart & Temporal Trend Chart) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Allocations Bar Chart Card */}
-        <Card className="p-6 flex flex-col justify-between">
+        <Card className="p-6 flex flex-col justify-between bg-surface border border-border">
           <CardHeader className="p-0 pb-4">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-accent-teal" />
-              <CardTitle className="text-base">Top Quantitative Allocations</CardTitle>
+              <CardTitle className="text-base text-text">Top Quantitative Allocations</CardTitle>
             </div>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs text-text-subtle">
               Verified financial facts extracted from document text (excluding aggregate totals).
             </CardDescription>
           </CardHeader>
@@ -298,22 +298,22 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
                     tabIndex={0}
                     role="region"
                     aria-label="Top quantitative allocations data table"
-                    className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                    className="mt-4 border-t border-border pt-4 overflow-x-auto bg-surface rounded focus-visible:ring-1 focus-visible:ring-accent-teal"
                   >
-                    <table className="w-full text-xs font-mono">
+                    <table className="w-full text-xs font-mono bg-surface">
                       <thead>
-                        <tr className="border-b border-border text-text-subtle">
-                          <th className="text-left py-1">Fact / Allocation</th>
-                          <th className="text-right py-1">Value</th>
-                          <th className="text-right py-1">Unit</th>
-                          <th className="text-right py-1">Page</th>
+                        <tr className="border-b border-border text-text font-semibold">
+                          <th className="text-left py-1 text-text">Fact / Allocation</th>
+                          <th className="text-right py-1 text-text">Value</th>
+                          <th className="text-right py-1 text-text">Unit</th>
+                          <th className="text-right py-1 text-text">Page</th>
                         </tr>
                       </thead>
                       <tbody>
                         {barData.items.map((item, i) => (
                           <tr key={i} className="border-b border-border/50">
                             <td className="py-1 text-text truncate max-w-xs">{item.quote}</td>
-                            <td className="py-1 text-right font-bold text-accent-teal">
+                            <td className="py-1 text-right font-bold text-text">
                               {item.value.toLocaleString()}
                             </td>
                             <td className="py-1 text-right text-text-subtle">
@@ -329,9 +329,9 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
               </>
             ) : (
               <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
-                <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <AlertCircle className="w-8 h-8 text-text-subtle mx-auto mb-2" />
                 <p className="text-sm font-medium text-text">No Quantified Allocations Displayed</p>
-                <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
+                <p className="text-xs text-text-subtle max-w-sm mx-auto mt-1">
                   {barData.emptyReason}
                 </p>
               </div>
@@ -340,13 +340,13 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
         </Card>
 
         {/* Temporal Trends Card */}
-        <Card className="p-6 flex flex-col justify-between">
+        <Card className="p-6 flex flex-col justify-between bg-surface border border-border">
           <CardHeader className="p-0 pb-4">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-accent-teal" />
-              <CardTitle className="text-base">Fiscal Period Breakdown</CardTitle>
+              <CardTitle className="text-base text-text">Fiscal Period Breakdown</CardTitle>
             </div>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs text-text-subtle">
               Multi-year allocations extracted with explicit period citations (BE / RE / Actual).
             </CardDescription>
           </CardHeader>
@@ -365,11 +365,11 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
                     tabIndex={0}
                     role="region"
                     aria-label="Fiscal period breakdown data table"
-                    className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                    className="mt-4 border-t border-border pt-4 overflow-x-auto bg-surface rounded focus-visible:ring-1 focus-visible:ring-accent-teal"
                   >
-                    <table className="w-full text-xs font-mono">
+                    <table className="w-full text-xs font-mono bg-surface">
                       <thead>
-                        <tr className="border-b border-border text-text-subtle">
+                        <tr className="border-b border-border text-text font-semibold">
                           <th className="text-left py-1">Fiscal Period</th>
                           <th className="text-right py-1">Sum ({trendData.currency || ''})</th>
                         </tr>
@@ -378,7 +378,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
                         {trendData.periods.map((p, i) => (
                           <tr key={i} className="border-b border-border/50">
                             <td className="py-1 text-text">{p}</td>
-                            <td className="py-1 text-right font-bold text-accent-teal">
+                            <td className="py-1 text-right font-bold text-text">
                               {trendData.values[i]?.toLocaleString()}
                             </td>
                           </tr>
@@ -390,9 +390,9 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
               </>
             ) : (
               <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
-                <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <AlertCircle className="w-8 h-8 text-text-subtle mx-auto mb-2" />
                 <p className="text-sm font-medium text-text">No Fiscal Period Breakdown</p>
-                <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
+                <p className="text-xs text-text-subtle max-w-sm mx-auto mt-1">
                   {trendData.emptyReason}
                 </p>
               </div>

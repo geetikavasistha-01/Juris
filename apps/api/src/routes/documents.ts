@@ -289,19 +289,51 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
             risks: analysis.risks || [],
           }
         : null,
-      facts: (facts || []).map((f) => ({
-        id: f.id,
-        type: f.type,
-        value: f.value,
-        unit: f.unit,
-        currency: f.currency,
-        period: f.period,
-        page: f.page,
-        quote: f.quote,
-        verified: f.verified,
-        verificationMethod: f.verification_method || 'quote_on_page',
-        failReason: f.fail_reason,
-      })),
+      facts: (facts || []).map((f) => {
+        let periodObj = null;
+        if (f.period) {
+          if (typeof f.period === 'object') {
+            periodObj = f.period;
+          } else {
+            const str = String(f.period);
+            const basis = /BE/i.test(str)
+              ? 'BE'
+              : /RE/i.test(str)
+                ? 'RE'
+                : /actual/i.test(str)
+                  ? 'actual'
+                  : 'none';
+            periodObj = { basis, fiscalYear: str };
+          }
+        }
+
+        const validTypes = [
+          'financial_total',
+          'receipt',
+          'expenditure',
+          'allocation',
+          'tax_collection',
+          'physical_quantity',
+          'count',
+          'percentage',
+        ];
+        const factType = validTypes.includes(f.type) ? f.type : 'allocation';
+
+        return {
+          id: f.id,
+          label: f.label || `${factType} (${f.value ?? ''} ${f.unit ?? ''})`.trim() || 'Fact',
+          type: factType,
+          value: f.value !== null && f.value !== undefined ? Number(f.value) : null,
+          unit: f.unit || null,
+          currency: f.currency || null,
+          period: periodObj,
+          page: Number(f.page) || 1,
+          quote: f.quote || '',
+          verified: Boolean(f.verified),
+          verificationMethod: 'quote_on_page',
+          failReason: f.fail_reason || null,
+        };
+      }),
       job: job
         ? {
             id: job.id,

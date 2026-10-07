@@ -85,7 +85,7 @@
 
   --text: #E6EDF7;
   --text-muted: #9FB0C8;
-  --text-subtle: #7E93B0;
+  --text-subtle: #A5B6CE;
   --text-inverse: #0A1424;
 
   --brand-navy: #8FB4F0;
@@ -107,8 +107,8 @@
   --failed-bg: #450A0A;
   --failed-border: #991B1B;
 
-  --quote-highlight: rgba(251, 191, 36, 0.35);
-  --quote-highlight-solid: #2B210B;
+  --quote-highlight: rgba(251, 191, 36, 0.18);
+  --quote-highlight-solid: #201A0E;
   --quote-border: #F59E0B;
 
   --focus-ring: #2DD4BF;

@@ -34,12 +34,31 @@ export const DocumentUploadResponseSchema = z.object({
 export type DocumentUploadResponse = z.infer<typeof DocumentUploadResponseSchema>;
 
 export const DocumentAnalysisDetailSchema = z.object({
-  summary: z.string().optional(),
+  summary: z.string().nullable().optional(),
   documentType: z.string().optional(),
   keyFindings: z.array(z.string()).default([]),
   risks: z.array(z.string()).default([]),
 });
 export type DocumentAnalysisDetail = z.infer<typeof DocumentAnalysisDetailSchema>;
+
+/**
+ * Guard ensuring that analysis synthesis text can only ever be produced
+ * by a function that consumes strictly verified fact IDs (EVD-03 guard).
+ */
+export function assertAnalysisDerivedFromVerifiedFacts(params: {
+  verifiedFactIds: string[];
+  summary?: string | null;
+  keyFindings?: string[];
+}): void {
+  if (
+    (params.summary || (params.keyFindings && params.keyFindings.length > 0)) &&
+    params.verifiedFactIds.length === 0
+  ) {
+    throw new Error(
+      'FORBIDDEN_UNVERIFIED_SYNTHESIS: Analysis text cannot be generated without verified supporting fact IDs.',
+    );
+  }
+}
 
 export const FactTypeSchema = z.enum([
   'financial_total',
