@@ -3,17 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DEFAULT_MAX_FILE_SIZE_BYTES } from '@juris/shared';
 import { uploadDocument } from '../lib/api.js';
+import { useAuth } from '../lib/auth.js';
 import { Button, Card, Toast } from '../components/ui/index.js';
-import { UploadCloud, FileText, Loader2, ShieldAlert } from 'lucide-react';
+import { UploadCloud, FileText, Loader2, ShieldAlert, LogIn } from 'lucide-react';
 
 export const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { user, isLoading: authLoading, signInAsGuest } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [guestLoading, setGuestLoading] = useState(false);
 
   const maxFileSizeMb = Math.round(DEFAULT_MAX_FILE_SIZE_BYTES / (1024 * 1024));
 
@@ -75,8 +78,33 @@ export const UploadPage: React.FC = () => {
     }
   };
 
-  const handleUploadSubmit = () => {
+  const handleGuestSignIn = async () => {
+    setValidationError(null);
+    setGuestLoading(true);
+    try {
+      await signInAsGuest();
+    } catch (err) {
+      setValidationError(err instanceof Error ? err.message : 'Guest sign in failed.');
+    } finally {
+      setGuestLoading(false);
+    }
+  };
+
+  const handleUploadSubmit = async () => {
     if (!selectedFile) return;
+    if (!user) {
+      // If guest/anonymous, sign in first seamlessly
+      try {
+        setGuestLoading(true);
+        await signInAsGuest();
+        uploadMutation.mutate(selectedFile);
+      } catch {
+        setValidationError('Please sign in or continue as guest to upload documents.');
+      } finally {
+        setGuestLoading(false);
+      }
+      return;
+    }
     uploadMutation.mutate(selectedFile);
   };
 
@@ -91,6 +119,41 @@ export const UploadPage: React.FC = () => {
           extraction and quotation verification.
         </p>
       </div>
+
+      {!authLoading && !user && (
+        <Card className="p-4 bg-accent-teal/5 border-accent-teal/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-0.5">
+            <p className="text-sm font-semibold text-text">Sign in to save and manage documents</p>
+            <p className="text-xs text-text-muted">
+              You can sign in with your email or start instantly with guest access.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleGuestSignIn}
+              disabled={guestLoading}
+              className="flex items-center gap-1.5"
+            >
+              {guestLoading ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <LogIn className="w-3.5 h-3.5" />
+              )}
+              <span>Guest Sign In</span>
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => navigate('/login')}
+              className="flex items-center gap-1.5"
+            >
+              <span>Sign In</span>
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {validationError && (
         <Toast
