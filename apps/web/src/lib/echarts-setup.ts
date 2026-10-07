@@ -12,7 +12,6 @@
 import { use, init, registerTheme } from 'echarts/core';
 import { install as BarChart } from 'echarts/lib/chart/bar/install.js';
 import { install as LineChart } from 'echarts/lib/chart/line/install.js';
-import { install as TreemapChart } from 'echarts/lib/chart/treemap/install.js';
 import { install as GridComponent } from 'echarts/lib/component/grid/install.js';
 import { install as TooltipComponent } from 'echarts/lib/component/tooltip/install.js';
 import { install as LegendComponent } from 'echarts/lib/component/legend/install.js';
@@ -24,7 +23,6 @@ import { buildEChartsTheme } from './echarts-theme.js';
 use([
   BarChart,
   LineChart,
-  TreemapChart,
   GridComponent,
   TooltipComponent,
   LegendComponent,

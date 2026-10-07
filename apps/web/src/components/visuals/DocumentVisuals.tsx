@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { DocumentFactDetail } from '@juris/shared';
-import {
-  prepareTopAllocationsData,
-  prepareTemporalTrendData,
-  prepareCategoryFactCounts,
-} from '@juris/shared';
+import { prepareTopAllocationsData, prepareTemporalTrendData } from '@juris/shared';
 import { loadJurisECharts } from '../../lib/echarts.js';
 import { useTheme } from '../../theme.js';
 import {
@@ -19,11 +15,13 @@ import {
 import {
   BarChart3,
   TrendingUp,
-  PieChart,
   Table as TableIcon,
   ShieldCheck,
   AlertCircle,
-  FileSpreadsheet,
+  CheckCircle2,
+  Coins,
+  Layers,
+  Info,
 } from 'lucide-react';
 import type { init as initFn } from 'echarts/core';
 
@@ -43,12 +41,10 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
   // Chart DOM refs
   const barChartRef = useRef<HTMLDivElement>(null);
   const trendChartRef = useRef<HTMLDivElement>(null);
-  const treemapChartRef = useRef<HTMLDivElement>(null);
 
   // Strict data preparation functions from shared contracts (VIZ-01, VIZ-06)
   const barData = prepareTopAllocationsData(facts);
   const trendData = prepareTemporalTrendData(facts);
-  const categoryData = prepareCategoryFactCounts(facts);
 
   // Verification Summary counts
   const verifiedCount = facts.filter((f) => f.verified).length;
@@ -58,18 +54,17 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
   useEffect(() => {
     let barInstance: EChartsInstance | null = null;
     let trendInstance: EChartsInstance | null = null;
-    let treemapInstance: EChartsInstance | null = null;
 
     loadJurisECharts().then(({ init }) => {
       const themeName = isDark ? 'juris-dark' : 'juris-light';
 
-      // 1. Render Top Allocations Bar Chart (Verified Facts Only)
+      // 1. Render Top Allocations Bar Chart (Verified Line-Item Facts Only)
       if (barChartRef.current && barData.status === 'ready') {
         barInstance = init(barChartRef.current, themeName);
         barInstance.setOption({
           title: {
             text: barData.title,
-            subtext: `${documentName} (Verified Values Only)`,
+            subtext: `${documentName} (Line-Item Allocations Only)`,
             left: 'left',
           },
           tooltip: {
@@ -126,7 +121,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
         trendInstance.setOption({
           title: {
             text: trendData.title,
-            subtext: 'Aggregated by Cited Fiscal Period',
+            subtext: 'Aggregated by Cited Fiscal Period (BE / RE / Actual)',
             left: 'left',
           },
           tooltip: {
@@ -160,39 +155,11 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
           ],
         });
       }
-
-      // 3. Render Fact Counts Treemap (Thematic Weight)
-      if (treemapChartRef.current && categoryData.status === 'ready') {
-        treemapInstance = init(treemapChartRef.current, themeName);
-        treemapInstance.setOption({
-          title: {
-            text: categoryData.title,
-            subtext: categoryData.description,
-            left: 'left',
-          },
-          tooltip: {
-            formatter: '{b}',
-          },
-          series: [
-            {
-              type: 'treemap',
-              data: categoryData.treemapData,
-              roam: false,
-              breadcrumb: { show: false },
-              label: {
-                show: true,
-                formatter: '{b}',
-              },
-            },
-          ],
-        });
-      }
     });
 
     const handleResize = () => {
       barInstance?.resize();
       trendInstance?.resize();
-      treemapInstance?.resize();
     };
 
     window.addEventListener('resize', handleResize);
@@ -200,12 +167,74 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
       window.removeEventListener('resize', handleResize);
       barInstance?.dispose();
       trendInstance?.dispose();
-      treemapInstance?.dispose();
     };
-  }, [facts, isDark, documentName, barData, trendData, categoryData]);
+  }, [facts, isDark, documentName, barData, trendData]);
 
   return (
     <div className="space-y-8">
+      {/* Key Figures Strip (VIZ-02) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-4 bg-surface border border-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-verified-bg text-verified">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-text-subtle uppercase tracking-wider">
+                Verified Facts
+              </p>
+              <h3 className="text-xl font-bold text-text mt-0.5">
+                {verifiedCount} / {facts.length}
+              </h3>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-surface border border-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-accent-teal-subtle text-accent-teal">
+              <Coins className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-text-subtle uppercase tracking-wider">
+                Dominant Currency
+              </p>
+              <h3 className="text-xl font-bold text-text mt-0.5">
+                {barData.currency || 'INR'} ({barData.unit || 'crore'})
+              </h3>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-surface border border-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-surface-raised text-brand-navy">
+              <Layers className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-text-subtle uppercase tracking-wider">
+                Ranked Line Items
+              </p>
+              <h3 className="text-xl font-bold text-text mt-0.5">{barData.items.length}</h3>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4 bg-surface border border-border">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-surface-raised text-accent-teal">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-mono text-text-subtle uppercase tracking-wider">
+                Verifiability Rule
+              </p>
+              <h3 className="text-xs font-semibold text-text mt-0.5">VIZ-01 Strict Verifier</h3>
+            </div>
+          </div>
+        </Card>
+      </div>
+
       {/* Top Controls & Integrity Summary */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-lg bg-surface border border-border">
         <div className="flex items-center gap-4 flex-wrap">
@@ -241,7 +270,7 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
         </Button>
       </div>
 
-      {/* Primary Visualizations Grid */}
+      {/* Primary Visualizations Grid (Bar Chart & Temporal Trend Chart) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Top Allocations Bar Chart Card */}
         <Card className="p-6 flex flex-col justify-between">
@@ -251,13 +280,19 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
               <CardTitle className="text-base">Top Quantitative Allocations</CardTitle>
             </div>
             <CardDescription className="text-xs">
-              Verified financial facts extracted from document text.
+              Verified financial facts extracted from document text (excluding aggregate totals).
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0 pt-2">
             {barData.status === 'ready' ? (
               <>
                 <div ref={barChartRef} className="w-full h-80" />
+                {barData.excludedCount && barData.excludedCount > 0 ? (
+                  <div className="mt-2 flex items-center gap-1.5 text-[11px] text-text-subtle">
+                    <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{barData.excludedReason}</span>
+                  </div>
+                ) : null}
                 {showTables && (
                   <div
                     tabIndex={0}
@@ -304,113 +339,66 @@ export const DocumentVisuals: React.FC<DocumentVisualsProps> = ({ facts, documen
           </CardContent>
         </Card>
 
-        {/* Temporal Trends or Category Distribution Card */}
-        {trendData.status === 'ready' ? (
-          <Card className="p-6 flex flex-col justify-between">
-            <CardHeader className="p-0 pb-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-accent-teal" />
-                <CardTitle className="text-base">Fiscal Period Breakdown</CardTitle>
-              </div>
-              <CardDescription className="text-xs">
-                Multi-year allocations extracted with explicit period citations.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              <div ref={trendChartRef} className="w-full h-80" />
-              {showTables && (
-                <div
-                  tabIndex={0}
-                  role="region"
-                  aria-label="Fiscal period breakdown data table"
-                  className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
-                >
-                  <table className="w-full text-xs font-mono">
-                    <thead>
-                      <tr className="border-b border-border text-text-subtle">
-                        <th className="text-left py-1">Fiscal Period</th>
-                        <th className="text-right py-1">Sum ({trendData.currency || ''})</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {trendData.periods.map((p, i) => (
-                        <tr key={i} className="border-b border-border/50">
-                          <td className="py-1 text-text">{p}</td>
-                          <td className="py-1 text-right font-bold text-accent-teal">
-                            {trendData.values[i]?.toLocaleString()}
-                          </td>
+        {/* Temporal Trends Card */}
+        <Card className="p-6 flex flex-col justify-between">
+          <CardHeader className="p-0 pb-4">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-accent-teal" />
+              <CardTitle className="text-base">Fiscal Period Breakdown</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Multi-year allocations extracted with explicit period citations (BE / RE / Actual).
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-0 pt-2">
+            {trendData.status === 'ready' ? (
+              <>
+                <div ref={trendChartRef} className="w-full h-80" />
+                {trendData.excludedCount && trendData.excludedCount > 0 ? (
+                  <div className="mt-2 flex items-center gap-1.5 text-[11px] text-text-subtle">
+                    <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{trendData.excludedReason}</span>
+                  </div>
+                ) : null}
+                {showTables && (
+                  <div
+                    tabIndex={0}
+                    role="region"
+                    aria-label="Fiscal period breakdown data table"
+                    className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
+                  >
+                    <table className="w-full text-xs font-mono">
+                      <thead>
+                        <tr className="border-b border-border text-text-subtle">
+                          <th className="text-left py-1">Fiscal Period</th>
+                          <th className="text-right py-1">Sum ({trendData.currency || ''})</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          /* Fact Counts by Category Treemap */
-          <Card className="p-6 flex flex-col justify-between">
-            <CardHeader className="p-0 pb-4">
-              <div className="flex items-center gap-2">
-                <PieChart className="w-5 h-5 text-accent-teal" />
-                <CardTitle className="text-base">
-                  Fact Counts by Category (Thematic Weight)
-                </CardTitle>
-              </div>
-              <CardDescription className="text-xs">
-                Proportion of facts across topic areas (fact counts, not expenditure share).
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0 pt-2">
-              {categoryData.status === 'ready' ? (
-                <>
-                  <div ref={treemapChartRef} className="w-full h-80" />
-                  {showTables && (
-                    <div
-                      tabIndex={0}
-                      role="region"
-                      aria-label="Fact counts by category data table"
-                      className="mt-4 border-t border-border pt-4 overflow-x-auto focus-visible:ring-1 focus-visible:ring-accent-teal"
-                    >
-                      <table className="w-full text-xs font-mono">
-                        <thead>
-                          <tr className="border-b border-border text-text-subtle">
-                            <th className="text-left py-1">Category</th>
-                            <th className="text-right py-1">Count</th>
-                            <th className="text-right py-1">Verified</th>
-                            <th className="text-right py-1">Share</th>
+                      </thead>
+                      <tbody>
+                        {trendData.periods.map((p, i) => (
+                          <tr key={i} className="border-b border-border/50">
+                            <td className="py-1 text-text">{p}</td>
+                            <td className="py-1 text-right font-bold text-accent-teal">
+                              {trendData.values[i]?.toLocaleString()}
+                            </td>
                           </tr>
-                        </thead>
-                        <tbody>
-                          {categoryData.categories.map((c, i) => (
-                            <tr key={i} className="border-b border-border/50">
-                              <td className="py-1 text-text">{c.category}</td>
-                              <td className="py-1 text-right font-bold text-accent-teal">
-                                {c.count}
-                              </td>
-                              <td className="py-1 text-right text-text-subtle">
-                                {c.verifiedCount}
-                              </td>
-                              <td className="py-1 text-right text-text-subtle">{c.percentage}%</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
-                  <FileSpreadsheet className="w-8 h-8 text-text-muted mx-auto mb-2" />
-                  <p className="text-sm font-medium text-text">No Categories Available</p>
-                  <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
-                    {categoryData.emptyReason}
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="p-8 text-center bg-surface-raised rounded-lg border border-border/60">
+                <AlertCircle className="w-8 h-8 text-text-muted mx-auto mb-2" />
+                <p className="text-sm font-medium text-text">No Fiscal Period Breakdown</p>
+                <p className="text-xs text-text-muted max-w-sm mx-auto mt-1">
+                  {trendData.emptyReason}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
