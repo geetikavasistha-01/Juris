@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  DEFAULT_MAX_FILE_SIZE_BYTES,
+  DEFAULT_MAX_PDF_PAGES,
+  DEFAULT_MAX_TEXT_CHARS,
+} from '@juris/shared';
 
 export const ApiConfigSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -20,9 +25,9 @@ export const ApiConfigSchema = z.object({
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
 
   // Limit variables from PRD (Section 10a)
-  MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(10485760), // 10MB
-  MAX_PDF_PAGES: z.coerce.number().int().positive().default(50),
-  MAX_TEXT_CHARS: z.coerce.number().int().positive().default(100000),
+  MAX_FILE_SIZE_BYTES: z.coerce.number().int().positive().default(DEFAULT_MAX_FILE_SIZE_BYTES),
+  MAX_PDF_PAGES: z.coerce.number().int().positive().default(DEFAULT_MAX_PDF_PAGES),
+  MAX_TEXT_CHARS: z.coerce.number().int().positive().default(DEFAULT_MAX_TEXT_CHARS),
   MAX_UPLOADS_PER_USER_PER_DAY: z.coerce.number().int().positive().default(10),
   MAX_QUESTIONS_PER_USER_PER_DAY: z.coerce.number().int().positive().default(50),
   MAX_CONCURRENT_JOBS_PER_USER: z.coerce.number().int().positive().default(2),

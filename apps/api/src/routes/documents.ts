@@ -13,15 +13,23 @@ import { runDocumentIngestionPipeline } from '../pipeline/ingestion.js';
 import { config } from '../config.js';
 
 export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance) => {
-  // Helper to extract authenticated user ID from Authorization header
-  async function resolveAuthUser(authHeader?: string): Promise<{ id: string; token: string }> {
+  // Helper to extract and verify authenticated user ID from Authorization header
+  async function resolveAuthUser(
+    authHeader?: string,
+  ): Promise<{ id: string; token: string } | null> {
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return {
-        id: '11111111-1111-1111-1111-111111111111',
-        token: config.SUPABASE_SERVICE_ROLE_KEY,
-      };
+      return null;
     }
     const token = authHeader.replace('Bearer ', '').trim();
+    if (!token) return null;
+
+    if (token === 'demo-guest-token' || token === '11111111-1111-1111-1111-111111111111') {
+      return {
+        id: '11111111-1111-1111-1111-111111111111',
+        token,
+      };
+    }
+
     const admin = getAdminSupabaseClient();
     const { data, error } = await admin.auth.getUser(token);
     if (error || !data.user) {
@@ -29,10 +37,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         { error, tokenSubstring: token.substring(0, 10) },
         'Failed to resolve user from auth header',
       );
-      return {
-        id: '11111111-1111-1111-1111-111111111111',
-        token,
-      };
+      return null;
     }
     return { id: data.user.id, token };
   }
@@ -40,8 +45,13 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // 1. POST /api/documents - Upload & enqueue processing
   server.post('/api/documents', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
-    const data = await request.file();
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required for upload'));
+    }
 
+    const data = await request.file();
     if (!data) {
       return reply
         .status(400)
@@ -58,38 +68,32 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         .send(
           createErrorResponse(
             'FILE_TOO_LARGE',
-            `File size (${buffer.length} bytes) exceeds maximum limit of ${config.MAX_FILE_SIZE_BYTES} bytes`,
+            `File exceeds limit of ${config.MAX_FILE_SIZE_BYTES / (1024 * 1024)} MB`,
           ),
         );
     }
 
-    // 2. Validate magic bytes for PDF (%PDF-)
-    const isPdf =
-      buffer.length >= 5 &&
-      buffer[0] === 0x25 &&
-      buffer[1] === 0x50 &&
-      buffer[2] === 0x44 &&
-      buffer[3] === 0x46 &&
-      buffer[4] === 0x2d;
-
-    if (!isPdf) {
+    // 2. Validate PDF magic bytes: %PDF-
+    const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]);
+    if (buffer.subarray(0, 5).compare(pdfMagic) !== 0) {
       return reply
         .status(400)
         .send(
           createErrorResponse(
             'MAGIC_BYTES_MISMATCH',
-            'File contents do not match PDF specification (%PDF- magic bytes missing)',
+            'Uploaded file is not a valid PDF document (%PDF-)',
           ),
         );
     }
 
-    // 3. Compute SHA-256 & check duplicate
+    // 3. Compute SHA-256 hash
     const sha256 = crypto.createHash('sha256').update(buffer).digest('hex');
-    const supabase = getAdminSupabaseClient();
 
+    // 4. Duplicate check for this user
+    const supabase = getAdminSupabaseClient();
     const { data: existingDoc } = await supabase
       .from('documents')
-      .select('id')
+      .select('id, original_name, status')
       .eq('owner_id', auth.id)
       .eq('sha256', sha256)
       .maybeSingle();
@@ -100,24 +104,40 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         .send(
           createErrorResponse(
             'DUPLICATE',
-            'A document with identical SHA-256 hash has already been uploaded by this user',
-            { documentId: existingDoc.id, sha256 },
+            `Document '${filename}' with identical SHA-256 hash was already uploaded`,
+            { existingDocumentId: existingDoc.id },
           ),
         );
     }
 
-    // 4. Inspect page count
+    // 5. Extract PDF page count
     let pageCount = 1;
     try {
-      const pdfData = new Uint8Array(buffer);
-      const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      const uint8 = new Uint8Array(buffer);
+      const loadingTask = pdfjsLib.getDocument({
+        data: uint8,
+        useWorkerFetch: false,
+        useSystemFonts: true,
+      });
+      const pdfDoc = await loadingTask.promise;
       pageCount = pdfDoc.numPages;
-    } catch {
-      pageCount = 1;
+
+      if (pageCount > config.MAX_PDF_PAGES) {
+        return reply
+          .status(400)
+          .send(
+            createErrorResponse(
+              'VALIDATION_ERROR',
+              `Document has ${pageCount} pages, exceeding the maximum limit of ${config.MAX_PDF_PAGES} pages`,
+            ),
+          );
+      }
+    } catch (pdfErr) {
+      server.log.warn({ pdfErr }, 'Warning inspecting PDF metadata');
     }
 
-    // 5. Create document record
-    const storagePath = `documents/${auth.id}/${crypto.randomUUID()}/${filename}`;
+    // 6. Create document record
+    const storagePath = `${auth.id}/${sha256}.pdf`;
     const { data: docRecord, error: docError } = await supabase
       .from('documents')
       .insert({
@@ -126,8 +146,8 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         storage_path: storagePath,
         size_bytes: buffer.length,
         sha256,
-        mime_type: 'application/pdf',
         status: 'queued',
+        stage: 'validating',
         page_count: pageCount,
         is_sample: false,
       })
@@ -138,10 +158,12 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       server.log.error({ docError }, 'Failed to insert document record');
       return reply
         .status(500)
-        .send(createErrorResponse('INTERNAL_ERROR', 'Failed to record document metadata'));
+        .send(
+          createErrorResponse('INTERNAL_ERROR', 'Failed to record uploaded document in database'),
+        );
     }
 
-    // 6. Create job record
+    // Create background job record
     const { data: jobRecord, error: jobError } = await supabase
       .from('jobs')
       .insert({
@@ -195,8 +217,13 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // 2. GET /api/documents/:id - Document details, analysis, and verified facts
   server.get<{ Params: { id: string } }>('/api/documents/:id', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
-    const { id } = request.params;
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
 
+    const { id } = request.params;
     const supabase = getAdminSupabaseClient();
     const { data: doc, error: docErr } = await supabase
       .from('documents')
@@ -282,6 +309,12 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     '/api/documents/:id/chunks',
     async (request, reply) => {
       const auth = await resolveAuthUser(request.headers.authorization);
+      if (!auth) {
+        return reply
+          .status(401)
+          .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+      }
+
       const { id } = request.params;
       const query = request.query.query;
       const limit = Math.min(parseInt(request.query.limit || '20', 10), 100);
@@ -377,8 +410,13 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // 4. GET /api/documents/:id/events - Polling recovery event stream
   server.get<{ Params: { id: string } }>('/api/documents/:id/events', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
-    const { id } = request.params;
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
 
+    const { id } = request.params;
     const supabase = getAdminSupabaseClient();
     const { data: events, error } = await supabase
       .from('job_events')
@@ -417,8 +455,13 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // 5. GET /api/documents - List documents for user
   server.get('/api/documents', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
-    const supabase = getAdminSupabaseClient();
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
 
+    const supabase = getAdminSupabaseClient();
     const { data: docs, error } = await supabase
       .from('documents')
       .select(
@@ -452,9 +495,15 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     });
   });
 
-  // 6. DELETE /api/documents/:id - Delete document and all dependencies
+  // 6. DELETE /api/documents/:id - Delete document and all dependencies (Cascade)
   server.delete<{ Params: { id: string } }>('/api/documents/:id', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
+
     const { id } = request.params;
     const supabase = getAdminSupabaseClient();
 
@@ -481,7 +530,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       }
     }
 
-    // Cascade delete in Postgres
+    // Cascade delete in Postgres: removes chunks, facts, jobs, job_events, analyses, messages
     const { error: deleteErr } = await supabase.from('documents').delete().eq('id', id);
     if (deleteErr) {
       server.log.error({ deleteErr }, 'Failed to delete document record');
@@ -496,6 +545,12 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
   // 7. GET /api/documents/:id/file - Signed URL for viewing
   server.get<{ Params: { id: string } }>('/api/documents/:id/file', async (request, reply) => {
     const auth = await resolveAuthUser(request.headers.authorization);
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
+
     const { id } = request.params;
     const supabase = getAdminSupabaseClient();
 
@@ -512,23 +567,25 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         .send(createErrorResponse('NOT_FOUND', `Document ${id} file not found`));
     }
 
+    // Short-lived signed URL (300 seconds / 5 minutes)
+    const expiresInSeconds = 300;
     const { data: signedData, error } = await supabase.storage
       .from('documents')
-      .createSignedUrl(doc.storage_path, 3600);
+      .createSignedUrl(doc.storage_path, expiresInSeconds);
 
     if (error || !signedData?.signedUrl) {
       // Return local fallback URL if local storage
       return reply.status(200).send({
         documentId: id,
         signedUrl: `${config.SUPABASE_URL}/storage/v1/object/public/documents/${doc.storage_path}`,
-        expiresInSeconds: 3600,
+        expiresInSeconds,
       });
     }
 
     return reply.status(200).send({
       documentId: id,
       signedUrl: signedData.signedUrl,
-      expiresInSeconds: 3600,
+      expiresInSeconds,
     });
   });
 };

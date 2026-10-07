@@ -2,6 +2,10 @@ import { z } from 'zod';
 import { JobEventSchema, JobStageSchema, JobStatusSchema, DocumentStatusSchema } from './jobs.js';
 import { VerificationMethodSchema } from './modality.js';
 
+export const DEFAULT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB default
+export const DEFAULT_MAX_PDF_PAGES = 50;
+export const DEFAULT_MAX_TEXT_CHARS = 100000;
+
 export const DocumentSchema = z.object({
   id: z.string().uuid(),
   ownerId: z.string().uuid(),

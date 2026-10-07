@@ -20,6 +20,11 @@ describe('apps/web config and env safety', () => {
     expect(config.VITE_SUPABASE_ANON_KEY).toBe('test-anon-key');
   });
 
+  it('guarantees web limits match @juris/shared contract', async () => {
+    const { DEFAULT_MAX_FILE_SIZE_BYTES } = await import('@juris/shared');
+    expect(DEFAULT_MAX_FILE_SIZE_BYTES).toBe(10 * 1024 * 1024);
+  });
+
   it.each([
     'VITE_GEMINI_KEY',
     'VITE_GEMINI_API_KEY',

@@ -15,6 +15,13 @@ describe('apps/api config', () => {
     expect(parsed.MAX_FILE_SIZE_BYTES).toBe(10485760);
   });
 
+  it('guarantees API default limits match @juris/shared contract', async () => {
+    const { DEFAULT_MAX_FILE_SIZE_BYTES, DEFAULT_MAX_PDF_PAGES } = await import('@juris/shared');
+    const defaults = parseConfig({});
+    expect(defaults.MAX_FILE_SIZE_BYTES).toBe(DEFAULT_MAX_FILE_SIZE_BYTES);
+    expect(defaults.MAX_PDF_PAGES).toBe(DEFAULT_MAX_PDF_PAGES);
+  });
+
   it('fails fast in production if required secrets/urls are missing or placeholder', () => {
     expect(() => {
       parseConfig({

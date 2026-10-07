@@ -81,3 +81,4 @@ export * from './text-normalization.js';
 export * from './jobs.js';
 export * from './modality.js';
 export * from './documents.js';
+export * from './visuals.js';
