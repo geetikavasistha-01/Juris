@@ -35,9 +35,11 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
 
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 30000 });
 
-    const inspectBtn = page.locator(
-      'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
-    );
+    const inspectBtn = page
+      .locator(
+        'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
+      )
+      .first();
     await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+$/);

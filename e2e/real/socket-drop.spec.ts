@@ -54,9 +54,11 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
     });
 
     // 5. Assert that polling fallback picks up and completes all stages
-    const inspectBtn = page.locator(
-      'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
-    );
+    const inspectBtn = page
+      .locator(
+        'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
+      )
+      .first();
     await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+$/);
