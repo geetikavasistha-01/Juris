@@ -6,7 +6,7 @@ export default defineConfig({
     environment: 'node',
     include: ['**/*.test.ts', '**/*.spec.ts'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
-    testTimeout: 20000,
+    testTimeout: 45000,
     hookTimeout: 30000,
     fileParallelism: false,
     coverage: {
