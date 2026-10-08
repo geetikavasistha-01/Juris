@@ -445,9 +445,12 @@ export const DocumentLibraryPage: React.FC = () => {
                             {getFormatIcon(doc.filename)}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-serif font-bold text-text group-hover:underline truncate max-w-xs sm:max-w-md">
+                            <Link
+                              to={`/documents/${doc.id}`}
+                              className="font-serif font-bold text-text hover:underline truncate max-w-xs sm:max-w-md"
+                            >
                               {doc.filename}
-                            </span>
+                            </Link>
                             <div className="flex items-center gap-1.5 text-[11px] font-mono text-text-subtle mt-0.5">
                               <span>
                                 {doc.pageCount > 0

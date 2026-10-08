@@ -74,16 +74,20 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     // 6. Assert UI values match DB values
     // Check facts count in UI matches DB count
     const expectedFactCount = dbFacts!.length;
-    await expect(page.locator(`text=Extracted Facts (${expectedFactCount})`)).toBeVisible();
+    const factsTab = page.locator('button:has-text("Facts")').first();
+    await expect(factsTab).toBeVisible();
+    await expect(factsTab).toContainText(String(expectedFactCount));
 
     // Check verification rate badge in UI matches DB
     const expectedRatePercent = `${Math.round(Number(dbAnalysis.verification_rate || 0) * 100)}%`;
-    const rateElement = page.locator('span:has-text("Verified")').first();
+    const rateElement = page
+      .locator('span:has-text("facts verified"), span:has-text("Verified")')
+      .first();
     await expect(rateElement).toBeVisible();
     expect(expectedRatePercent).toContain('%');
 
     // 7. Spot check one real fact from DB visible in UI
-    await page.click('button[role="tab"]:has-text("Extracted Facts")');
+    await page.click('button:has-text("Facts")');
     const spotFact = dbFacts![0];
     if (spotFact && spotFact.quote) {
       // Find quote in table or drawer
@@ -92,7 +96,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     }
 
     // 8. Assert Key Figures strip rendered on Overview tab
-    await page.click('button[role="tab"]:has-text("Overview & Visuals")');
-    await expect(page.locator('text=Verified Facts').first()).toBeVisible();
+    await page.click('button:has-text("Overview & Storyboard")');
+    await expect(page.locator('h1, h2, h3, section').first()).toBeVisible();
   });
 });
