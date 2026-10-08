@@ -54,7 +54,7 @@ export const UploadPage: React.FC = () => {
     },
   });
 
-  const validateAndSetFile = (file: File) => {
+  const validateAndSetFile = async (file: File) => {
     setValidationError(null);
 
     const validExtensions = [
@@ -69,6 +69,7 @@ export const UploadPage: React.FC = () => {
       '.jpg',
       '.jpeg',
       '.tiff',
+      '.webp',
       '.xlsx',
     ];
     const fileNameLower = file.name.toLowerCase();
@@ -76,7 +77,7 @@ export const UploadPage: React.FC = () => {
 
     if (!hasValidExt && !file.type.startsWith('image/') && file.type !== 'application/pdf') {
       setValidationError(
-        'Supported formats: PDF, CSV, GeoJSON, PNG, JPG, TIFF, and Excel spreadsheets.',
+        'Supported formats: PDF, CSV, TSV, GeoJSON, KML, PNG, JPG, TIFF, WebP, and Excel spreadsheets.',
       );
       return;
     }
@@ -89,6 +90,15 @@ export const UploadPage: React.FC = () => {
     }
 
     setSelectedFile(file);
+
+    try {
+      if (!user) {
+        await signInAsGuest();
+      }
+      uploadMutation.mutate(file);
+    } catch {
+      // Retain selectedFile for manual submit fallback
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -105,14 +115,14 @@ export const UploadPage: React.FC = () => {
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
-      if (file) validateAndSetFile(file);
+      if (file) void validateAndSetFile(file);
     }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      if (file) validateAndSetFile(file);
+      if (file) void validateAndSetFile(file);
     }
   };
 

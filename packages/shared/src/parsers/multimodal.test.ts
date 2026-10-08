@@ -82,6 +82,26 @@ Public Safety,15000000,16500000,10.0%,2024-04-03`;
       expect(result.numericProperties).toContain('budget');
     });
 
+    it('validates and parses KML XML into geospatial features', () => {
+      const sampleKml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>Ward 1 Civic District</name>
+      <description>Capital works budget 5200000</description>
+      <Point>
+        <coordinates>77.2090,28.6139,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>`;
+      const result = validateGeoJson(sampleKml);
+      expect(result.isValid).toBe(true);
+      expect(result.featureCount).toBe(1);
+      expect(result.geometryTypes).toContain('Point');
+      expect(result.numericProperties).toContain('value');
+    });
+
     it('rejects invalid GeoJSON geometry or schema', () => {
       const invalidGeo = { type: 'InvalidType', data: [] };
       expect(() => validateGeoJson(JSON.stringify(invalidGeo))).toThrowError('INVALID_GEOMETRY');

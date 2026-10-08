@@ -19,13 +19,13 @@ function createMultipartPayload(filename: string, contentType: string, buffer: B
 
 describe('Document API & Ingestion Pipeline', () => {
   const app = buildApp();
+  const supabase = getAdminSupabaseClient();
   const testUserEmail = `doc_test_${Date.now()}@juris.local`;
   const password = 'Password123!Secure';
   let _testUserId = '';
   let authToken = '';
 
   beforeAll(async () => {
-    const supabase = getAdminSupabaseClient();
     let createdUser: { id: string } | null = null;
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
@@ -543,5 +543,145 @@ describe('Document API & Ingestion Pipeline', () => {
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
     expect(facts && facts.length).toBeGreaterThan(0);
     expect(facts?.[0]?.proof_type).toBe('geo_parsed');
+  }, 30000);
+
+  it('successfully uploads and processes KML spatial dataset', async () => {
+    const kmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <Placemark>
+      <name>Civic Centre North</name>
+      <description>Capital works budget 8500000</description>
+      <Point>
+        <coordinates>77.2090,28.6139,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>`;
+
+    const mp = createMultipartPayload(
+      'civic_zones.kml',
+      'application/vnd.google-earth.kml+xml',
+      Buffer.from(kmlContent, 'utf-8'),
+    );
+
+    const uploadRes = await app.inject({
+      method: 'POST',
+      url: '/api/documents',
+      headers: {
+        ...mp.headers,
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: mp.payload,
+    });
+
+    expect(uploadRes.statusCode).toBe(201);
+    const body = uploadRes.json();
+    const docId = body.documentId;
+    expect(docId).toBeDefined();
+
+    let status = 'queued';
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const docRes = await app.inject({
+        method: 'GET',
+        url: `/api/documents/${docId}`,
+        headers: { authorization: `Bearer ${authToken}` },
+      });
+      if (docRes.statusCode === 200) {
+        status = docRes.json().status;
+        if (status === 'done' || status === 'failed') break;
+      }
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    expect(status).toBe('done');
+
+    const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
+    expect(sources?.[0]?.modality).toBe('spatial');
+  }, 30000);
+
+  it('successfully uploads and processes PNG image document', async () => {
+    // 1x1 valid PNG buffer
+    const pngBuffer = Buffer.from([
+      0x89,
+      0x50,
+      0x4e,
+      0x47,
+      0x0d,
+      0x0a,
+      0x1a,
+      0x0a, // PNG header
+      0x00,
+      0x00,
+      0x00,
+      0x0d, // IHDR length
+      0x49,
+      0x48,
+      0x44,
+      0x52, // IHDR
+      0x00,
+      0x00,
+      0x01,
+      0x00, // Width: 256
+      0x00,
+      0x00,
+      0x01,
+      0x00, // Height: 256
+      0x08,
+      0x02,
+      0x00,
+      0x00,
+      0x00,
+      0x90,
+      0x77,
+      0x53,
+      0xde,
+      0x00,
+      0x00,
+      0x00,
+      0x00, // IEND length
+      0x49,
+      0x45,
+      0x4e,
+      0x44, // IEND
+      0xae,
+      0x42,
+      0x60,
+      0x82,
+    ]);
+
+    const mp = createMultipartPayload('scan_record.png', 'image/png', pngBuffer);
+
+    const uploadRes = await app.inject({
+      method: 'POST',
+      url: '/api/documents',
+      headers: {
+        ...mp.headers,
+        authorization: `Bearer ${authToken}`,
+      },
+      payload: mp.payload,
+    });
+
+    expect(uploadRes.statusCode).toBe(201);
+    const body = uploadRes.json();
+    const docId = body.documentId;
+    expect(docId).toBeDefined();
+
+    let status = 'queued';
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const docRes = await app.inject({
+        method: 'GET',
+        url: `/api/documents/${docId}`,
+        headers: { authorization: `Bearer ${authToken}` },
+      });
+      if (docRes.statusCode === 200) {
+        status = docRes.json().status;
+        if (status === 'done' || status === 'ready' || status === 'failed') break;
+      }
+      await new Promise((r) => setTimeout(r, 400));
+    }
+    expect(status === 'done' || status === 'ready').toBe(true);
+
+    const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
+    expect(sources?.[0]?.modality).toBe('image');
   }, 30000);
 });

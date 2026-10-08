@@ -94,21 +94,61 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         );
     }
 
-    // 2. Validate file format by extension and magic bytes (ING-01, ING-05, ING-07)
+    // 2. Validate file format by extension and magic bytes (ING-01, ING-05, ING-06, ING-07)
     const lowerFilename = filename.toLowerCase();
     const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]);
-    const isCsv = lowerFilename.endsWith('.csv') || data.mimetype === 'text/csv';
-    const isGeoJson = lowerFilename.endsWith('.geojson') || lowerFilename.endsWith('.geo.json');
+    const pngMagic = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    const jpegMagic = Buffer.from([0xff, 0xd8, 0xff]);
+    const tiffLeMagic = Buffer.from([0x49, 0x49, 0x2a, 0x00]);
+    const tiffBeMagic = Buffer.from([0x4d, 0x4d, 0x00, 0x2a]);
+
     const hasPdfMagic = buffer.length >= 5 && buffer.subarray(0, 5).compare(pdfMagic) === 0;
     const isPdf = hasPdfMagic || lowerFilename.endsWith('.pdf');
 
-    if (!isCsv && !isGeoJson && !hasPdfMagic) {
+    const hasPngMagic = buffer.length >= 8 && buffer.subarray(0, 8).compare(pngMagic) === 0;
+    const hasJpegMagic = buffer.length >= 3 && buffer.subarray(0, 3).compare(jpegMagic) === 0;
+    const hasTiffMagic =
+      buffer.length >= 4 &&
+      (buffer.subarray(0, 4).compare(tiffLeMagic) === 0 ||
+        buffer.subarray(0, 4).compare(tiffBeMagic) === 0);
+    const hasWebpMagic =
+      buffer.length >= 12 &&
+      buffer.subarray(0, 4).toString() === 'RIFF' &&
+      buffer.subarray(8, 12).toString() === 'WEBP';
+
+    const isImage =
+      hasPngMagic ||
+      hasJpegMagic ||
+      hasTiffMagic ||
+      hasWebpMagic ||
+      lowerFilename.endsWith('.png') ||
+      lowerFilename.endsWith('.jpg') ||
+      lowerFilename.endsWith('.jpeg') ||
+      lowerFilename.endsWith('.webp') ||
+      lowerFilename.endsWith('.tiff') ||
+      data.mimetype.startsWith('image/');
+
+    const isCsv =
+      lowerFilename.endsWith('.csv') ||
+      lowerFilename.endsWith('.tsv') ||
+      data.mimetype === 'text/csv' ||
+      data.mimetype === 'text/tab-separated-values';
+
+    const isKml = lowerFilename.endsWith('.kml') || lowerFilename.endsWith('.gpx');
+    const isGeoJson =
+      isKml ||
+      lowerFilename.endsWith('.geojson') ||
+      lowerFilename.endsWith('.geo.json') ||
+      data.mimetype === 'application/geo+json' ||
+      data.mimetype === 'application/vnd.google-earth.kml+xml';
+
+    if (!isPdf && !isCsv && !isGeoJson && !isImage) {
       return reply
         .status(400)
         .send(
           createErrorResponse(
             'MAGIC_BYTES_MISMATCH',
-            'Uploaded file is not a valid PDF document (%PDF-)',
+            'Uploaded file is not a supported format (PDF, CSV, TSV, GeoJSON, KML, PNG, JPG, TIFF, WEBP)',
           ),
         );
     }
@@ -166,7 +206,38 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     }
 
     // 6. Create document record
-    const ext = isPdf ? 'pdf' : isCsv ? 'csv' : 'geojson';
+    const ext = isPdf
+      ? 'pdf'
+      : isCsv
+        ? lowerFilename.endsWith('.tsv')
+          ? 'tsv'
+          : 'csv'
+        : isGeoJson
+          ? isKml
+            ? 'kml'
+            : 'geojson'
+          : isImage
+            ? hasPngMagic || lowerFilename.endsWith('.png')
+              ? 'png'
+              : hasJpegMagic || lowerFilename.endsWith('.jpg') || lowerFilename.endsWith('.jpeg')
+                ? 'jpg'
+                : 'png'
+            : 'pdf';
+
+    const contentType = isPdf
+      ? 'application/pdf'
+      : isCsv
+        ? 'text/csv'
+        : isGeoJson
+          ? isKml
+            ? 'application/vnd.google-earth.kml+xml'
+            : 'application/geo+json'
+          : isImage
+            ? hasJpegMagic || lowerFilename.endsWith('.jpg') || lowerFilename.endsWith('.jpeg')
+              ? 'image/jpeg'
+              : 'image/png'
+            : 'application/octet-stream';
+
     const storagePath = `${auth.id}/${sha256}.${ext}`;
     const { data: docRecord, error: docError } = await supabase
       .from('documents')
@@ -216,7 +287,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     // 7. Upload to Storage bucket
     try {
       await supabase.storage.from('documents').upload(storagePath, buffer, {
-        contentType: 'application/pdf',
+        contentType,
         upsert: true,
       });
     } catch (storageErr) {
