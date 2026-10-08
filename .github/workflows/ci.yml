@@ -48,6 +48,14 @@ jobs:
       - name: Lint workspace
         run: pnpm run lint
 
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase stack
+        run: supabase start
+
       - name: Run unit & contract tests
         run: pnpm run test
 
