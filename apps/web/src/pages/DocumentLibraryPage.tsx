@@ -263,6 +263,7 @@ export const DocumentLibraryPage: React.FC = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
+              aria-label="Filter by document type"
               className="bg-border-subtle/60 border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
             >
               <option value="all">All Types</option>
@@ -275,6 +276,7 @@ export const DocumentLibraryPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'name' | 'size')}
+              aria-label="Sort documents by"
               className="bg-border-subtle/60 border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
             >
               <option value="newest">Date added (Newest first)</option>
