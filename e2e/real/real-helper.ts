@@ -1,7 +1,17 @@
 import { execSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { Page } from '@playwright/test';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
+
+export function getTestPdfPath(): string {
+  const rootRel = path.resolve('docs/pdf/test_upload.pdf');
+  if (fs.existsSync(rootRel)) return rootRel;
+  const parentRel = path.resolve(process.cwd(), '../docs/pdf/test_upload.pdf');
+  if (fs.existsSync(parentRel)) return parentRel;
+  return path.resolve(import.meta.dirname, '../../../docs/pdf/test_upload.pdf');
+}
 
 export interface LocalSupabaseConfig {
   apiUrl: string;

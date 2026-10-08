@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import * as path from 'node:path';
-import { createRealTestUser, getAdminClient } from './real-helper.js';
+import { createRealTestUser, getAdminClient, getTestPdfPath } from './real-helper.js';
 
 test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data Verification', () => {
   test('uploads real 18-page PDF excerpt, processes via real worker, and verifies data against DB', async ({
@@ -26,7 +25,7 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     await expect(page.locator('main h1')).toBeVisible();
 
     // Upload real 18-page excerpt PDF
-    const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
+    const testPdfPath = getTestPdfPath();
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
     // Click submit upload button if present before auto-navigation

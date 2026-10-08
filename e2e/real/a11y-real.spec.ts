@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { AxeBuilder } from '@axe-core/playwright';
-import * as path from 'node:path';
-import { createRealTestUser, loginTestUser } from './real-helper.js';
+import { createRealTestUser, loginTestUser, getTestPdfPath } from './real-helper.js';
 
 const viewports = [
   { name: 'desktop', width: 1280, height: 800 },
@@ -23,7 +22,7 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
     await loginTestUser(page, testUser);
 
     await page.goto('/upload');
-    const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
+    const testPdfPath = getTestPdfPath();
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
     const uploadBtn = page.locator(
