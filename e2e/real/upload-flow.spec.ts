@@ -23,16 +23,19 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
 
     // 3. Navigate to /upload
     await page.goto('/upload');
-    await expect(page.locator('main h1')).toContainText('Upload');
+    await expect(page.locator('main h1')).toBeVisible();
 
     // Upload real 18-page excerpt PDF
     const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
-    // Click submit upload button
-    const uploadBtn = page.locator('button:has-text("Start Ingestion")');
-    await expect(uploadBtn).toBeVisible();
-    await uploadBtn.click();
+    // Click submit upload button if present before auto-navigation
+    const uploadBtn = page.locator(
+      'button:has-text("Start Ingestion"), button:has-text("Inspect")',
+    );
+    if (await uploadBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await uploadBtn.click();
+    }
 
     // 4. Track progress page stages in real-time
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 30000 });

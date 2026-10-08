@@ -1,5 +1,12 @@
 import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
+
+const require = createRequire(import.meta.url);
+const pdfjsPkgDir = path.dirname(require.resolve('pdfjs-dist/package.json'));
+const standardFontDataUrl = path.join(pdfjsPkgDir, 'standard_fonts/');
+const cMapUrl = path.join(pdfjsPkgDir, 'cmaps/');
 import {
   verifyFactQuoteAndValue,
   assertAnalysisDerivedFromVerifiedFacts,
@@ -1216,7 +1223,15 @@ export async function runDocumentIngestionPipeline(
       .eq('id', jobId);
 
     const pdfData = new Uint8Array(fileBuffer);
-    const pdfDoc = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    const pdfDoc = await pdfjsLib.getDocument({
+      data: pdfData,
+      standardFontDataUrl,
+      cMapUrl,
+      cMapPacked: true,
+      useWorkerFetch: false,
+      useSystemFonts: true,
+      disableFontFace: true,
+    }).promise;
     const pageCount = pdfDoc.numPages;
 
     const extractedPages: ExtractedPageData[] = [];

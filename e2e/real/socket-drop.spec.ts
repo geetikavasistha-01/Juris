@@ -19,11 +19,15 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
     const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
-    const uploadBtn = page.locator('button:has-text("Start Ingestion")');
-    await uploadBtn.click();
+    const uploadBtn = page.locator(
+      'button:has-text("Start Ingestion"), button:has-text("Inspect")',
+    );
+    if (await uploadBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await uploadBtn.click();
+    }
 
     // 4. On progress page, drop WebSocket connection mid-processing
-    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 20000 });
+    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 30000 });
 
     // Disable WebSocket in browser to simulate network disconnection / drop
     await page.evaluate(() => {

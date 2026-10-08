@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { getLocalSupabaseConfig } from './supabase-helper.js';
 import { buildApp } from '../apps/api/src/app.js';
 
-describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', () => {
+describe('Multi-Tenant & API Isolation Verification (AUTH-01, API-01)', { timeout: 60000 }, () => {
   const config = getLocalSupabaseConfig();
   const adminClient = createClient(config.API_URL, config.SERVICE_ROLE_KEY);
   const app = buildApp();

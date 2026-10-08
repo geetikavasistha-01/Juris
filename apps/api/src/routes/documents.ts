@@ -1,4 +1,6 @@
 import crypto from 'node:crypto';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify';
 import {
   createErrorResponse,
@@ -11,6 +13,11 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { getAdminSupabaseClient } from '../supabase.js';
 import { runDocumentIngestionPipeline } from '../pipeline/ingestion.js';
 import { config } from '../config.js';
+
+const require = createRequire(import.meta.url);
+const pdfjsPkgDir = path.dirname(require.resolve('pdfjs-dist/package.json'));
+const standardFontDataUrl = path.join(pdfjsPkgDir, 'standard_fonts/');
+const cMapUrl = path.join(pdfjsPkgDir, 'cmaps/');
 
 export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance) => {
   // Helper to extract and verify authenticated user ID from Authorization header
@@ -184,8 +191,12 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
         const uint8 = new Uint8Array(buffer);
         const loadingTask = pdfjsLib.getDocument({
           data: uint8,
+          standardFontDataUrl,
+          cMapUrl,
+          cMapPacked: true,
           useWorkerFetch: false,
           useSystemFonts: true,
+          disableFontFace: true,
         });
         const pdfDoc = await loadingTask.promise;
         pageCount = pdfDoc.numPages;

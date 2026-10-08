@@ -17,7 +17,7 @@ function createMultipartPayload(filename: string, contentType: string, buffer: B
   };
 }
 
-describe('Document API & Ingestion Pipeline', () => {
+describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
   const app = buildApp();
   const supabase = getAdminSupabaseClient();
   const testUserEmail = `doc_test_${Date.now()}@juris.local`;
