@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DEFAULT_MAX_FILE_SIZE_BYTES } from '@juris/shared';
 import { uploadDocument } from '../lib/api.js';
 import { useAuth } from '../lib/auth.js';
+import { useTheme } from '../theme.js';
 import { Button, Card, Toast } from '../components/ui/index.js';
 import {
   UploadCloud,
@@ -30,7 +31,11 @@ export const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, signInAsGuest } = useAuth();
+  const { resolvedTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const heroImageSrc =
+    resolvedTheme === 'dark' ? '/assets/hero-justice-dark.jpg' : '/assets/hero-justice-matcha.jpg';
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -184,9 +189,9 @@ export const UploadPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Active Ingest Dropzone */}
+          {/* Right Column: Active Ingest Dropzone & Theme Provenance Preview */}
           <div className="lg:col-span-5 flex flex-col gap-4">
-            <Card className="p-6 bg-surface border-2 border-dashed border-border-strong hover:border-text transition-all shadow-sm">
+            <Card className="p-4 bg-surface border border-border shadow-xs flex flex-col gap-3.5">
               <div
                 role="button"
                 tabIndex={0}
@@ -201,8 +206,10 @@ export const UploadPage: React.FC = () => {
                     fileInputRef.current?.click();
                   }
                 }}
-                className={`flex flex-col items-center justify-center p-6 text-center cursor-pointer rounded-lg transition-colors ${
-                  isDragging ? 'bg-border-subtle' : 'hover:bg-border-subtle/50'
+                className={`relative w-full overflow-hidden rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center p-4 text-center ${
+                  isDragging
+                    ? 'bg-border-subtle border-text'
+                    : 'bg-bg/60 border-border-strong hover:border-text hover:bg-border-subtle/30'
                 }`}
               >
                 <input
@@ -212,22 +219,38 @@ export const UploadPage: React.FC = () => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-                <div className="w-12 h-12 rounded-full bg-border-subtle border border-border flex items-center justify-center text-text mb-3 shadow-xs">
-                  <UploadCloud className="w-6 h-6" />
+
+                {/* Theme-Adaptive Lady Justice Provenance Artwork */}
+                <div className="w-full overflow-hidden rounded-lg bg-bg border border-border flex items-center justify-center p-1.5 mb-3 shadow-2xs">
+                  <img
+                    src={heroImageSrc}
+                    alt="Evidentiary provenance: balance of justice resting on civic law ledgers"
+                    className="w-full max-h-[300px] object-contain rounded-md transition-transform duration-300 hover:scale-[1.01]"
+                  />
                 </div>
+
                 <h3 className="font-serif text-lg font-bold text-text mb-1">
                   Drop a file here or choose one
                 </h3>
-                <p className="text-xs text-text-subtle max-w-xs mb-2">
+                <p className="text-xs text-text-subtle max-w-xs mb-1.5">
                   Click or drag and drop your PDF or multimodal data files here.
                 </p>
-                <p className="text-[11px] font-mono text-text-muted max-w-xs mb-4">
+                <p className="text-[11px] font-mono text-text-muted max-w-xs mb-3">
                   Standard PDF documents, scans (.png/.jpg), spreadsheets (.csv/.xlsx), and GIS maps
                   (.geojson) up to 10MB.
                 </p>
-                <Button variant="primary" size="sm" className="pointer-events-none">
+                <Button variant="primary" size="sm" className="pointer-events-none mb-1">
+                  <UploadCloud className="w-3.5 h-3.5 mr-1.5" />
                   Select File from Computer
                 </Button>
+              </div>
+
+              {/* Verified Provenance Footer */}
+              <div className="flex items-center gap-2 pt-1 border-t border-border px-1">
+                <ShieldCheck className="w-4 h-4 text-text shrink-0" />
+                <p className="font-mono text-xs text-text-subtle leading-tight">
+                  Every figure cross-examined across statutory gazette pages.
+                </p>
               </div>
 
               {selectedFile && (
