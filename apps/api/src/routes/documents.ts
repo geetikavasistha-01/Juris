@@ -195,7 +195,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
           cMapUrl,
           cMapPacked: true,
           useWorkerFetch: false,
-          useSystemFonts: true,
+          useSystemFonts: false,
           disableFontFace: true,
         });
         const pdfDoc = await loadingTask.promise;

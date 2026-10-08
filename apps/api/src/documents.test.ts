@@ -597,6 +597,9 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
 
     const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
     expect(sources?.[0]?.modality).toBe('spatial');
+
+    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
+    expect(facts && facts.length).toBeGreaterThan(0);
   }, 30000);
 
   it('successfully uploads and processes PNG image document', async () => {
@@ -675,13 +678,16 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
       });
       if (docRes.statusCode === 200) {
         status = docRes.json().status;
-        if (status === 'done' || status === 'ready' || status === 'failed') break;
+        if (status === 'done' || status === 'failed') break;
       }
       await new Promise((r) => setTimeout(r, 400));
     }
-    expect(status === 'done' || status === 'ready').toBe(true);
+    expect(status).toBe('done');
 
     const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
     expect(sources?.[0]?.modality).toBe('image');
+
+    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
+    expect(facts && facts.length).toBeGreaterThan(0);
   }, 30000);
 });
