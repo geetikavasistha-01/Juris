@@ -42,8 +42,10 @@ test.describe('Real-Path E2E Suite: Real Supabase Auth, Upload, Pipeline & Data 
     const urlParts = page.url().split('/');
     const docId = urlParts[urlParts.indexOf('documents') + 1];
 
-    // Wait for processing to complete and click Inspect Extracted Facts
-    const inspectBtn = page.locator('a:has-text("Inspect Extracted Facts")');
+    // Wait for processing to complete and click Inspect Extracted Facts / Ledger
+    const inspectBtn = page.locator(
+      'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
+    );
     await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(new RegExp(`/documents/${docId}$`));
