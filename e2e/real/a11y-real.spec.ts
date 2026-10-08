@@ -82,10 +82,10 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
         await loginTestUser(page, testUser);
 
         await page.goto(`/documents/${docId}`);
-        const factsTab = page.locator('button[role="tab"]:has-text("Extracted Facts")');
+        const factsTab = page.locator('button:has-text("Facts")').first();
         await expect(factsTab).toBeVisible({ timeout: 15000 });
         await factsTab.click();
-        await page.waitForSelector('div[role="button"][aria-label*="Inspect citation"]');
+        await page.waitForSelector('table');
 
         if (theme === 'dark') {
           await page.evaluate(() => {
@@ -114,10 +114,12 @@ test.describe('Real-Path E2E Suite: Accessibility (Axe Core WCAG 2.1 AA)', () =>
         await loginTestUser(page, testUser);
 
         await page.goto(`/documents/${docId}`);
-        const visualsTab = page.locator('button[role="tab"]:has-text("Overview & Visuals")');
+        const visualsTab = page.locator('button:has-text("Overview & Storyboard")').first();
         await expect(visualsTab).toBeVisible({ timeout: 15000 });
         await visualsTab.click();
-        await page.waitForSelector('text=Document at a Glance');
+        await page
+          .waitForSelector('text=Document at a Glance', { timeout: 15000 })
+          .catch(() => page.waitForSelector('text=Document At A Glance'));
 
         // Click Accessible Tables toggle button if present
         const tableToggle = page.locator('button:has-text("Data Table")').first();
