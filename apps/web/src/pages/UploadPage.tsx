@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DEFAULT_MAX_FILE_SIZE_BYTES } from '@juris/shared';
 import { uploadDocument } from '../lib/api.js';
 import { useAuth } from '../lib/auth.js';
-import { useTheme } from '../theme.js';
 import { Button, Card, Toast } from '../components/ui/index.js';
 import {
   UploadCloud,
@@ -31,11 +30,7 @@ export const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user, signInAsGuest } = useAuth();
-  const { resolvedTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const heroImageSrc =
-    resolvedTheme === 'dark' ? '/assets/hero-justice-dark.jpg' : '/assets/hero-justice-matcha.jpg';
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -189,8 +184,8 @@ export const UploadPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Product Preview & Ingest Dropzone */}
-          <div className="lg:col-span-5 flex flex-col gap-4">
+          {/* Right Column: Hero Artwork Placeholder & Interactive Ingest Dropzone */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center gap-4">
             <div
               role="button"
               tabIndex={0}
@@ -205,10 +200,8 @@ export const UploadPage: React.FC = () => {
                   fileInputRef.current?.click();
                 }
               }}
-              className={`group relative w-full overflow-hidden rounded-xl border transition-all cursor-pointer p-3.5 shadow-sm flex flex-col gap-3 ${
-                isDragging
-                  ? 'bg-border-subtle border-text ring-2 ring-text'
-                  : 'bg-surface border-border hover:border-border-strong'
+              className={`group relative w-full flex flex-col items-center justify-center cursor-pointer transition-all p-2 rounded-2xl ${
+                isDragging ? 'ring-4 ring-text ring-offset-4 ring-offset-bg' : ''
               }`}
             >
               <input
@@ -219,37 +212,24 @@ export const UploadPage: React.FC = () => {
                 className="hidden"
               />
 
-              {/* Theme-Adaptive Lady Justice Provenance Artwork */}
-              <div className="relative w-full overflow-hidden rounded-lg bg-bg border border-border flex items-center justify-center p-2">
+              {/* Large Transparent Lady Justice Provenance Artwork Placeholder */}
+              <div className="relative w-full flex items-center justify-center">
                 <img
-                  src={heroImageSrc}
+                  src="/assets/hero-justice-cutout.png"
                   alt="Evidentiary provenance: balance of justice resting on civic law ledgers"
-                  className="w-full max-h-[460px] object-contain rounded-md transition-transform duration-300 group-hover:scale-[1.01]"
+                  className="w-full max-h-[560px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                 />
 
                 {/* Drag-and-drop active overlay */}
                 {isDragging && (
-                  <div className="absolute inset-0 bg-text/80 backdrop-blur-xs flex flex-col items-center justify-center text-text-inverse p-4 animate-in fade-in">
-                    <UploadCloud className="w-12 h-12 mb-2 animate-bounce" />
-                    <span className="font-serif text-lg font-bold">
+                  <div className="absolute inset-0 bg-text/85 backdrop-blur-xs rounded-2xl flex flex-col items-center justify-center text-text-inverse p-6 animate-in fade-in z-10">
+                    <UploadCloud className="w-14 h-14 mb-3 animate-bounce" />
+                    <span className="font-serif text-xl font-bold">
                       Release to Inspect Document
                     </span>
                     <span className="text-xs opacity-80 mt-1">PDF, Scans, CSV, XLSX, GeoJSON</span>
                   </div>
                 )}
-              </div>
-
-              {/* Verified Provenance Footer with drop hint */}
-              <div className="flex items-center justify-between pt-1 border-t border-border px-1 text-xs">
-                <div className="flex items-center gap-2 text-text-subtle">
-                  <ShieldCheck className="w-4 h-4 text-text shrink-0" />
-                  <p className="font-mono text-[11px] leading-tight">
-                    Every figure cross-examined across 412 statutory gazette pages.
-                  </p>
-                </div>
-                <span className="font-mono text-[10px] uppercase text-text-muted px-2 py-0.5 rounded bg-border-subtle shrink-0">
-                  Click / Drop to Ingest
-                </span>
               </div>
             </div>
 
