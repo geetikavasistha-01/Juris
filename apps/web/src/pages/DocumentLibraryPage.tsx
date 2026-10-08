@@ -249,7 +249,7 @@ export const DocumentLibraryPage: React.FC = () => {
               placeholder="Search by document title, docket number, or gazette ref (⌘K)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-12 py-2 bg-border-subtle/60 border border-border rounded-lg text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-text focus:ring-2 focus:ring-border-subtle transition-all"
+              className="w-full pl-10 pr-12 py-2 bg-surface-raised border border-border rounded-lg text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-text focus:ring-2 focus:ring-border-subtle transition-all"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <kbd className="font-mono text-[10px] bg-border-subtle text-text-subtle px-1.5 py-0.5 rounded uppercase border border-border">
@@ -263,7 +263,8 @@ export const DocumentLibraryPage: React.FC = () => {
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="bg-border-subtle/60 border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
+              aria-label="Filter by document type"
+              className="bg-surface-raised border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
             >
               <option value="all">All Types</option>
               <option value="pdf">PDF Documents</option>
@@ -275,7 +276,8 @@ export const DocumentLibraryPage: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest' | 'name' | 'size')}
-              className="bg-border-subtle/60 border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
+              aria-label="Sort documents by"
+              className="bg-surface-raised border border-border text-text text-xs rounded-lg px-3 py-2 cursor-pointer focus:outline-none hover:bg-border-subtle transition-colors font-medium"
             >
               <option value="newest">Date added (Newest first)</option>
               <option value="oldest">Date added (Oldest first)</option>
@@ -445,9 +447,12 @@ export const DocumentLibraryPage: React.FC = () => {
                             {getFormatIcon(doc.filename)}
                           </div>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-serif font-bold text-text group-hover:underline truncate max-w-xs sm:max-w-md">
+                            <Link
+                              to={`/documents/${doc.id}`}
+                              className="font-serif font-bold text-text hover:underline truncate max-w-xs sm:max-w-md"
+                            >
                               {doc.filename}
-                            </span>
+                            </Link>
                             <div className="flex items-center gap-1.5 text-[11px] font-mono text-text-subtle mt-0.5">
                               <span>
                                 {doc.pageCount > 0

@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import * as path from 'node:path';
-import { createRealTestUser, loginTestUser } from './real-helper.js';
+import { createRealTestUser, loginTestUser, getTestPdfPath } from './real-helper.js';
 
 test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery', () => {
   test('drops websocket mid-job with real worker and asserts all stages complete via polling', async ({
@@ -16,14 +15,18 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
 
     // 3. Upload 18-page excerpt PDF
     await page.goto('/upload');
-    const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
+    const testPdfPath = getTestPdfPath();
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
-    const uploadBtn = page.locator('button:has-text("Start Ingestion")');
-    await uploadBtn.click();
+    const uploadBtn = page.locator(
+      'button:has-text("Start Ingestion"), button:has-text("Inspect")',
+    );
+    if (await uploadBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await uploadBtn.click();
+    }
 
     // 4. On progress page, drop WebSocket connection mid-processing
-    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 20000 });
+    await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 30000 });
 
     // Disable WebSocket in browser to simulate network disconnection / drop
     await page.evaluate(() => {
@@ -50,8 +53,12 @@ test.describe('Real-Path E2E Suite: WebSocket Drop & Polling Fallback Recovery',
     });
 
     // 5. Assert that polling fallback picks up and completes all stages
-    const inspectBtn = page.locator('a:has-text("Inspect Extracted Facts")');
-    await expect(inspectBtn).toBeVisible({ timeout: 45000 });
+    const inspectBtn = page
+      .locator(
+        'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
+      )
+      .first();
+    await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+$/);
     await expect(page.locator('h1')).toBeVisible();

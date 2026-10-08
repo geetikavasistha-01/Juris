@@ -1,0 +1,19 @@
+# Juris Code Owners
+# Owner handle derived from git remote: @geetikavasistha-01
+
+# Global default owner
+* @geetikavasistha-01
+
+# Web frontend
+apps/web/ @geetikavasistha-01
+
+# API backend
+apps/api/ @geetikavasistha-01
+
+# Contracts and Database (cross-cutting, reviewed by contracts and db)
+packages/shared/ @geetikavasistha-01
+supabase/ @geetikavasistha-01
+
+# Model and Evaluation
+apps/api/src/pipeline/proposal.ts @geetikavasistha-01
+packages/evals/ @geetikavasistha-01

@@ -5,8 +5,12 @@ import { AuthProvider } from './lib/auth.js';
 import { AppLayout } from './components/layout/AppLayout.js';
 import { DocumentLibraryPage } from './pages/DocumentLibraryPage.js';
 import { UploadPage } from './pages/UploadPage.js';
-import { LiveProgressPage } from './pages/LiveProgressPage.js';
-import { DocumentViewerPage } from './pages/DocumentViewerPage.js';
+const DocumentViewerPage = React.lazy(() =>
+  import('./pages/DocumentViewerPage.js').then((m) => ({ default: m.DocumentViewerPage })),
+);
+const LiveProgressPage = React.lazy(() =>
+  import('./pages/LiveProgressPage.js').then((m) => ({ default: m.LiveProgressPage })),
+);
 import { AuthPage } from './pages/AuthPage.js';
 import { Skeleton } from './components/ui/index.js';
 

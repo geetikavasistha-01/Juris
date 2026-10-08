@@ -7,7 +7,11 @@ export const AppLayout: React.FC = () => {
     <div className="min-h-screen bg-bg text-text flex flex-col font-sans selection:bg-accent-teal/20 selection:text-text">
       <Navbar />
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Outlet />
+        <React.Suspense
+          fallback={<div className="p-8 text-center text-text-muted">Loading...</div>}
+        >
+          <Outlet />
+        </React.Suspense>
       </main>
       <footer className="border-t border-border py-6 bg-surface/50 text-xs text-text-muted">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">

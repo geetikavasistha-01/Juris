@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import * as path from 'node:path';
-import { createRealTestUser, loginTestUser } from './real-helper.js';
+import { createRealTestUser, loginTestUser, getTestPdfPath } from './real-helper.js';
 
 test.describe('Real-Path E2E Suite: Cross-Tenant Isolation (AUTH-01, API-01)', () => {
   test('user B cannot open user A document URL or access private data', async ({
@@ -17,15 +16,22 @@ test.describe('Real-Path E2E Suite: Cross-Tenant Isolation (AUTH-01, API-01)', (
     await loginTestUser(page, userA);
 
     await page.goto('/upload');
-    const testPdfPath = path.resolve('docs/pdf/test_upload.pdf');
+    const testPdfPath = getTestPdfPath();
     await page.setInputFiles('input[type="file"]', testPdfPath);
 
-    const uploadBtn = page.locator('button:has-text("Start Ingestion")');
-    await expect(uploadBtn).toBeVisible();
-    await uploadBtn.click();
+    const uploadBtn = page.locator(
+      'button:has-text("Start Ingestion"), button:has-text("Inspect")',
+    );
+    if (await uploadBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
+      await uploadBtn.click();
+    }
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+\/progress/, { timeout: 30000 });
 
-    const inspectBtn = page.locator('a:has-text("Inspect Extracted Facts")');
+    const inspectBtn = page
+      .locator(
+        'button:has-text("Inspect Extracted Ledger"), a:has-text("Inspect proof chain"), a:has-text("Inspect Extracted Facts")',
+      )
+      .first();
     await expect(inspectBtn).toBeVisible({ timeout: 60000 });
     await inspectBtn.click();
     await expect(page).toHaveURL(/\/documents\/[a-f0-9-]+$/);

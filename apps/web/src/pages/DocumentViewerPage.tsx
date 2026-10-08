@@ -220,7 +220,11 @@ export const DocumentViewerPage: React.FC = () => {
             >
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Facts</span>
-              <span className="ml-1 px-1.5 py-0.2 rounded-full bg-border text-[10px]">
+              <span
+                className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                  activeTab === 'facts' ? 'bg-surface text-text font-bold' : 'bg-border text-text'
+                }`}
+              >
                 {allFacts.length}
               </span>
             </button>
@@ -347,7 +351,7 @@ export const DocumentViewerPage: React.FC = () => {
                   placeholder="Search extracted facts, entities, numbers, or quotes..."
                   value={factSearch}
                   onChange={(e) => setFactSearch(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 bg-border-subtle/60 border border-border rounded-lg text-xs sm:text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-text focus:ring-2 focus:ring-border-subtle font-mono"
+                  className="w-full pl-9 pr-4 py-2 bg-surface-raised border border-border rounded-lg text-xs sm:text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-text focus:ring-2 focus:ring-border-subtle font-mono"
                 />
               </div>
 
