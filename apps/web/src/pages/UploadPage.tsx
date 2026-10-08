@@ -134,9 +134,9 @@ export const UploadPage: React.FC = () => {
     <div className="w-full max-w-[1200px] mx-auto space-y-12">
       {/* 1. HERO SECTION */}
       <section className="w-full pt-2 pb-8 border-b border-border">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Value Proposition */}
-          <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
+          <div className="lg:col-span-6 flex flex-col justify-center space-y-6">
             <div className="inline-flex items-center gap-2 self-start px-2.5 py-1 rounded bg-border-subtle border border-border">
               <span className="w-2 h-2 rounded-full bg-text"></span>
               <span className="font-mono text-xs text-text font-semibold tracking-normal">
@@ -185,7 +185,7 @@ export const UploadPage: React.FC = () => {
           </div>
 
           {/* Right Column: Hero Artwork Placeholder & Interactive Ingest Dropzone */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center gap-4">
+          <div className="lg:col-span-6 flex flex-col items-center justify-center gap-4">
             <div
               role="button"
               tabIndex={0}
@@ -217,17 +217,17 @@ export const UploadPage: React.FC = () => {
                 <img
                   src="/assets/hero-justice-cutout.png"
                   alt="Evidentiary provenance: balance of justice resting on civic law ledgers"
-                  className="w-full max-h-[560px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                  className="w-full max-h-[740px] object-contain transition-transform duration-300 group-hover:scale-[1.03]"
                 />
 
                 {/* Drag-and-drop active overlay */}
                 {isDragging && (
                   <div className="absolute inset-0 bg-text/85 backdrop-blur-xs rounded-2xl flex flex-col items-center justify-center text-text-inverse p-6 animate-in fade-in z-10">
-                    <UploadCloud className="w-14 h-14 mb-3 animate-bounce" />
-                    <span className="font-serif text-xl font-bold">
+                    <UploadCloud className="w-16 h-16 mb-3 animate-bounce" />
+                    <span className="font-serif text-2xl font-bold">
                       Release to Inspect Document
                     </span>
-                    <span className="text-xs opacity-80 mt-1">PDF, Scans, CSV, XLSX, GeoJSON</span>
+                    <span className="text-sm opacity-80 mt-1">PDF, Scans, CSV, XLSX, GeoJSON</span>
                   </div>
                 )}
               </div>
