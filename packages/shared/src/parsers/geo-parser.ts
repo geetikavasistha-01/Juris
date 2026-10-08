@@ -42,10 +42,12 @@ export function parseKmlToGeoJson(rawKml: string): GeoJsonObject {
 
   for (let i = 0; i < matches.length; i++) {
     const p = matches[i];
+    if (!p) continue;
+
     const nameMatch = p.match(/<name>([\s\S]*?)<\/name>/i);
     const descMatch = p.match(/<description>([\s\S]*?)<\/description>/i);
-    const name = nameMatch ? nameMatch[1].trim() : `Feature ${i + 1}`;
-    const description = descMatch ? descMatch[1].trim() : '';
+    const name = nameMatch && nameMatch[1] ? nameMatch[1].trim() : `Feature ${i + 1}`;
+    const description = descMatch && descMatch[1] ? descMatch[1].trim() : '';
 
     const properties: Record<string, unknown> = {
       name,
@@ -58,17 +60,23 @@ export function parseKmlToGeoJson(rawKml: string): GeoJsonObject {
     let dMatch: RegExpExecArray | null;
     while ((dMatch = dataRegex.exec(p)) !== null) {
       const key = dMatch[1];
-      const valStr = dMatch[2].replace(/<value>([\s\S]*?)<\/value>/i, '$1').trim();
-      const numVal = Number(valStr);
-      properties[key] = !Number.isNaN(numVal) && valStr !== '' ? numVal : valStr;
+      const rawVal = dMatch[2];
+      if (key && rawVal !== undefined) {
+        const valStr = rawVal.replace(/<value>([\s\S]*?)<\/value>/i, '$1').trim();
+        const numVal = Number(valStr);
+        properties[key] = !Number.isNaN(numVal) && valStr !== '' ? numVal : valStr;
+      }
     }
 
     // Extract numbers from description
     const numInDesc = description.match(/[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g);
     if (numInDesc && numInDesc.length > 0 && typeof properties.value === 'undefined') {
-      const parsedNum = Number.parseFloat(numInDesc[0]);
-      if (!Number.isNaN(parsedNum)) {
-        properties.value = parsedNum;
+      const firstNum = numInDesc[0];
+      if (firstNum !== undefined) {
+        const parsedNum = Number.parseFloat(firstNum);
+        if (!Number.isNaN(parsedNum)) {
+          properties.value = parsedNum;
+        }
       }
     }
 
@@ -76,11 +84,13 @@ export function parseKmlToGeoJson(rawKml: string): GeoJsonObject {
     const pointMatch = p.match(
       /<Point[\s\S]*?<coordinates>([\s\S]*?)<\/coordinates>[\s\S]*?<\/Point>/i,
     );
-    if (pointMatch) {
+    if (pointMatch && pointMatch[1]) {
       const rawCoords = pointMatch[1].trim().split(/[\s,]+/);
-      if (rawCoords.length >= 2) {
-        const lon = Number.parseFloat(rawCoords[0]);
-        const lat = Number.parseFloat(rawCoords[1]);
+      const lonRaw = rawCoords[0];
+      const latRaw = rawCoords[1];
+      if (lonRaw !== undefined && latRaw !== undefined) {
+        const lon = Number.parseFloat(lonRaw);
+        const lat = Number.parseFloat(latRaw);
         if (!Number.isNaN(lon) && !Number.isNaN(lat)) {
           features.push({
             type: 'Feature',
@@ -100,14 +110,16 @@ export function parseKmlToGeoJson(rawKml: string): GeoJsonObject {
     const polyMatch = p.match(
       /<Polygon[\s\S]*?<coordinates>([\s\S]*?)<\/coordinates>[\s\S]*?<\/Polygon>/i,
     );
-    if (polyMatch) {
+    if (polyMatch && polyMatch[1]) {
       const coordTokens = polyMatch[1].trim().split(/\s+/);
       const ring: number[][] = [];
       for (const token of coordTokens) {
         const parts = token.split(',');
-        if (parts.length >= 2) {
-          const lon = Number.parseFloat(parts[0]);
-          const lat = Number.parseFloat(parts[1]);
+        const lonPart = parts[0];
+        const latPart = parts[1];
+        if (lonPart !== undefined && latPart !== undefined) {
+          const lon = Number.parseFloat(lonPart);
+          const lat = Number.parseFloat(latPart);
           if (!Number.isNaN(lon) && !Number.isNaN(lat)) {
             ring.push([lon, lat]);
           }
@@ -131,14 +143,16 @@ export function parseKmlToGeoJson(rawKml: string): GeoJsonObject {
     const lineMatch = p.match(
       /<LineString[\s\S]*?<coordinates>([\s\S]*?)<\/coordinates>[\s\S]*?<\/LineString>/i,
     );
-    if (lineMatch) {
+    if (lineMatch && lineMatch[1]) {
       const coordTokens = lineMatch[1].trim().split(/\s+/);
       const line: number[][] = [];
       for (const token of coordTokens) {
         const parts = token.split(',');
-        if (parts.length >= 2) {
-          const lon = Number.parseFloat(parts[0]);
-          const lat = Number.parseFloat(parts[1]);
+        const lonPart = parts[0];
+        const latPart = parts[1];
+        if (lonPart !== undefined && latPart !== undefined) {
+          const lon = Number.parseFloat(lonPart);
+          const lat = Number.parseFloat(latPart);
           if (!Number.isNaN(lon) && !Number.isNaN(lat)) {
             line.push([lon, lat]);
           }

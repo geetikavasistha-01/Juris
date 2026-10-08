@@ -1,8 +1,8 @@
-import { buildApp } from './app.js';
+import { buildServer } from './server.js';
 import { config } from './config.js';
 import { logger } from './logger.js';
 
-const app = buildApp();
+const app = buildServer();
 
 async function start() {
   try {
@@ -19,3 +19,5 @@ async function start() {
 if (process.env['NODE_ENV'] !== 'test') {
   start();
 }
+
+export { app };

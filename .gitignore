@@ -37,3 +37,10 @@ packages/evals/work/
 # Supabase local temp & branches
 supabase/.temp/
 supabase/.branches/
+
+# Design & MCP artifacts
+stitch_juris/
+
+# Git hooks generated
+.husky/_/
+

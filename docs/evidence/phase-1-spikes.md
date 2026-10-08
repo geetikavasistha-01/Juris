@@ -34,7 +34,7 @@
 
 ### Item 2: Verifier Hardening & Negative Controls
 
-- **Implementation:** Added `verifyFactQuoteAndValue` in [`packages/shared/src/text-normalization.ts`](file:///Users/geetikavasistha/Juris/packages/shared/src/text-normalization.ts).
+- **Implementation:** Added `verifyFactQuoteAndValue` in [`packages/shared/src/text-normalization.ts`](../../packages/shared/src/text-normalization.ts).
 - **Verification Logic:**
   1. Checks that the verbatim quote exists on the source page (exact or canonical normalized substring).
   2. For numeric facts (`fact.value !== null`), strips formatting/commas and asserts that the normalized numeric representation appears directly inside the quote text.
@@ -45,7 +45,7 @@
 
 ### Item 3: Fixture Provenance & CI Enforcement
 
-- **Implementation:** Added [`scripts/check-fixtures.mjs`](file:///Users/geetikavasistha/Juris/scripts/check-fixtures.mjs) and `pnpm run check:fixtures`.
+- **Implementation:** Added [`scripts/check-fixtures.mjs`](../../scripts/check-fixtures.mjs) and `pnpm run check:fixtures`.
 - **Enforced Fields:** Every `.json` fixture in `packages/evals/fixtures/` must contain non-empty string fields:
   - `model` (e.g. `human-curated-gold-set` or `gemini-2.5-flash`)
   - `prompt_version`
@@ -55,7 +55,7 @@
 
 ### Item 4: Gold Evaluation Set Rebuild
 
-- **File:** [`packages/evals/fixtures/gold-set-1.json`](file:///Users/geetikavasistha/Juris/packages/evals/fixtures/gold-set-1.json)
+- **File:** [`packages/evals/fixtures/gold-set-1.json`](../../packages/evals/fixtures/gold-set-1.json)
 - **Status:** `"drafted, pending human review"`
 - **Overlap Check:** 0 shared items with S1 fact list.
 - **Item Breakdown (10 Items):**

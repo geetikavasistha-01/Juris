@@ -5,67 +5,69 @@
 
 :root {
   /* Core Color Palette (Light - Matcha Editorial Civic Ledger) */
-  --bg: #E8EDD6;
-  --surface: #F7F9EF;
-  --surface-raised: #FFFFFF;
-  --border: #C9D4B2;
-  --border-subtle: #DDE7CC;
-  --border-strong: #6E8559;
+  --bg: #e8edd6;
+  --surface: #f7f9ef;
+  --surface-raised: #ffffff;
+  --border: #c9d4b2;
+  --border-subtle: #dde7cc;
+  --border-strong: #6e8559;
 
   /* Typography Colors */
-  --text: #123F1B;
-  --text-muted: #2E4631;
-  --text-subtle: #3F5E43;
-  --text-inverse: #E8EDD6;
+  --text: #123f1b;
+  --text-muted: #2e4631;
+  --text-subtle: #3f5e43;
+  --text-inverse: #e8edd6;
 
   /* Brand & Actions (Deep Forest & Matcha) */
-  --brand-navy: #123F1B;
-  --brand-navy-hover: #1B4F26;
-  --accent-teal: #123F1B;
-  --accent-teal-hover: #1B4F26;
-  --accent-teal-subtle: #DDE7CC;
-  --accent-teal-border: #6E8559;
+  --brand-navy: #123f1b;
+  --brand-navy-hover: #1b4f26;
+  --accent-teal: #123f1b;
+  --accent-teal-hover: #1b4f26;
+  --accent-teal-subtle: #dde7cc;
+  --accent-teal-border: #6e8559;
 
   /* Verification States (Semantic Civic Provenance) */
-  --verified: #123F1B;
-  --verified-bg: #DDE7CC;
-  --verified-border: #6E8559;
+  --verified: #123f1b;
+  --verified-bg: #dde7cc;
+  --verified-border: #6e8559;
 
-  --unverified: #854D0E;
-  --unverified-bg: #F1E8C7;
-  --unverified-border: #C9A227;
+  --unverified: #854d0e;
+  --unverified-bg: #f1e8c7;
+  --unverified-border: #c9a227;
 
-  --failed: #991B1B;
-  --failed-bg: #FFDAD6;
-  --failed-border: #BA1A1A;
+  --failed: #991b1b;
+  --failed-bg: #ffdad6;
+  --failed-border: #ba1a1a;
 
   /* Quote & Highlighting */
   --quote-highlight: rgba(241, 232, 199, 0.7);
-  --quote-highlight-solid: #F1E8C7;
-  --quote-border: #C9A227;
+  --quote-highlight-solid: #f1e8c7;
+  --quote-border: #c9a227;
 
   /* Interactive States */
-  --focus-ring: #123F1B;
-  --focus-ring-offset: #F7F9EF;
-  --disabled-bg: #DDE7CC;
-  --disabled-text: #6E8559;
-  --disabled-border: #C9D4B2;
+  --focus-ring: #123f1b;
+  --focus-ring-offset: #f7f9ef;
+  --disabled-bg: #dde7cc;
+  --disabled-text: #6e8559;
+  --disabled-border: #c9d4b2;
 
   /* Component Specifics */
-  --btn-primary-text: #E8EDD6;
+  --btn-primary-text: #e8edd6;
   --card-shadow: 0 1px 3px 0 rgba(18, 63, 27, 0.08), 0 1px 2px -1px rgba(18, 63, 27, 0.08);
   --dialog-overlay: rgba(18, 63, 27, 0.4);
 
   /* Chart Series Palette (Light) */
-  --chart-series-1: #0072B2;
-  --chart-series-2: #C25E00;
-  --chart-series-3: #00875A;
-  --chart-series-4: #D55E00;
-  --chart-series-5: #A33C7B;
-  --chart-series-6: #0284C7;
+  --chart-series-1: #0072b2;
+  --chart-series-2: #c25e00;
+  --chart-series-3: #00875a;
+  --chart-series-4: #d55e00;
+  --chart-series-5: #a33c7b;
+  --chart-series-6: #0284c7;
 
   /* Typography Font Stacks */
-  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans:
+    'Inter Variable', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
   --font-serif: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
@@ -75,115 +77,115 @@
 
 /* Dark Theme Variables (Matcha Forest Night) */
 .dark,
-[data-theme="dark"] {
-  --bg: #0F1D12;
-  --surface: #182B1C;
-  --surface-raised: #1F3624;
-  --border: #28442F;
-  --border-subtle: #1C3322;
-  --border-strong: #3D6146;
+[data-theme='dark'] {
+  --bg: #0f1d12;
+  --surface: #182b1c;
+  --surface-raised: #1f3624;
+  --border: #28442f;
+  --border-subtle: #1c3322;
+  --border-strong: #3d6146;
 
-  --text: #EEF5E5;
-  --text-muted: #B8CEA2;
-  --text-subtle: #98B381;
-  --text-inverse: #0F1D12;
+  --text: #eef5e5;
+  --text-muted: #b8cea2;
+  --text-subtle: #98b381;
+  --text-inverse: #0f1d12;
 
-  --brand-navy: #A1D3A1;
-  --brand-navy-hover: #BDEFBC;
-  --accent-teal: #A1D3A1;
-  --accent-teal-hover: #BDEFBC;
-  --accent-teal-subtle: #1A3420;
-  --accent-teal-border: #3D6146;
+  --brand-navy: #a1d3a1;
+  --brand-navy-hover: #bdefbc;
+  --accent-teal: #a1d3a1;
+  --accent-teal-hover: #bdefbc;
+  --accent-teal-subtle: #1a3420;
+  --accent-teal-border: #3d6146;
 
-  --verified: #4ADE80;
-  --verified-bg: #0A2E14;
+  --verified: #4ade80;
+  --verified-bg: #0a2e14;
   --verified-border: #166534;
 
-  --unverified: #FBBF24;
-  --unverified-bg: #3B2404;
-  --unverified-border: #854D0E;
+  --unverified: #fbbf24;
+  --unverified-bg: #3b2404;
+  --unverified-border: #854d0e;
 
-  --failed: #F87171;
-  --failed-bg: #3B0D0D;
-  --failed-border: #991B1B;
+  --failed: #f87171;
+  --failed-bg: #3b0d0d;
+  --failed-border: #991b1b;
 
   --quote-highlight: rgba(251, 191, 36, 0.18);
-  --quote-highlight-solid: #2B210B;
-  --quote-border: #F59E0B;
+  --quote-highlight-solid: #2b210b;
+  --quote-border: #f59e0b;
 
-  --focus-ring: #A1D3A1;
-  --focus-ring-offset: #182B1C;
-  --disabled-bg: #1B2F20;
-  --disabled-text: #4C6A53;
-  --disabled-border: #25402C;
+  --focus-ring: #a1d3a1;
+  --focus-ring-offset: #182b1c;
+  --disabled-bg: #1b2f20;
+  --disabled-text: #4c6a53;
+  --disabled-border: #25402c;
 
-  --btn-primary-text: #0F1D12;
+  --btn-primary-text: #0f1d12;
   --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
   --dialog-overlay: rgba(0, 0, 0, 0.7);
 
   /* Chart Series Palette (Dark) */
-  --chart-series-1: #38BDF8;
-  --chart-series-2: #FBBF24;
-  --chart-series-3: #4ADE80;
-  --chart-series-4: #F87171;
-  --chart-series-5: #C084FC;
-  --chart-series-6: #CBD5E1;
+  --chart-series-1: #38bdf8;
+  --chart-series-2: #fbbf24;
+  --chart-series-3: #4ade80;
+  --chart-series-4: #f87171;
+  --chart-series-5: #c084fc;
+  --chart-series-6: #cbd5e1;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]):not(.light) {
-    --bg: #0F1D12;
-    --surface: #182B1C;
-    --surface-raised: #1F3624;
-    --border: #28442F;
-    --border-subtle: #1C3322;
-    --border-strong: #3D6146;
+  :root:not([data-theme='light']):not(.light) {
+    --bg: #0f1d12;
+    --surface: #182b1c;
+    --surface-raised: #1f3624;
+    --border: #28442f;
+    --border-subtle: #1c3322;
+    --border-strong: #3d6146;
 
-    --text: #EEF5E5;
-    --text-muted: #B8CEA2;
-    --text-subtle: #98B381;
-    --text-inverse: #0F1D12;
+    --text: #eef5e5;
+    --text-muted: #b8cea2;
+    --text-subtle: #98b381;
+    --text-inverse: #0f1d12;
 
-    --brand-navy: #A1D3A1;
-    --brand-navy-hover: #BDEFBC;
-    --accent-teal: #A1D3A1;
-    --accent-teal-hover: #BDEFBC;
-    --accent-teal-subtle: #1A3420;
-    --accent-teal-border: #3D6146;
+    --brand-navy: #a1d3a1;
+    --brand-navy-hover: #bdefbc;
+    --accent-teal: #a1d3a1;
+    --accent-teal-hover: #bdefbc;
+    --accent-teal-subtle: #1a3420;
+    --accent-teal-border: #3d6146;
 
-    --verified: #4ADE80;
-    --verified-bg: #0A2E14;
+    --verified: #4ade80;
+    --verified-bg: #0a2e14;
     --verified-border: #166534;
 
-    --unverified: #FBBF24;
-    --unverified-bg: #3B2404;
-    --unverified-border: #854D0E;
+    --unverified: #fbbf24;
+    --unverified-bg: #3b2404;
+    --unverified-border: #854d0e;
 
-    --failed: #F87171;
-    --failed-bg: #3B0D0D;
-    --failed-border: #991B1B;
+    --failed: #f87171;
+    --failed-bg: #3b0d0d;
+    --failed-border: #991b1b;
 
     --quote-highlight: rgba(251, 191, 36, 0.18);
-    --quote-highlight-solid: #2B210B;
-    --quote-border: #F59E0B;
+    --quote-highlight-solid: #2b210b;
+    --quote-border: #f59e0b;
 
-    --focus-ring: #A1D3A1;
-    --focus-ring-offset: #182B1C;
-    --disabled-bg: #1B2F20;
-    --disabled-text: #4C6A53;
-    --disabled-border: #25402C;
+    --focus-ring: #a1d3a1;
+    --focus-ring-offset: #182b1c;
+    --disabled-bg: #1b2f20;
+    --disabled-text: #4c6a53;
+    --disabled-border: #25402c;
 
-    --btn-primary-text: #0F1D12;
+    --btn-primary-text: #0f1d12;
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
     --dialog-overlay: rgba(0, 0, 0, 0.7);
 
     /* Chart Series Palette (Dark) */
-    --chart-series-1: #38BDF8;
-    --chart-series-2: #FBBF24;
-    --chart-series-3: #4ADE80;
-    --chart-series-4: #F87171;
-    --chart-series-5: #C084FC;
-    --chart-series-6: #CBD5E1;
+    --chart-series-1: #38bdf8;
+    --chart-series-2: #fbbf24;
+    --chart-series-3: #4ade80;
+    --chart-series-4: #f87171;
+    --chart-series-5: #c084fc;
+    --chart-series-6: #cbd5e1;
   }
 }
 

@@ -1,199 +1,271 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Supabase Realtime Job Stage Subscriber (Spike S6)</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 24px; }
-    .card { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; max-width: 650px; margin: 0 auto; }
-    h2 { margin-top: 0; color: #38bdf8; }
-    .progress-bar-container { background: #334155; border-radius: 9999px; height: 12px; overflow: hidden; margin: 16px 0; }
-    .progress-bar { background: #0284c7; height: 100%; width: 0%; transition: width 0.3s ease; }
-    .stage-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; background: #0369a1; font-weight: 600; font-size: 13px; margin-bottom: 12px; }
-    .events-log { background: #0b1329; border: 1px solid #1e293b; border-radius: 6px; padding: 12px; font-family: monospace; font-size: 12px; height: 220px; overflow-y: auto; }
-    .event-item { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid #1e293b; }
-    .event-seq { color: #f59e0b; font-weight: bold; }
-    .event-stage { color: #10b981; }
-    .controls { display: flex; gap: 10px; margin-top: 16px; }
-    button { background: #334155; color: white; border: none; padding: 8px 14px; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #475569; }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-</head>
-<body>
-  <div class="card">
-    <h2>Juris Realtime Job Pipeline (Spike S6)</h2>
-    <div>Current Stage: <span id="current-stage" class="stage-badge">idle</span></div>
-    <div>Progress: <span id="progress-val">0</span>%</div>
-    <div class="progress-bar-container">
-      <div id="progress-bar" class="progress-bar"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Supabase Realtime Job Stage Subscriber (Spike S6)</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 24px;
+      }
+      .card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 650px;
+        margin: 0 auto;
+      }
+      h2 {
+        margin-top: 0;
+        color: #38bdf8;
+      }
+      .progress-bar-container {
+        background: #334155;
+        border-radius: 9999px;
+        height: 12px;
+        overflow: hidden;
+        margin: 16px 0;
+      }
+      .progress-bar {
+        background: #0284c7;
+        height: 100%;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+      .stage-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        background: #0369a1;
+        font-weight: 600;
+        font-size: 13px;
+        margin-bottom: 12px;
+      }
+      .events-log {
+        background: #0b1329;
+        border: 1px solid #1e293b;
+        border-radius: 6px;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 12px;
+        height: 220px;
+        overflow-y: auto;
+      }
+      .event-item {
+        margin-bottom: 4px;
+        padding-bottom: 4px;
+        border-bottom: 1px solid #1e293b;
+      }
+      .event-seq {
+        color: #f59e0b;
+        font-weight: bold;
+      }
+      .event-stage {
+        color: #10b981;
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        margin-top: 16px;
+      }
+      button {
+        background: #334155;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #475569;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Juris Realtime Job Pipeline (Spike S6)</h2>
+      <div>Current Stage: <span id="current-stage" class="stage-badge">idle</span></div>
+      <div>Progress: <span id="progress-val">0</span>%</div>
+      <div class="progress-bar-container">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+      <div class="events-log" id="events-log"></div>
+      <div class="controls">
+        <button id="btn-disconnect" onclick="simulateDisconnect()">Disconnect Socket</button>
+        <button id="btn-recover" onclick="recoverViaPolling()">Recover via Polling</button>
+        <button id="btn-reconnect" onclick="reconnectRealtime()">Reconnect Socket</button>
+      </div>
     </div>
-    <div class="events-log" id="events-log"></div>
-    <div class="controls">
-      <button id="btn-disconnect" onclick="simulateDisconnect()">Disconnect Socket</button>
-      <button id="btn-recover" onclick="recoverViaPolling()">Recover via Polling</button>
-      <button id="btn-reconnect" onclick="reconnectRealtime()">Reconnect Socket</button>
-    </div>
-  </div>
 
-  <script>
-    let supabaseClient = null;
-    let realtimeChannel = null;
-    let currentDocumentId = null;
-    let currentAccessToken = null;
+    <script>
+      let supabaseClient = null;
+      let realtimeChannel = null;
+      let currentDocumentId = null;
+      let currentAccessToken = null;
 
-    window.__REALTIME_STATE__ = {
-      connected: false,
-      currentStage: 'idle',
-      progress: 0,
-      lastSequence: 0,
-      events: [],
-      missedRecoveredCount: 0,
-      isDone: false,
-    };
+      window.__REALTIME_STATE__ = {
+        connected: false,
+        currentStage: 'idle',
+        progress: 0,
+        lastSequence: 0,
+        events: [],
+        missedRecoveredCount: 0,
+        isDone: false,
+      };
 
-    function mergeEvent(newEvent) {
-      const state = window.__REALTIME_STATE__;
-      // Monotonic sequence deduplication
-      if (newEvent.sequence <= state.lastSequence) {
-        console.warn(`[Client] Dropping duplicate/stale event Seq: ${newEvent.sequence} (Current lastSeq: ${state.lastSequence})`);
-        return;
+      function mergeEvent(newEvent) {
+        const state = window.__REALTIME_STATE__;
+        // Monotonic sequence deduplication
+        if (newEvent.sequence <= state.lastSequence) {
+          console.warn(
+            `[Client] Dropping duplicate/stale event Seq: ${newEvent.sequence} (Current lastSeq: ${state.lastSequence})`,
+          );
+          return;
+        }
+
+        state.lastSequence = newEvent.sequence;
+        state.currentStage = newEvent.stage;
+        state.progress = newEvent.progress;
+        state.events.push(newEvent);
+
+        if (newEvent.stage === 'done') {
+          state.isDone = true;
+        }
+
+        // Update DOM
+        document.getElementById('current-stage').innerText = newEvent.stage;
+        document.getElementById('progress-val').innerText = newEvent.progress;
+        document.getElementById('progress-bar').style.width = `${newEvent.progress}%`;
+
+        const logEl = document.getElementById('events-log');
+        const item = document.createElement('div');
+        item.className = 'event-item';
+        item.innerHTML = `<span class="event-seq">[Seq ${newEvent.sequence}]</span> <span class="event-stage">${newEvent.stage}</span> (${newEvent.progress}%) - ${newEvent.message}`;
+        logEl.appendChild(item);
+        logEl.scrollTop = logEl.scrollHeight;
       }
 
-      state.lastSequence = newEvent.sequence;
-      state.currentStage = newEvent.stage;
-      state.progress = newEvent.progress;
-      state.events.push(newEvent);
+      window.initRealtimeClient = async function (supabaseUrl, anonKey, documentId, accessToken) {
+        currentDocumentId = documentId;
+        currentAccessToken = accessToken;
+        const options = {
+          auth: {
+            persistSession: false,
+            autoRefreshToken: false,
+          },
+        };
+        if (accessToken) {
+          options.global = {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          };
+        }
+        supabaseClient = window.supabase.createClient(supabaseUrl, anonKey, options);
 
-      if (newEvent.stage === 'done') {
-        state.isDone = true;
-      }
+        if (accessToken) {
+          await supabaseClient.auth
+            .setSession({ access_token: accessToken, refresh_token: '' })
+            .catch(console.error);
+          supabaseClient.realtime.setAuth(accessToken);
+        }
 
-      // Update DOM
-      document.getElementById('current-stage').innerText = newEvent.stage;
-      document.getElementById('progress-val').innerText = newEvent.progress;
-      document.getElementById('progress-bar').style.width = `${newEvent.progress}%`;
+        realtimeChannel = supabaseClient
+          .channel(`document-jobs-${documentId}-1`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'job_events',
+              filter: `document_id=eq.${documentId}`,
+            },
+            (payload) => {
+              console.info('[Realtime Event Received]', payload.new);
+              mergeEvent(payload.new);
+            },
+          )
+          .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+              window.__REALTIME_STATE__.connected = true;
+              console.info('[Realtime] Subscribed to job_events channel for document:', documentId);
+            }
+          });
+      };
 
-      const logEl = document.getElementById('events-log');
-      const item = document.createElement('div');
-      item.className = 'event-item';
-      item.innerHTML = `<span class="event-seq">[Seq ${newEvent.sequence}]</span> <span class="event-stage">${newEvent.stage}</span> (${newEvent.progress}%) - ${newEvent.message}`;
-      logEl.appendChild(item);
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-
-    window.initRealtimeClient = async function(supabaseUrl, anonKey, documentId, accessToken) {
-      currentDocumentId = documentId;
-      currentAccessToken = accessToken;
-      const options = {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
+      window.simulateDisconnect = async function () {
+        if (realtimeChannel) {
+          await supabaseClient.removeChannel(realtimeChannel);
+          realtimeChannel = null;
+          window.__REALTIME_STATE__.connected = false;
+          console.warn('[Realtime] Intentionally disconnected WebSocket channel.');
         }
       };
-      if (accessToken) {
-        options.global = {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          }
-        };
-      }
-      supabaseClient = window.supabase.createClient(supabaseUrl, anonKey, options);
 
-      if (accessToken) {
-        await supabaseClient.auth.setSession({ access_token: accessToken, refresh_token: '' }).catch(console.error);
-        supabaseClient.realtime.setAuth(accessToken);
-      }
+      window.recoverViaPolling = async function () {
+        console.info(
+          '[Polling Recovery] Polling missed events since sequence:',
+          window.__REALTIME_STATE__.lastSequence,
+        );
+        const { data, error } = await supabaseClient
+          .from('job_events')
+          .select('*')
+          .eq('document_id', currentDocumentId)
+          .gt('sequence', window.__REALTIME_STATE__.lastSequence)
+          .order('sequence', { ascending: true });
 
-      realtimeChannel = supabaseClient
-        .channel(`document-jobs-${documentId}-1`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'job_events',
-            filter: `document_id=eq.${documentId}`
-          },
-          (payload) => {
-            console.info('[Realtime Event Received]', payload.new);
-            mergeEvent(payload.new);
+        if (error) {
+          console.error('[Polling Recovery Error]', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          console.info(`[Polling Recovery] Found ${data.length} missed events.`);
+          window.__REALTIME_STATE__.missedRecoveredCount += data.length;
+          for (const ev of data) {
+            mergeEvent(ev);
           }
-        )
-        .subscribe((status) => {
-          if (status === 'SUBSCRIBED') {
-            window.__REALTIME_STATE__.connected = true;
-            console.info('[Realtime] Subscribed to job_events channel for document:', documentId);
+        }
+      };
+
+      window.reconnectRealtime = function () {
+        return new Promise((resolve) => {
+          if (supabaseClient && currentDocumentId) {
+            if (currentAccessToken) {
+              supabaseClient.realtime.setAuth(currentAccessToken);
+            }
+            const channelName = `document-jobs-${currentDocumentId}-2`;
+            realtimeChannel = supabaseClient
+              .channel(channelName)
+              .on(
+                'postgres_changes',
+                {
+                  event: 'INSERT',
+                  schema: 'public',
+                  table: 'job_events',
+                  filter: `document_id=eq.${currentDocumentId}`,
+                },
+                (payload) => {
+                  console.info('[Realtime Reconnected Event]', payload.new);
+                  mergeEvent(payload.new);
+                },
+              )
+              .subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                  window.__REALTIME_STATE__.connected = true;
+                  console.info('[Realtime] Reconnected and SUBSCRIBED to channel:', channelName);
+                  resolve(true);
+                }
+              });
+          } else {
+            resolve(false);
           }
         });
-    };
-
-    window.simulateDisconnect = async function() {
-      if (realtimeChannel) {
-        await supabaseClient.removeChannel(realtimeChannel);
-        realtimeChannel = null;
-        window.__REALTIME_STATE__.connected = false;
-        console.warn('[Realtime] Intentionally disconnected WebSocket channel.');
-      }
-    };
-
-    window.recoverViaPolling = async function() {
-      console.info('[Polling Recovery] Polling missed events since sequence:', window.__REALTIME_STATE__.lastSequence);
-      const { data, error } = await supabaseClient
-        .from('job_events')
-        .select('*')
-        .eq('document_id', currentDocumentId)
-        .gt('sequence', window.__REALTIME_STATE__.lastSequence)
-        .order('sequence', { ascending: true });
-
-      if (error) {
-        console.error('[Polling Recovery Error]', error);
-        return;
-      }
-
-      if (data && data.length > 0) {
-        console.info(`[Polling Recovery] Found ${data.length} missed events.`);
-        window.__REALTIME_STATE__.missedRecoveredCount += data.length;
-        for (const ev of data) {
-          mergeEvent(ev);
-        }
-      }
-    };
-
-    window.reconnectRealtime = function() {
-      return new Promise((resolve) => {
-        if (supabaseClient && currentDocumentId) {
-          if (currentAccessToken) {
-            supabaseClient.realtime.setAuth(currentAccessToken);
-          }
-          const channelName = `document-jobs-${currentDocumentId}-2`;
-          realtimeChannel = supabaseClient
-            .channel(channelName)
-            .on(
-              'postgres_changes',
-              {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'job_events',
-                filter: `document_id=eq.${currentDocumentId}`
-              },
-              (payload) => {
-                console.info('[Realtime Reconnected Event]', payload.new);
-                mergeEvent(payload.new);
-              }
-            )
-            .subscribe((status) => {
-              if (status === 'SUBSCRIBED') {
-                window.__REALTIME_STATE__.connected = true;
-                console.info('[Realtime] Reconnected and SUBSCRIBED to channel:', channelName);
-                resolve(true);
-              }
-            });
-        } else {
-          resolve(false);
-        }
-      });
-    };
-  </script>
-</body>
+      };
+    </script>
+  </body>
 </html>
