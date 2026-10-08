@@ -9,7 +9,7 @@
   },
   "packageManager": "pnpm@10.13.1",
   "scripts": {
-    "typecheck": "pnpm -r run typecheck",
+    "typecheck": "pnpm --filter=@juris/shared run build && pnpm -r run typecheck",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
