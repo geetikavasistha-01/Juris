@@ -10,7 +10,7 @@ test.describe('Mocked UI State Suite: App Shell & Dropzone', () => {
     // Click Upload link in navbar
     await page.click('header nav a[href="/upload"]');
     await expect(page).toHaveURL(/\/upload/);
-    await expect(page.locator('main h1')).toContainText('Upload');
+    await expect(page.locator('main h1')).toContainText('Understand any public document');
 
     // Click Design System link in navbar
     await page.click('header nav a[href="/design"]');
@@ -28,9 +28,9 @@ test.describe('Mocked UI State Suite: App Shell & Dropzone', () => {
     // Verify format and size notices are displayed
     await expect(page.locator('text=Standard PDF documents')).toBeVisible();
 
-    // Verify upload submit button is disabled or not present until file selected
+    // Verify upload accept attribute supports PDF and multimodal formats
     const selectedFileInput = page.locator('input[type="file"]');
-    await expect(selectedFileInput).toHaveAttribute('accept', '.pdf,application/pdf');
+    await expect(selectedFileInput).toHaveAttribute('accept', /application\/pdf/);
   });
 
   test('toggles Authentication modes and supports guest access', async ({ page }) => {

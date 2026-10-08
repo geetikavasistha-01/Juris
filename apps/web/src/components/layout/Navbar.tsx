@@ -30,74 +30,81 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6 sm:gap-8">
           <Link
-            to="/documents"
-            className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded py-1"
+            to="/upload"
+            className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded py-1"
           >
-            <JurisLogo size={36} iconOnly />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-serif font-bold text-xl text-text tracking-tight leading-none">
-                  Juris
-                </span>
-                <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-surface-raised border border-border text-text-muted">
-                  Civic AI
-                </span>
-              </div>
-              <p className="text-xs text-text-subtle hidden sm:block mt-0.5">
-                Legal & Fiscal Intelligence
-              </p>
+            <span className="w-8 h-8 rounded-lg border border-border-strong flex items-center justify-center bg-surface shadow-xs group-hover:bg-border-subtle transition-colors">
+              <JurisLogo size={22} iconOnly />
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-serif font-bold text-2xl text-text tracking-tight leading-none">
+                Juris
+              </span>
+              <span className="text-[11px] uppercase font-mono px-1.5 py-0.5 rounded bg-surface border border-border text-text-subtle hidden sm:inline-block">
+                v2.4
+              </span>
             </div>
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden md:flex items-center gap-1" aria-label="Main Navigation">
-            <Link
-              to="/documents"
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                isNavActive('/documents')
-                  ? 'bg-surface-raised text-text border border-border shadow-xs'
-                  : 'text-text-muted hover:text-text hover:bg-surface-raised/50'
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              Documents
-            </Link>
-
+          <nav className="hidden md:flex items-center gap-1 sm:gap-2" aria-label="Main Navigation">
             <Link
               to="/upload"
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 isNavActive('/upload')
-                  ? 'bg-surface-raised text-text border border-border shadow-xs'
-                  : 'text-text-muted hover:text-text hover:bg-surface-raised/50'
+                  ? 'bg-surface text-text border border-border-strong shadow-xs font-semibold'
+                  : 'text-text-subtle hover:text-text hover:bg-surface/60'
               }`}
             >
               <Upload className="w-4 h-4" />
-              Upload
+              <span>Workspace</span>
+            </Link>
+
+            <Link
+              to="/documents"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                isNavActive('/documents')
+                  ? 'bg-surface text-text border border-border-strong shadow-xs font-semibold'
+                  : 'text-text-subtle hover:text-text hover:bg-surface/60'
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              <span>Library</span>
             </Link>
 
             <Link
               to="/design"
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                 isNavActive('/design')
-                  ? 'bg-surface-raised text-text border border-border shadow-xs'
-                  : 'text-text-muted hover:text-text hover:bg-surface-raised/50'
+                  ? 'bg-surface text-text border border-border-strong shadow-xs font-semibold'
+                  : 'text-text-subtle hover:text-text hover:bg-surface/60'
               }`}
             >
-              <ShieldCheck className="w-4 h-4 text-accent-teal" />
-              Design System
+              <ShieldCheck className="w-4 h-4 text-text-muted" />
+              <span>Ledger Specs</span>
             </Link>
           </nav>
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Toggle */}
+          <div className="hidden sm:flex items-center border border-border rounded-full p-0.5 bg-surface text-xs font-medium">
+            <span className="px-2.5 py-1 rounded-full bg-border-subtle text-text font-semibold">
+              EN
+            </span>
+            <span className="px-2.5 py-1 rounded-full text-text-muted hover:text-text transition-colors cursor-pointer">
+              हिन्दी
+            </span>
+          </div>
+
           {/* Theme Selector */}
-          <div className="flex items-center bg-surface-raised border border-border rounded-lg p-0.5">
+          <div className="flex items-center bg-surface border border-border rounded-lg p-0.5">
             <select
               id="theme-select"
               aria-label="Theme selector"
@@ -113,7 +120,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setTheme('light')}
               className={`p-1.5 rounded-md transition-colors ${
                 theme === 'light'
-                  ? 'bg-surface text-text shadow-xs'
+                  ? 'bg-border-subtle text-text shadow-xs'
                   : 'text-text-muted hover:text-text'
               }`}
               title="Light theme"
@@ -125,7 +132,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setTheme('dark')}
               className={`p-1.5 rounded-md transition-colors ${
                 theme === 'dark'
-                  ? 'bg-surface text-text shadow-xs'
+                  ? 'bg-border-subtle text-text shadow-xs'
                   : 'text-text-muted hover:text-text'
               }`}
               title="Dark theme"
@@ -137,7 +144,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setTheme('system')}
               className={`p-1.5 rounded-md transition-colors ${
                 theme === 'system'
-                  ? 'bg-surface text-text shadow-xs'
+                  ? 'bg-border-subtle text-text shadow-xs'
                   : 'text-text-muted hover:text-text'
               }`}
               title="System preference theme"
@@ -150,8 +157,8 @@ export const Navbar: React.FC = () => {
           {/* User Profile / Auth */}
           {user ? (
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono text-text-muted hidden lg:inline-block max-w-[150px] truncate">
-                {user.email || 'Civic Analyst'}
+              <span className="text-xs font-mono text-text-subtle hidden lg:inline-block max-w-[150px] truncate">
+                {user.email || 'Guest Analyst'}
               </span>
               <Button
                 variant="ghost"

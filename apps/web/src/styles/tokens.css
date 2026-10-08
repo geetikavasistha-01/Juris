@@ -4,57 +4,57 @@
  */
 
 :root {
-  /* Core Color Palette (Light) */
-  --bg: #F7F9FC;
-  --surface: #FFFFFF;
+  /* Core Color Palette (Light - Matcha Editorial Civic Ledger) */
+  --bg: #E8EDD6;
+  --surface: #F7F9EF;
   --surface-raised: #FFFFFF;
-  --border: #E2E8F0;
-  --border-subtle: #F1F5F9;
-  --border-strong: #CBD5E1;
+  --border: #C9D4B2;
+  --border-subtle: #DDE7CC;
+  --border-strong: #6E8559;
 
   /* Typography Colors */
-  --text: #0F172A;
-  --text-muted: #475569;
-  --text-subtle: #64748B;
-  --text-inverse: #FFFFFF;
+  --text: #123F1B;
+  --text-muted: #2E4631;
+  --text-subtle: #3F5E43;
+  --text-inverse: #E8EDD6;
 
-  /* Brand & Actions */
-  --brand-navy: #12294A;
-  --brand-navy-hover: #0E1F38;
-  --accent-teal: #0F766E;
-  --accent-teal-hover: #115E59;
-  --accent-teal-subtle: #F0FDFA;
-  --accent-teal-border: #99F6E4;
+  /* Brand & Actions (Deep Forest & Matcha) */
+  --brand-navy: #123F1B;
+  --brand-navy-hover: #1B4F26;
+  --accent-teal: #123F1B;
+  --accent-teal-hover: #1B4F26;
+  --accent-teal-subtle: #DDE7CC;
+  --accent-teal-border: #6E8559;
 
-  /* Verification States (Semantic) */
-  --verified: #15803D;
-  --verified-bg: #F0FDF4;
-  --verified-border: #BBF7D0;
+  /* Verification States (Semantic Civic Provenance) */
+  --verified: #123F1B;
+  --verified-bg: #DDE7CC;
+  --verified-border: #6E8559;
 
-  --unverified: #B45309;
-  --unverified-bg: #FFFBEB;
-  --unverified-border: #FDE68A;
+  --unverified: #854D0E;
+  --unverified-bg: #F1E8C7;
+  --unverified-border: #C9A227;
 
-  --failed: #B91C1C;
-  --failed-bg: #FEF2F2;
-  --failed-border: #FECACA;
+  --failed: #991B1B;
+  --failed-bg: #FFDAD6;
+  --failed-border: #BA1A1A;
 
   /* Quote & Highlighting */
-  --quote-highlight: rgba(253, 230, 138, 0.6);
-  --quote-highlight-solid: #FEF3C7;
-  --quote-border: #D97706;
+  --quote-highlight: rgba(241, 232, 199, 0.7);
+  --quote-highlight-solid: #F1E8C7;
+  --quote-border: #C9A227;
 
   /* Interactive States */
-  --focus-ring: #0F766E;
-  --focus-ring-offset: #FFFFFF;
-  --disabled-bg: #E2E8F0;
-  --disabled-text: #94A3B8;
-  --disabled-border: #CBD5E1;
+  --focus-ring: #123F1B;
+  --focus-ring-offset: #F7F9EF;
+  --disabled-bg: #DDE7CC;
+  --disabled-text: #6E8559;
+  --disabled-border: #C9D4B2;
 
   /* Component Specifics */
-  --btn-primary-text: #FFFFFF;
-  --card-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
-  --dialog-overlay: rgba(15, 23, 42, 0.4);
+  --btn-primary-text: #E8EDD6;
+  --card-shadow: 0 1px 3px 0 rgba(18, 63, 27, 0.08), 0 1px 2px -1px rgba(18, 63, 27, 0.08);
+  --dialog-overlay: rgba(18, 63, 27, 0.4);
 
   /* Chart Series Palette (Light) */
   --chart-series-1: #0072B2;
@@ -73,52 +73,52 @@
   --min-touch-target: 44px;
 }
 
-/* Dark Theme Variables */
+/* Dark Theme Variables (Matcha Forest Night) */
 .dark,
 [data-theme="dark"] {
-  --bg: #0A1424;
-  --surface: #101C30;
-  --surface-raised: #182844;
-  --border: #1E2D47;
-  --border-subtle: #142238;
-  --border-strong: #2A3F64;
+  --bg: #0F1D12;
+  --surface: #182B1C;
+  --surface-raised: #1F3624;
+  --border: #28442F;
+  --border-subtle: #1C3322;
+  --border-strong: #3D6146;
 
-  --text: #E6EDF7;
-  --text-muted: #9FB0C8;
-  --text-subtle: #A5B6CE;
-  --text-inverse: #0A1424;
+  --text: #EEF5E5;
+  --text-muted: #B8CEA2;
+  --text-subtle: #98B381;
+  --text-inverse: #0F1D12;
 
-  --brand-navy: #8FB4F0;
-  --brand-navy-hover: #A6C5F5;
-  --accent-teal: #2DD4BF;
-  --accent-teal-hover: #5EEAD4;
-  --accent-teal-subtle: #082F2C;
-  --accent-teal-border: #134E48;
+  --brand-navy: #A1D3A1;
+  --brand-navy-hover: #BDEFBC;
+  --accent-teal: #A1D3A1;
+  --accent-teal-hover: #BDEFBC;
+  --accent-teal-subtle: #1A3420;
+  --accent-teal-border: #3D6146;
 
   --verified: #4ADE80;
-  --verified-bg: #052E16;
+  --verified-bg: #0A2E14;
   --verified-border: #166534;
 
   --unverified: #FBBF24;
-  --unverified-bg: #451A03;
+  --unverified-bg: #3B2404;
   --unverified-border: #854D0E;
 
   --failed: #F87171;
-  --failed-bg: #450A0A;
+  --failed-bg: #3B0D0D;
   --failed-border: #991B1B;
 
   --quote-highlight: rgba(251, 191, 36, 0.18);
-  --quote-highlight-solid: #201A0E;
+  --quote-highlight-solid: #2B210B;
   --quote-border: #F59E0B;
 
-  --focus-ring: #2DD4BF;
-  --focus-ring-offset: #101C30;
-  --disabled-bg: #1A273D;
-  --disabled-text: #4C5F7A;
-  --disabled-border: #23344E;
+  --focus-ring: #A1D3A1;
+  --focus-ring-offset: #182B1C;
+  --disabled-bg: #1B2F20;
+  --disabled-text: #4C6A53;
+  --disabled-border: #25402C;
 
-  --btn-primary-text: #0A1424;
-  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+  --btn-primary-text: #0F1D12;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
   --dialog-overlay: rgba(0, 0, 0, 0.7);
 
   /* Chart Series Palette (Dark) */
@@ -132,49 +132,49 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not(.light) {
-    --bg: #0A1424;
-    --surface: #101C30;
-    --surface-raised: #182844;
-    --border: #1E2D47;
-    --border-subtle: #142238;
-    --border-strong: #2A3F64;
+    --bg: #0F1D12;
+    --surface: #182B1C;
+    --surface-raised: #1F3624;
+    --border: #28442F;
+    --border-subtle: #1C3322;
+    --border-strong: #3D6146;
 
-    --text: #E6EDF7;
-    --text-muted: #9FB0C8;
-    --text-subtle: #7E93B0;
-    --text-inverse: #0A1424;
+    --text: #EEF5E5;
+    --text-muted: #B8CEA2;
+    --text-subtle: #98B381;
+    --text-inverse: #0F1D12;
 
-    --brand-navy: #8FB4F0;
-    --brand-navy-hover: #A6C5F5;
-    --accent-teal: #2DD4BF;
-    --accent-teal-hover: #5EEAD4;
-    --accent-teal-subtle: #082F2C;
-    --accent-teal-border: #134E48;
+    --brand-navy: #A1D3A1;
+    --brand-navy-hover: #BDEFBC;
+    --accent-teal: #A1D3A1;
+    --accent-teal-hover: #BDEFBC;
+    --accent-teal-subtle: #1A3420;
+    --accent-teal-border: #3D6146;
 
     --verified: #4ADE80;
-    --verified-bg: #052E16;
+    --verified-bg: #0A2E14;
     --verified-border: #166534;
 
     --unverified: #FBBF24;
-    --unverified-bg: #451A03;
+    --unverified-bg: #3B2404;
     --unverified-border: #854D0E;
 
     --failed: #F87171;
-    --failed-bg: #450A0A;
+    --failed-bg: #3B0D0D;
     --failed-border: #991B1B;
 
-    --quote-highlight: rgba(251, 191, 36, 0.35);
+    --quote-highlight: rgba(251, 191, 36, 0.18);
     --quote-highlight-solid: #2B210B;
     --quote-border: #F59E0B;
 
-    --focus-ring: #2DD4BF;
-    --focus-ring-offset: #101C30;
-    --disabled-bg: #1A273D;
-    --disabled-text: #4C5F7A;
-    --disabled-border: #23344E;
+    --focus-ring: #A1D3A1;
+    --focus-ring-offset: #182B1C;
+    --disabled-bg: #1B2F20;
+    --disabled-text: #4C6A53;
+    --disabled-border: #25402C;
 
-    --btn-primary-text: #0A1424;
-    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+    --btn-primary-text: #0F1D12;
+    --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
     --dialog-overlay: rgba(0, 0, 0, 0.7);
 
     /* Chart Series Palette (Dark) */
