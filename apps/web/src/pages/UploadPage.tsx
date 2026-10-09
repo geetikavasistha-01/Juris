@@ -148,7 +148,14 @@ export const UploadPage: React.FC = () => {
           {/* Left Column: Value Proposition */}
           <div className="lg:col-span-6 flex flex-col justify-center space-y-6">
             <div className="flex items-center gap-2.5">
-              <span className="font-serif font-bold text-2xl sm:text-3xl tracking-wider text-text uppercase">
+              {/* Light mode: Illustrative civic wordmark */}
+              <img
+                src="/assets/juris-wordmark-light.png"
+                alt="JURIS"
+                className="h-14 sm:h-18 lg:h-20 w-auto object-contain dark:hidden select-none"
+              />
+              {/* Dark mode: Typographic wordmark */}
+              <span className="hidden dark:inline-block font-serif font-bold text-2xl sm:text-3xl tracking-wider text-text uppercase">
                 JURIS
               </span>
             </div>
