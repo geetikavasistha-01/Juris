@@ -112,7 +112,7 @@ describe('Declarative Visual Specs & Chart Selector (v2 PRD Section 6.1 & 6.2)',
 
   it('deterministically selects ranked chart candidates based on verified facts', () => {
     const candidates = selectVisualSpecs(mockFacts);
-    expect(candidates.length).toBeGreaterThanOrEqual(3);
+    expect(candidates.length).toBeGreaterThanOrEqual(5);
 
     // Candidate 1: Key figures strip
     expect(candidates[0]!.kind).toBe('key_figures_strip');
@@ -126,6 +126,12 @@ describe('Declarative Visual Specs & Chart Selector (v2 PRD Section 6.1 & 6.2)',
 
     // Candidate 4: Time series slope chart (2024-25 vs 2025-26)
     expect(candidates[3]!.kind).toBe('slope_chart');
+
+    // Candidate 5: Grouped comparison bar
+    expect(candidates[4]!.kind).toBe('grouped_stacked_bar');
+
+    // Candidate 6: Bullet gauge
+    expect(candidates[5]!.kind).toBe('bullet_gauge');
 
     // Confirm every point has provenance
     for (const spec of candidates) {
