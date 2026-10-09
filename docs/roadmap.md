@@ -161,7 +161,7 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
   - Offline bundled gazetteer in `packages/geodata` (national, state, and district boundaries < 3 MB).
   - Choropleth and bubble/point maps drawing vector paths without external tile servers.
   - Place-name extraction and disambiguation from PDFs and CSVs; neutral boundary disclaimer in footer.
-- **Gate:** Geospatial fixtures parse, reproject, and verify; ambiguous place names are flagged rather than guessed.
+- **Gate:** Geospatial fixtures parse, reproject, and verify; ambiguous place names are flagged rather than guessed. (VERIFIED)
 
 ---
 
