@@ -175,7 +175,7 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
   - Vision model (Gemini structured output, `temperature: 0`) for titles, tables, regions.
   - OCR verification against confidence floor (`OCR_CONFIDENCE_FLOOR=80`); items above floor receive `VERIFIED_OCR`, items below route to `review_queue`.
   - Chart image values marked as `ESTIMATED` with distinct dashed styling unless labels are OCR-verified.
-- **Gate:** Scanned budget page gold set passes OCR threshold; low-quality scans produce review items instead of unverified facts.
+- **Gate:** Scanned budget page gold set passes OCR threshold; low-quality scans produce review items instead of unverified facts. (VERIFIED)
 
 ---
 
