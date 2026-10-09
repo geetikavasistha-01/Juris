@@ -1,5 +1,5 @@
 {
-  "name": "@juris/shared",
+  "name": "@juris/geodata",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,10 +15,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {
-    "@juris/geodata": "workspace:*",
-    "zod": "^3.24.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "typescript": "^5.8.2"
   }
