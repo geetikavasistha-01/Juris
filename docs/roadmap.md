@@ -98,15 +98,16 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
 
 ---
 
-### Phase 4: Core User Journeys & App Shell
+### Phase 4: Core User Journeys & App Shell (COMPLETED)
 
+- **Status:** COMPLETED
 - **Goal:** Complete the primary navigation, authentication, and document lifecycle views.
 - **Deliverables:**
   - Home page, Login, Signup, and Workspace/Document Library views.
   - Document upload with client-side format checks and server-authoritative enforcement.
   - Live processing view with WebSocket status and polling fallback across ingestion stages.
   - Empty states: honest explanations for empty, unverified, or rejected extractions.
-- **Gate:** Real user journey passes end-to-end: upload PDF -> watch live progress -> inspect library -> view document.
+- **Gate:** Real user journey passes end-to-end: upload PDF -> watch live progress -> inspect library -> view document. (VERIFIED)
 
 ---
 
