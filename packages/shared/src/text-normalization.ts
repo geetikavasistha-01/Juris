@@ -74,6 +74,8 @@ export function normalizeCanonical(text: string): string {
   return normalizeWhitespace(normalizePunctuation(normalizeHyphenation(text)));
 }
 
+export const canonicalizeText = normalizeCanonical;
+
 /**
  * Normalizes text specifically for quote verification by lowercasing,
  * stripping punctuation, and standardizing number formatting.

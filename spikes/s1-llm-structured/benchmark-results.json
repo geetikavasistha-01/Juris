@@ -1,0 +1,104 @@
+[
+  {
+    "provider": "Recorded Replay",
+    "modelId": "recorded-replay-v1",
+    "documents": [
+      {
+        "document": "NDMC Budget Speech 2026-27",
+        "pagesEvaluated": 10,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 4,
+        "latencyPerPageMs": 0,
+        "memoryFootprintMb": 0.82,
+        "factsExtracted": 74,
+        "quoteMatchCount": 1,
+        "numberMatchCount": 1,
+        "unitMatchCount": 0,
+        "periodMatchCount": 1,
+        "verificationRate": 1.35
+      },
+      {
+        "document": "Civil Lens Civic Dataset Report",
+        "pagesEvaluated": 5,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 1,
+        "latencyPerPageMs": 0,
+        "memoryFootprintMb": 0.65,
+        "factsExtracted": 74,
+        "quoteMatchCount": 0,
+        "numberMatchCount": 0,
+        "unitMatchCount": 0,
+        "periodMatchCount": 0,
+        "verificationRate": 0
+      },
+      {
+        "document": "Standard Municipal Summary",
+        "pagesEvaluated": 5,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 1,
+        "latencyPerPageMs": 0,
+        "memoryFootprintMb": 0.71,
+        "factsExtracted": 74,
+        "quoteMatchCount": 0,
+        "numberMatchCount": 0,
+        "unitMatchCount": 0,
+        "periodMatchCount": 0,
+        "verificationRate": 0
+      }
+    ],
+    "averageLatencyPerPageMs": 0,
+    "averageVerificationRate": 0.45,
+    "hardwareBaseline": "MacBook Air M-series 16GB"
+  },
+  {
+    "provider": "Ollama (Local Apple Silicon)",
+    "modelId": "smollm:latest",
+    "documents": [
+      {
+        "document": "NDMC Budget Speech 2026-27",
+        "pagesEvaluated": 1,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 28927,
+        "latencyPerPageMs": 28927,
+        "memoryFootprintMb": -124.74,
+        "factsExtracted": 4,
+        "quoteMatchCount": 0,
+        "numberMatchCount": 0,
+        "unitMatchCount": 0,
+        "periodMatchCount": 0,
+        "verificationRate": 0
+      },
+      {
+        "document": "Civil Lens Civic Dataset Report",
+        "pagesEvaluated": 1,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 61073,
+        "latencyPerPageMs": 61073,
+        "memoryFootprintMb": 0.59,
+        "factsExtracted": 38,
+        "quoteMatchCount": 0,
+        "numberMatchCount": 0,
+        "unitMatchCount": 0,
+        "periodMatchCount": 0,
+        "verificationRate": 0
+      },
+      {
+        "document": "Standard Municipal Summary",
+        "pagesEvaluated": 1,
+        "coldStartTimeMs": 0,
+        "totalTimeMs": 11141,
+        "latencyPerPageMs": 11141,
+        "memoryFootprintMb": -0.45,
+        "factsExtracted": 0,
+        "quoteMatchCount": 0,
+        "numberMatchCount": 0,
+        "unitMatchCount": 0,
+        "periodMatchCount": 0,
+        "verificationRate": 0
+      }
+    ],
+    "averageLatencyPerPageMs": 33714,
+    "averageVerificationRate": 0,
+    "hardwareBaseline": "MacBook Air M-series 16GB (Local Inference)"
+  }
+]
