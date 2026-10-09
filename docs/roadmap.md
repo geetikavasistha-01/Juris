@@ -43,7 +43,7 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
 
 ---
 
-### Phase 1: Contracts, Database Schema & Quarantine (IN PROGRESS)
+### Phase 1: Contracts, Database Schema & Quarantine (COMPLETED)
 
 - **Branch:** `phase-1-contracts-db`
 - **Goal:** Establish authoritative shared contracts and database schema for the v2 Evidence Graph without breaking existing v1 behaviour.
