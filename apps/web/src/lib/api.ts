@@ -5,6 +5,10 @@ import type {
   JobEventsListResponse,
   DocumentUploadResponse,
   DocumentFileResponse,
+  ReviewQueueListResponse,
+  ReviewActionResponse,
+  ConflictsResponse,
+  GlossaryResponse,
   ErrorEnvelope,
 } from '@juris/shared';
 import { parseWebConfig } from '../config.js';
@@ -115,4 +119,58 @@ export async function deleteDocument(id: string): Promise<{ status: string; id: 
     headers,
   });
   return handleResponse<{ status: string; id: string }>(res);
+}
+
+export async function fetchReviewQueue(id: string): Promise<ReviewQueueListResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE}/api/documents/${id}/review-queue`, {
+    method: 'GET',
+    headers,
+  });
+  return handleResponse<ReviewQueueListResponse>(res);
+}
+
+export async function approveReviewItem(
+  documentId: string,
+  itemId: string,
+): Promise<ReviewActionResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(
+    `${API_BASE}/api/documents/${documentId}/review-queue/${itemId}/approve`,
+    {
+      method: 'POST',
+      headers,
+    },
+  );
+  return handleResponse<ReviewActionResponse>(res);
+}
+
+export async function rejectReviewItem(
+  documentId: string,
+  itemId: string,
+): Promise<ReviewActionResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE}/api/documents/${documentId}/review-queue/${itemId}/reject`, {
+    method: 'POST',
+    headers,
+  });
+  return handleResponse<ReviewActionResponse>(res);
+}
+
+export async function fetchConflicts(id: string): Promise<ConflictsResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE}/api/documents/${id}/conflicts`, {
+    method: 'GET',
+    headers,
+  });
+  return handleResponse<ConflictsResponse>(res);
+}
+
+export async function fetchGlossary(id: string): Promise<GlossaryResponse> {
+  const headers = await getAuthHeaders();
+  const res = await fetch(`${API_BASE}/api/documents/${id}/glossary`, {
+    method: 'GET',
+    headers,
+  });
+  return handleResponse<GlossaryResponse>(res);
 }

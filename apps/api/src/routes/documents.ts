@@ -750,4 +750,376 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       expiresInSeconds,
     });
   });
+
+  // 8. GET /api/documents/:id/review-queue
+  server.get<{ Params: { id: string } }>(
+    '/api/documents/:id/review-queue',
+    async (request, reply) => {
+      const auth = await resolveAuthUser(request.headers.authorization);
+      if (!auth) {
+        return reply
+          .status(401)
+          .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+      }
+
+      const { id } = request.params;
+      const supabase = getAdminSupabaseClient();
+
+      const { data: items, error } = await supabase
+        .from('review_queue')
+        .select('*')
+        .eq('document_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        server.log.error({ error }, 'Failed to fetch review queue');
+        return reply
+          .status(500)
+          .send(createErrorResponse('INTERNAL_ERROR', 'Failed to retrieve review queue'));
+      }
+
+      interface ReviewQueueDbRow {
+        id: string;
+        document_id: string;
+        fact_id: string;
+        reason: string;
+        ocr_confidence?: number | null;
+        status: 'pending' | 'approved' | 'rejected';
+        reviewed_by?: string | null;
+        reviewed_at?: string | null;
+      }
+
+      interface FactDbRow {
+        id: string;
+        type: string;
+        quote: string;
+        value: number | null;
+        unit: string | null;
+      }
+
+      const rowItems = (items || []) as ReviewQueueDbRow[];
+      const factIds = rowItems.map((r) => r.fact_id);
+      const factMap = new Map<string, { label: string; quote: string }>();
+      if (factIds.length > 0) {
+        const { data: facts } = await supabase
+          .from('facts')
+          .select('id, type, quote, value, unit')
+          .in('id', factIds);
+        for (const f of (facts || []) as FactDbRow[]) {
+          const label = `${f.type} (${f.value ?? ''} ${f.unit ?? ''})`.trim() || 'Fact';
+          factMap.set(f.id, { label, quote: f.quote });
+        }
+      }
+
+      return reply.status(200).send({
+        items: rowItems.map((row) => {
+          const fact = factMap.get(row.fact_id);
+          return {
+            id: row.id,
+            documentId: row.document_id,
+            factId: row.fact_id,
+            reason: row.reason,
+            ocrConfidence: row.ocr_confidence ? Number(row.ocr_confidence) : undefined,
+            status: row.status,
+            reviewedBy: row.reviewed_by,
+            reviewedAt: row.reviewed_at,
+            label: fact?.label || 'Extracted Fact',
+            rawQuote: fact?.quote || undefined,
+          };
+        }),
+      });
+    },
+  );
+
+  // 9. POST /api/documents/:id/review-queue/:itemId/approve
+  // Human review tool confirmation workflow (AGENTS.md Rule 8)
+  server.post<{ Params: { id: string; itemId: string } }>(
+    '/api/documents/:id/review-queue/:itemId/approve',
+    async (request, reply) => {
+      const auth = await resolveAuthUser(request.headers.authorization);
+      if (!auth) {
+        return reply
+          .status(401)
+          .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+      }
+
+      const { id, itemId } = request.params;
+      const supabase = getAdminSupabaseClient();
+
+      // Fetch review item
+      const { data: item, error: fetchErr } = await supabase
+        .from('review_queue')
+        .select('*')
+        .eq('id', itemId)
+        .eq('document_id', id)
+        .maybeSingle();
+
+      if (fetchErr || !item) {
+        return reply
+          .status(404)
+          .send(createErrorResponse('NOT_FOUND', `Review item ${itemId} not found`));
+      }
+
+      const now = new Date().toISOString();
+
+      // Update review queue item status
+      const { data: updatedItem, error: updateErr } = await supabase
+        .from('review_queue')
+        .update({
+          status: 'approved',
+          reviewed_by: auth.id,
+          reviewed_at: now,
+        })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+      if (updateErr) {
+        server.log.error({ updateErr }, 'Failed to approve review queue item');
+        return reply
+          .status(500)
+          .send(createErrorResponse('INTERNAL_ERROR', 'Failed to approve review item'));
+      }
+
+      // Transition corresponding fact to USER_CONFIRMED and verified: true
+      await supabase
+        .from('facts')
+        .update({
+          proof_type: 'USER_CONFIRMED',
+          verified: true,
+          fail_reason: null,
+        })
+        .eq('id', item.fact_id);
+
+      return reply.status(200).send({
+        success: true,
+        item: {
+          id: updatedItem.id,
+          documentId: updatedItem.document_id,
+          factId: updatedItem.fact_id,
+          reason: updatedItem.reason,
+          ocrConfidence: updatedItem.ocr_confidence
+            ? Number(updatedItem.ocr_confidence)
+            : undefined,
+          status: updatedItem.status,
+          reviewedBy: updatedItem.reviewed_by,
+          reviewedAt: updatedItem.reviewed_at,
+        },
+      });
+    },
+  );
+
+  // 10. POST /api/documents/:id/review-queue/:itemId/reject
+  server.post<{ Params: { id: string; itemId: string } }>(
+    '/api/documents/:id/review-queue/:itemId/reject',
+    async (request, reply) => {
+      const auth = await resolveAuthUser(request.headers.authorization);
+      if (!auth) {
+        return reply
+          .status(401)
+          .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+      }
+
+      const { id, itemId } = request.params;
+      const supabase = getAdminSupabaseClient();
+
+      const { data: item, error: fetchErr } = await supabase
+        .from('review_queue')
+        .select('*')
+        .eq('id', itemId)
+        .eq('document_id', id)
+        .maybeSingle();
+
+      if (fetchErr || !item) {
+        return reply
+          .status(404)
+          .send(createErrorResponse('NOT_FOUND', `Review item ${itemId} not found`));
+      }
+
+      const now = new Date().toISOString();
+
+      const { data: updatedItem, error: updateErr } = await supabase
+        .from('review_queue')
+        .update({
+          status: 'rejected',
+          reviewed_by: auth.id,
+          reviewed_at: now,
+        })
+        .eq('id', itemId)
+        .select()
+        .single();
+
+      if (updateErr) {
+        server.log.error({ updateErr }, 'Failed to reject review queue item');
+        return reply
+          .status(500)
+          .send(createErrorResponse('INTERNAL_ERROR', 'Failed to reject review item'));
+      }
+
+      // Transition corresponding fact to REJECTED and verified: false
+      await supabase
+        .from('facts')
+        .update({
+          proof_type: 'REJECTED',
+          verified: false,
+          fail_reason: 'Rejected by human reviewer in review queue',
+        })
+        .eq('id', item.fact_id);
+
+      return reply.status(200).send({
+        success: true,
+        item: {
+          id: updatedItem.id,
+          documentId: updatedItem.document_id,
+          factId: updatedItem.fact_id,
+          reason: updatedItem.reason,
+          ocrConfidence: updatedItem.ocr_confidence
+            ? Number(updatedItem.ocr_confidence)
+            : undefined,
+          status: updatedItem.status,
+          reviewedBy: updatedItem.reviewed_by,
+          reviewedAt: updatedItem.reviewed_at,
+        },
+      });
+    },
+  );
+
+  // 11. GET /api/documents/:id/conflicts
+  server.get<{ Params: { id: string } }>('/api/documents/:id/conflicts', async (request, reply) => {
+    const auth = await resolveAuthUser(request.headers.authorization);
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
+
+    const { id } = request.params;
+    const supabase = getAdminSupabaseClient();
+
+    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', id);
+
+    interface FactRecord {
+      id: string;
+      type: string;
+      value: number | null;
+      period?: string | null;
+      page: number;
+      quote: string;
+      unit?: string | null;
+    }
+
+    const factList = (facts || []) as FactRecord[];
+    const conflicts: Array<{
+      id: string;
+      subject: string;
+      period: string | null;
+      sourceA: {
+        factId: string;
+        page: number;
+        value: number;
+        quote: string;
+      };
+      sourceB: {
+        factId: string;
+        page: number;
+        value: number;
+        quote: string;
+      };
+      difference: number;
+    }> = [];
+
+    const grouped = new Map<string, FactRecord[]>();
+    for (const f of factList) {
+      const key = `${(f.type || '').toLowerCase()}_${f.period || 'all'}`;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push(f);
+    }
+
+    let conflictIndex = 0;
+    for (const [, group] of grouped.entries()) {
+      if (group.length >= 2) {
+        for (let i = 0; i < group.length - 1; i++) {
+          for (let j = i + 1; j < group.length; j++) {
+            const a = group[i];
+            const b = group[j];
+            if (
+              a.value !== null &&
+              b.value !== null &&
+              Math.abs(Number(a.value) - Number(b.value)) > 0.01
+            ) {
+              conflictIndex++;
+              conflicts.push({
+                id: `conflict_${conflictIndex}`,
+                subject: a.type,
+                period: a.period || null,
+                sourceA: {
+                  factId: a.id,
+                  page: a.page || 1,
+                  value: Number(a.value),
+                  quote: a.quote || '',
+                },
+                sourceB: {
+                  factId: b.id,
+                  page: b.page || 1,
+                  value: Number(b.value),
+                  quote: b.quote || '',
+                },
+                difference: Math.abs(Number(a.value) - Number(b.value)),
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return reply.status(200).send({ conflicts });
+  });
+
+  // 12. GET /api/documents/:id/glossary
+  server.get<{ Params: { id: string } }>('/api/documents/:id/glossary', async (request, reply) => {
+    const auth = await resolveAuthUser(request.headers.authorization);
+    if (!auth) {
+      return reply
+        .status(401)
+        .send(createErrorResponse('AUTH_REQUIRED', 'Valid bearer token is required'));
+    }
+
+    const { id } = request.params;
+    const supabase = getAdminSupabaseClient();
+
+    const { data: defFacts } = await supabase
+      .from('facts')
+      .select('*')
+      .eq('document_id', id)
+      .eq('type', 'definition');
+
+    interface DefinitionFactRecord {
+      id: string;
+      quote: string;
+      page: number;
+    }
+
+    const terms = ((defFacts || []) as DefinitionFactRecord[]).map((f) => {
+      const firstColon = f.quote.indexOf(':');
+      const firstMeans = f.quote.toLowerCase().indexOf('means');
+      let term = 'Statutory Term';
+      if (firstColon > 0 && firstColon < 40) {
+        term = f.quote.slice(0, firstColon).trim();
+      } else if (firstMeans > 0 && firstMeans < 40) {
+        term = f.quote.slice(0, firstMeans).trim();
+      } else {
+        term = f.quote.slice(0, 30).trim();
+      }
+      return {
+        id: f.id,
+        term,
+        definition: f.quote,
+        page: f.page || 1,
+        quote: f.quote || '',
+        factId: f.id,
+      };
+    });
+
+    return reply.status(200).send({ terms });
+  });
 };

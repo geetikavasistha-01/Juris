@@ -265,5 +265,58 @@ export const ReviewQueueItemSchema = z.object({
   status: ReviewQueueStatusSchema.default('pending'),
   reviewedBy: z.string().uuid().nullable().optional(),
   reviewedAt: z.string().nullable().optional(),
+  label: z.string().optional(),
+  rawQuote: z.string().optional(),
 });
 export type ReviewQueueItem = z.infer<typeof ReviewQueueItemSchema>;
+
+export const ReviewQueueListResponseSchema = z.object({
+  items: z.array(ReviewQueueItemSchema),
+});
+export type ReviewQueueListResponse = z.infer<typeof ReviewQueueListResponseSchema>;
+
+export const ReviewActionResponseSchema = z.object({
+  success: z.boolean(),
+  item: ReviewQueueItemSchema,
+});
+export type ReviewActionResponse = z.infer<typeof ReviewActionResponseSchema>;
+
+export const ConflictDetailSchema = z.object({
+  id: z.string(),
+  subject: z.string(),
+  period: z.string().nullable(),
+  sourceA: z.object({
+    factId: z.string(),
+    page: z.number(),
+    value: z.number(),
+    quote: z.string(),
+  }),
+  sourceB: z.object({
+    factId: z.string(),
+    page: z.number(),
+    value: z.number(),
+    quote: z.string(),
+  }),
+  difference: z.number(),
+});
+export type ConflictDetail = z.infer<typeof ConflictDetailSchema>;
+
+export const ConflictsResponseSchema = z.object({
+  conflicts: z.array(ConflictDetailSchema),
+});
+export type ConflictsResponse = z.infer<typeof ConflictsResponseSchema>;
+
+export const GlossaryItemSchema = z.object({
+  id: z.string(),
+  term: z.string(),
+  definition: z.string(),
+  page: z.number(),
+  quote: z.string(),
+  factId: z.string(),
+});
+export type GlossaryItem = z.infer<typeof GlossaryItemSchema>;
+
+export const GlossaryResponseSchema = z.object({
+  terms: z.array(GlossaryItemSchema),
+});
+export type GlossaryResponse = z.infer<typeof GlossaryResponseSchema>;

@@ -181,4 +181,67 @@ describe('Evidence Graph Contracts & Proof Types (v2 PRD Section 3)', () => {
     expect(failedResult.proofType).toBe('REJECTED');
     expect(failedResult.failReason).toBe('VALUE_NOT_IN_QUOTE');
   });
+
+  it('validates Phase 10 ReviewQueue, Conflicts, and Glossary contracts', async () => {
+    const {
+      ReviewQueueItemSchema,
+      ReviewQueueListResponseSchema,
+      ConflictDetailSchema,
+      ConflictsResponseSchema,
+      GlossaryItemSchema,
+      GlossaryResponseSchema,
+    } = await import('./evidence.js');
+
+    const reviewItem = ReviewQueueItemSchema.parse({
+      id: '550e8400-e29b-41d4-a716-446655440070',
+      documentId: '550e8400-e29b-41d4-a716-446655440011',
+      factId: '550e8400-e29b-41d4-a716-446655440030',
+      reason: 'Low OCR confidence 74% below threshold 80%',
+      ocrConfidence: 74,
+      status: 'pending',
+      label: 'Estimated Highway Toll Revenue',
+      rawQuote: 'Highway toll collection reached approx 4,200 cr',
+    });
+    expect(reviewItem.status).toBe('pending');
+    expect(reviewItem.ocrConfidence).toBe(74);
+
+    const queueList = ReviewQueueListResponseSchema.parse({ items: [reviewItem] });
+    expect(queueList.items).toHaveLength(1);
+
+    const conflict = ConflictDetailSchema.parse({
+      id: 'conflict_1',
+      subject: 'Highway Allocation',
+      period: '2025-26',
+      sourceA: {
+        factId: '550e8400-e29b-41d4-a716-446655440030',
+        page: 2,
+        value: 12000,
+        quote: 'Budget allocation is Rs 12,000 crore',
+      },
+      sourceB: {
+        factId: '550e8400-e29b-41d4-a716-446655440031',
+        page: 15,
+        value: 12500,
+        quote: 'Total revised allocation stands at Rs 12,500 crore',
+      },
+      difference: 500,
+    });
+    expect(conflict.difference).toBe(500);
+
+    const conflictResp = ConflictsResponseSchema.parse({ conflicts: [conflict] });
+    expect(conflictResp.conflicts).toHaveLength(1);
+
+    const glossaryTerm = GlossaryItemSchema.parse({
+      id: 'glossary_1',
+      term: 'Capital Expenditure',
+      definition: 'Government expenditure intended to create long term physical assets.',
+      page: 4,
+      quote: 'Capital expenditure refers to outlays for creation of long term assets.',
+      factId: '550e8400-e29b-41d4-a716-446655440030',
+    });
+    expect(glossaryTerm.term).toBe('Capital Expenditure');
+
+    const glossaryResp = GlossaryResponseSchema.parse({ terms: [glossaryTerm] });
+    expect(glossaryResp.terms).toHaveLength(1);
+  });
 });
