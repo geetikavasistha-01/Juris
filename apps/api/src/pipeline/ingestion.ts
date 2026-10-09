@@ -1057,7 +1057,6 @@ export async function runDocumentIngestionPipeline(
         quote: `${filename} (${imgWidth}x${imgHeight}px)`,
         page: 1,
         verified: true,
-        verification_method: 'exact',
         proof_type: 'ocr_crosscheck',
         confidence_level: 'high',
         normalized_value: imgWidth,
@@ -1229,7 +1228,7 @@ export async function runDocumentIngestionPipeline(
       cMapUrl,
       cMapPacked: true,
       useWorkerFetch: false,
-      useSystemFonts: true,
+      useSystemFonts: false,
       disableFontFace: true,
     }).promise;
     const pageCount = pdfDoc.numPages;
