@@ -1,10 +1,36 @@
 import { z } from 'zod';
 import { JobEventSchema, JobStageSchema, JobStatusSchema, DocumentStatusSchema } from './jobs.js';
 import { VerificationMethodSchema } from './modality.js';
+import { ProofTypeSchema, type ProofType } from './evidence.js';
+
+export { ProofTypeSchema, type ProofType };
 
 export const DEFAULT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB default
 export const DEFAULT_MAX_PDF_PAGES = 50;
 export const DEFAULT_MAX_TEXT_CHARS = 100000;
+
+export const DocumentTypeSchema = z.enum([
+  'budget',
+  'notification',
+  'tender',
+  'dataset',
+  'map',
+  'generic',
+]);
+export type DocumentType = z.infer<typeof DocumentTypeSchema>;
+
+export const SemanticFactTypeSchema = z.enum([
+  'money',
+  'measure',
+  'date',
+  'place',
+  'entity',
+  'obligation',
+  'definition',
+  'relation',
+  'identifier',
+]);
+export type SemanticFactType = z.infer<typeof SemanticFactTypeSchema>;
 
 export const DocumentSchema = z.object({
   id: z.string().uuid(),
@@ -14,6 +40,7 @@ export const DocumentSchema = z.object({
   fileSizeBytes: z.number().int().nonnegative(),
   sha256: z.string().length(64),
   mimeType: z.string().min(1),
+  documentType: DocumentTypeSchema.default('generic'),
   status: DocumentStatusSchema.default('queued'),
   pageCount: z.number().int().nonnegative().default(0),
   isSample: z.boolean().default(false),
@@ -69,6 +96,15 @@ export const FactTypeSchema = z.enum([
   'physical_quantity',
   'count',
   'percentage',
+  'money',
+  'measure',
+  'date',
+  'place',
+  'entity',
+  'obligation',
+  'definition',
+  'relation',
+  'identifier',
 ]);
 export type FactType = z.infer<typeof FactTypeSchema>;
 
@@ -95,6 +131,8 @@ export const DocumentFactDetailSchema = z.object({
   id: z.string().uuid(),
   label: z.string().min(1),
   type: FactTypeSchema,
+  factType: SemanticFactTypeSchema.optional(),
+  numericValue: z.number().nullable().optional(),
   value: z.number().nullable(),
   unit: z.string().nullable(),
   currency: z.string().nullable(),
@@ -102,6 +140,7 @@ export const DocumentFactDetailSchema = z.object({
   page: z.number().int().positive(),
   quote: z.string(),
   verified: z.boolean(),
+  proofType: ProofTypeSchema.nullable().optional(),
   verificationMethod: VerificationMethodSchema.default('quote_on_page'),
   failReason: FactFailReasonSchema.nullable().default(null),
 });
@@ -110,6 +149,7 @@ export type DocumentFactDetail = z.infer<typeof DocumentFactDetailSchema>;
 export const DocumentDetailResponseSchema = z.object({
   id: z.string().uuid(),
   filename: z.string(),
+  documentType: DocumentTypeSchema.default('generic').optional(),
   status: DocumentStatusSchema,
   pageCount: z.number().int().nonnegative(),
   fileSizeBytes: z.number().int().nonnegative(),

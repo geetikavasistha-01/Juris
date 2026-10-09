@@ -1,6 +1,6 @@
 # Rules for AI coding agents on Juris
 
-1. Read docs/prd.md and docs/adr/ before changing anything. If a decision is not recorded, ask the human; do not invent.
+1. Read docs/prd.md, docs/prd-v2.md, docs/system-context.md, docs/roadmap.md, docs/known-gaps.md, and docs/adr/ before changing anything. If a decision is not recorded, ask the human; do not invent.
 2. Work on one slice at a time. Do not touch files outside the slice scope.
 3. Contracts first: change packages/shared before the API or web code. No duplicated types.
 4. Tests first. A task is not done until tests pass in CI and the code was run against real data.

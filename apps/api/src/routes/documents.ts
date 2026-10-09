@@ -378,6 +378,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     const responsePayload = {
       id: doc.id,
       filename: doc.original_name,
+      documentType: doc.document_type || 'generic',
       status: doc.status,
       pageCount: doc.page_count,
       fileSizeBytes: doc.size_bytes,
@@ -418,6 +419,15 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
           'physical_quantity',
           'count',
           'percentage',
+          'money',
+          'measure',
+          'date',
+          'place',
+          'entity',
+          'obligation',
+          'definition',
+          'relation',
+          'identifier',
         ];
         const factType = validTypes.includes(f.type) ? f.type : 'allocation';
 
@@ -425,6 +435,11 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
           id: f.id,
           label: f.label || `${factType} (${f.value ?? ''} ${f.unit ?? ''})`.trim() || 'Fact',
           type: factType,
+          factType: f.fact_type || undefined,
+          numericValue:
+            f.numeric_value !== null && f.numeric_value !== undefined
+              ? Number(f.numeric_value)
+              : null,
           value: f.value !== null && f.value !== undefined ? Number(f.value) : null,
           unit: f.unit || null,
           currency: f.currency || null,
@@ -432,6 +447,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
           page: Number(f.page) || 1,
           quote: f.quote || '',
           verified: Boolean(f.verified),
+          proofType: f.proof_type || null,
           verificationMethod: 'quote_on_page',
           failReason: f.fail_reason || null,
         };
