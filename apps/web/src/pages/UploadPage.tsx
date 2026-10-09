@@ -147,6 +147,11 @@ export const UploadPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Value Proposition */}
           <div className="lg:col-span-6 flex flex-col justify-center space-y-6">
+            <div className="flex items-center gap-2.5">
+              <span className="font-serif font-bold text-2xl sm:text-3xl tracking-wider text-text uppercase">
+                JURIS
+              </span>
+            </div>
             <div className="inline-flex items-center gap-2 self-start px-2.5 py-1 rounded bg-border-subtle border border-border">
               <span className="w-2 h-2 rounded-full bg-text"></span>
               <span className="font-mono text-xs text-text font-semibold tracking-normal">
