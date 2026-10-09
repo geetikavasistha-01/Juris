@@ -69,9 +69,15 @@ jobs:
         run: |
           pnpm run check:tokens
           pnpm run check:contrast
+          pnpm run check:palette
+          pnpm run check:visual-specs
+          pnpm run check:insights-grounding
 
       - name: Build all workspace packages
         run: pnpm run build
+
+      - name: Verify production bundle size guard
+        run: pnpm run check:bundle
 
       - name: Verify zero external host dependencies in dist
         run: pnpm run check:external-hosts

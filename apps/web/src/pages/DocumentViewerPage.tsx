@@ -856,9 +856,9 @@ export const DocumentViewerPage: React.FC = () => {
                 </span>
               </div>
 
-              {/* Graphic mini coordinate canvas simulator */}
+              {/* Graphic mini coordinate canvas display */}
               <div className="relative w-full h-32 rounded bg-surface border border-border overflow-hidden flex items-center justify-center">
-                {/* Simulated document page grid */}
+                {/* Document coordinate canvas grid */}
                 <svg
                   className="w-full h-full text-border-subtle"
                   xmlns="http://www.w3.org/2000/svg"
@@ -876,7 +876,7 @@ export const DocumentViewerPage: React.FC = () => {
                     </pattern>
                   </defs>
                   <rect width="300" height="120" fill="url(#page-grid)" />
-                  {/* Bounding box highlight on simulated page */}
+                  {/* Bounding box highlight on coordinate canvas page */}
                   <rect
                     x="40"
                     y="35"

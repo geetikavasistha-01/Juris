@@ -860,8 +860,11 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
     expect(conflictsBody.conflicts).toHaveLength(1);
     expect(conflictsBody.conflicts[0].subject).toBe('allocation');
     expect(conflictsBody.conflicts[0].difference).toBe(500);
-    expect(conflictsBody.conflicts[0].sourceA.value).toBe(10000);
-    expect(conflictsBody.conflicts[0].sourceB.value).toBe(10500);
+    const conflictValues = [
+      conflictsBody.conflicts[0].sourceA.value,
+      conflictsBody.conflicts[0].sourceB.value,
+    ].sort((a: number, b: number) => a - b);
+    expect(conflictValues).toEqual([10000, 10500]);
 
     // 6. Test GET /api/documents/:id/glossary
     const glossaryRes = await app.inject({

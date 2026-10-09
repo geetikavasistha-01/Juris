@@ -996,7 +996,12 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
     const { id } = request.params;
     const supabase = getAdminSupabaseClient();
 
-    const { data: facts } = await supabase.from('facts').select('*').eq('document_id', id);
+    const { data: facts } = await supabase
+      .from('facts')
+      .select('*')
+      .eq('document_id', id)
+      .order('page', { ascending: true })
+      .order('created_at', { ascending: true });
 
     interface FactRecord {
       id: string;
@@ -1042,6 +1047,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
           for (let j = i + 1; j < group.length; j++) {
             const a = group[i];
             const b = group[j];
+            if (!a || !b) continue;
             if (
               a.value !== null &&
               b.value !== null &&

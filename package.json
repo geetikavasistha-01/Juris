@@ -25,6 +25,8 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "check:external-hosts": "node scripts/check-external-hosts.mjs",
     "check:visual-specs": "node scripts/check-visual-specs.mjs",
+    "check:insights-grounding": "node scripts/check-insights-grounding.mjs",
+    "check:palette": "node scripts/check-palette.mjs",
     "e2e": "playwright test --config e2e/playwright.config.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
