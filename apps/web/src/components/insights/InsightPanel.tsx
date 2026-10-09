@@ -1,13 +1,14 @@
-import React, { useMemo } from 'react';
-import type { VisualSpec, DocumentFactDetail, InsightClaim } from '@juris/shared';
+import React, { useMemo, useState } from 'react';
+import type { VisualSpec, DocumentFactDetail, InsightClaim, ReadingLevel } from '@juris/shared';
 import { generateDeterministicInsights } from '@juris/shared';
 import { ProofBadge } from '../visuals/ProofBadge.js';
-import { Sparkles, ShieldCheck, ExternalLink, X, Info } from 'lucide-react';
+import { Sparkles, ShieldCheck, ExternalLink, X, Info, BookOpen } from 'lucide-react';
 import { haptics } from '../../lib/haptics.js';
 
 interface InsightPanelProps {
   spec: VisualSpec;
   facts: DocumentFactDetail[];
+  initialReadingLevel?: ReadingLevel;
   onSelectFact?: (factId: string) => void;
   onClose?: () => void;
 }
@@ -15,12 +16,15 @@ interface InsightPanelProps {
 export const InsightPanel: React.FC<InsightPanelProps> = ({
   spec,
   facts,
+  initialReadingLevel = 'standard',
   onSelectFact,
   onClose,
 }) => {
+  const [readingLevel, setReadingLevel] = useState<ReadingLevel>(initialReadingLevel);
+
   const insight = useMemo(() => {
-    return generateDeterministicInsights(spec, facts);
-  }, [spec, facts]);
+    return generateDeterministicInsights(spec, facts, { readingLevel });
+  }, [spec, facts, readingLevel]);
 
   const factsMap = useMemo(() => {
     return new Map(facts.map((f) => [f.id, f]));
@@ -31,6 +35,11 @@ export const InsightPanel: React.FC<InsightPanelProps> = ({
     if (onSelectFact) {
       onSelectFact(factId);
     }
+  };
+
+  const handleLevelChange = (level: ReadingLevel) => {
+    haptics.trigger('selection');
+    setReadingLevel(level);
   };
 
   return (
@@ -66,6 +75,30 @@ export const InsightPanel: React.FC<InsightPanelProps> = ({
         </div>
       </div>
 
+      {/* Reading Level Selector (Simple / Standard / Expert) */}
+      <div className="flex items-center justify-between gap-2 p-1 bg-surface-raised rounded-xl border border-border">
+        <div className="flex items-center gap-1.5 pl-2 text-text-muted">
+          <BookOpen className="w-3.5 h-3.5" />
+          <span className="text-[11px] font-mono uppercase tracking-wider">Level:</span>
+        </div>
+        <div className="flex items-center gap-1">
+          {(['simple', 'standard', 'expert'] as const).map((lvl) => (
+            <button
+              key={lvl}
+              type="button"
+              onClick={() => handleLevelChange(lvl)}
+              className={`px-3 py-1 rounded-lg text-xs font-medium capitalize transition-all ${
+                readingLevel === lvl
+                  ? 'bg-surface text-text shadow-xs border border-border'
+                  : 'text-text-muted hover:text-text hover:bg-surface/50'
+              }`}
+            >
+              {lvl}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Summary Banner */}
       <div className="p-3.5 rounded-xl bg-surface-raised/80 border border-border text-xs leading-relaxed text-text">
         <div className="flex items-start gap-2.5">
@@ -78,7 +111,7 @@ export const InsightPanel: React.FC<InsightPanelProps> = ({
       <div className="space-y-3">
         <h4 className="text-[11px] font-mono uppercase tracking-wider text-text-muted flex items-center gap-1.5">
           <Info className="w-3.5 h-3.5" />
-          <span>Grounded Claims & Citations</span>
+          <span>Grounded Claims & Citations ({insight.claims.length})</span>
         </h4>
 
         <div className="space-y-2.5">

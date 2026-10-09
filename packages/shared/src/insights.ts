@@ -27,7 +27,10 @@ export const VisualInsightSchema = z.object({
 
 export type VisualInsight = z.infer<typeof VisualInsightSchema>;
 
+export type ReadingLevel = 'simple' | 'standard' | 'expert';
+
 export interface InsightGenerationOptions {
   mode?: 'deterministic_template' | 'grounded_llm';
+  readingLevel?: ReadingLevel;
   maxClaims?: number;
 }

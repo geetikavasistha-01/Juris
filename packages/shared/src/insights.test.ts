@@ -5,6 +5,7 @@ import {
   numbersMatch,
   computeTokenOverlap,
   verifyInsightClaim,
+  filterGroundedSentences,
   generateDeterministicInsights,
 } from './index.js';
 
@@ -155,5 +156,77 @@ describe('Grounding Verifier & Insight Engine', () => {
     expect(insight.claims.every((c) => c.isVerified)).toBe(true);
     expect(insight.summary).toContain('Education Allocation');
     expect(insight.summary).toContain('100,000,000 USD');
+  });
+
+  it('generates grounded insights across all 3 reading levels: simple, standard, and expert', () => {
+    const levels = ['simple', 'standard', 'expert'] as const;
+
+    for (const level of levels) {
+      const insight = generateDeterministicInsights(mockSpec, mockFacts, { readingLevel: level });
+      expect(insight.claims.length).toBeGreaterThanOrEqual(1);
+      // 100% of sentences must pass grounding
+      expect(insight.claims.every((c) => c.isVerified)).toBe(true);
+      expect(insight.claims.every((c) => c.proofType !== 'REJECTED')).toBe(true);
+
+      if (level === 'simple') {
+        expect(insight.summary).toContain('In plain terms');
+      } else if (level === 'expert') {
+        expect(insight.summary).toContain('Aggregate fiscal allocation');
+      } else {
+        expect(insight.summary).toContain('total aggregate across');
+      }
+    }
+  });
+
+  it('adversarially catches and rejects altered numbers by even a single digit', () => {
+    const adversarialClaim = verifyInsightClaim(
+      {
+        claimText: 'Education Allocation accounts for 45000001 USD in funding.',
+        factIds: ['00000000-0000-0000-0000-000000000001'],
+      },
+      factsMap,
+    );
+
+    expect(adversarialClaim.isVerified).toBe(false);
+    expect(adversarialClaim.proofType).toBe('REJECTED');
+    expect(adversarialClaim.rejectionReason).toContain('Unverified number(s)');
+  });
+
+  it('adversarially catches and rejects mathematically inverted comparative claims', () => {
+    // Healthcare ($30M) claimed to be greater than Education ($45M)
+    const falseComparison = verifyInsightClaim(
+      {
+        claimText: 'Healthcare Allocation was greater than Education Allocation in funding.',
+        factIds: ['00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000001'],
+      },
+      factsMap,
+    );
+
+    expect(falseComparison.isVerified).toBe(false);
+    expect(falseComparison.proofType).toBe('REJECTED');
+    expect(falseComparison.rejectionReason).toContain('Comparative relationship does not hold');
+  });
+
+  it('automatically drops failing and ungrounded sentences via filterGroundedSentences', () => {
+    const mixedClaims = [
+      {
+        claimText: 'Education Allocation accounts for 45000000 USD in funding.',
+        factIds: ['00000000-0000-0000-0000-000000000001'],
+      },
+      {
+        claimText: 'Fabricated agency spent 88888888 USD on space exploration.',
+        factIds: ['00000000-0000-0000-0000-000000000001'],
+      },
+      {
+        claimText: 'Healthcare Allocation accounts for 30000000 USD in funding.',
+        factIds: ['00000000-0000-0000-0000-000000000002'],
+      },
+    ];
+
+    const retained = filterGroundedSentences(mixedClaims, factsMap);
+    expect(retained.length).toBe(2);
+    expect(retained[0]?.claimText).toContain('Education Allocation');
+    expect(retained[1]?.claimText).toContain('Healthcare Allocation');
+    expect(retained.every((c) => c.isVerified)).toBe(true);
   });
 });
