@@ -111,8 +111,9 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
 
 ---
 
-### Phase 5: Insight Panel, Grounding Checker & Haptics
+### Phase 5: Insight Panel, Grounding Checker & Haptics (COMPLETED)
 
+- **Status:** COMPLETED
 - **Goal:** Interactive deep dive into visuals with proven plain-language summaries and tactile feedback.
 - **Deliverables:**
   - Grounding Checker (`packages/shared/src/grounding.ts`): verifies that every number in an insight sentence matches cited facts, comparative terms hold mathematically, and entities are present in source facts. Failing sentences are dropped.
@@ -120,7 +121,7 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
   - Optional LLM insight generation with strict grounding check before storage.
   - Slide-over Insight Panel (bottom sheet on mobile) with 3 reading levels: Simple, Standard, Expert.
   - Progressive haptic feedback module (`apps/web/src/lib/haptics.ts`) using the Vibration API with reduced-motion support.
-- **Gate:** 100% of displayed insight sentences pass the grounding checker; adversarial sentences with altered numbers are caught and rejected in unit tests.
+- **Gate:** 100% of displayed insight sentences pass the grounding checker; adversarial sentences with altered numbers are caught and rejected in unit tests. (VERIFIED)
 
 ---
 
