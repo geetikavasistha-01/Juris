@@ -703,4 +703,177 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
     expect(facts?.length).toBe(0);
   }, 30000);
+
+  it('handles Review Queue, Human Approval (Rule 8), Conflicts, and Glossary endpoints', async () => {
+    // 1. Create a document record
+    const { data: doc, error: docErr } = await supabase
+      .from('documents')
+      .insert({
+        owner_id: _testUserId,
+        original_name: 'statutory_audit_test.pdf',
+        storage_path: `${_testUserId}/statutory_audit_test.pdf`,
+        size_bytes: 1024,
+        sha256: 'a'.repeat(64),
+        status: 'done',
+        page_count: 5,
+        is_sample: false,
+      })
+      .select()
+      .single();
+    expect(docErr).toBeNull();
+    const docId = doc!.id;
+
+    // 2. Insert test facts:
+    // Fact 1: low-confidence OCR fact
+    const { data: fact1, error: fact1Err } = await supabase
+      .from('facts')
+      .insert({
+        document_id: docId,
+        owner_id: _testUserId,
+        type: 'receipt',
+        fact_type: 'money',
+        value: 4500,
+        unit: 'crore',
+        period: '2025-26',
+        page: 1,
+        quote: 'Highway toll collection reached approx 4,500 crore',
+        verified: false,
+        proof_type: 'ESTIMATED',
+        fail_reason: 'LOW_OCR_CONFIDENCE',
+      })
+      .select()
+      .single();
+    if (fact1Err) console.error('FACT1 ERROR:', fact1Err);
+    expect(fact1Err).toBeNull();
+
+    // Fact 2 & Fact 3: Conflicting facts with same type and period
+    const { data: _fact2 } = await supabase
+      .from('facts')
+      .insert({
+        document_id: docId,
+        owner_id: _testUserId,
+        type: 'allocation',
+        fact_type: 'money',
+        value: 10000,
+        unit: 'crore',
+        period: '2025-26',
+        page: 2,
+        quote: 'Table 2: Capital Outlay stands at Rs 10,000 crore',
+        verified: true,
+        proof_type: 'VERIFIED',
+      })
+      .select()
+      .single();
+
+    const { data: _fact3 } = await supabase
+      .from('facts')
+      .insert({
+        document_id: docId,
+        owner_id: _testUserId,
+        type: 'allocation',
+        fact_type: 'money',
+        value: 10500,
+        unit: 'crore',
+        period: '2025-26',
+        page: 4,
+        quote: 'Statement 4: Capital Outlay revised to Rs 10,500 crore',
+        verified: true,
+        proof_type: 'VERIFIED',
+      })
+      .select()
+      .single();
+
+    // Fact 4: Definition fact for glossary
+    const { data: fact4 } = await supabase
+      .from('facts')
+      .insert({
+        document_id: docId,
+        owner_id: _testUserId,
+        type: 'definition',
+        fact_type: 'definition',
+        value: null,
+        unit: null,
+        period: null,
+        page: 3,
+        quote:
+          'Concessionaire means the private entity executing the public-private partnership contract.',
+        verified: true,
+        proof_type: 'VERIFIED',
+      })
+      .select()
+      .single();
+
+    // Insert review_queue item for fact 1
+    const { data: reviewItem } = await supabase
+      .from('review_queue')
+      .insert({
+        document_id: docId,
+        fact_id: fact1!.id,
+        reason: 'OCR token confidence 72% below 80% threshold',
+        ocr_confidence: 72,
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    // 3. Test GET /api/documents/:id/review-queue
+    const getQueueRes = await app.inject({
+      method: 'GET',
+      url: `/api/documents/${docId}/review-queue`,
+      headers: { authorization: `Bearer ${authToken}` },
+    });
+    expect(getQueueRes.statusCode).toBe(200);
+    const queueBody = getQueueRes.json();
+    expect(queueBody.items).toHaveLength(1);
+    expect(queueBody.items[0].id).toBe(reviewItem!.id);
+    expect(queueBody.items[0].label).toBe('receipt (4500 crore)');
+    expect(queueBody.items[0].ocrConfidence).toBe(72);
+
+    // 4. Test POST /api/documents/:id/review-queue/:itemId/approve (Human Review Gate - AGENTS.md Rule 8)
+    const approveRes = await app.inject({
+      method: 'POST',
+      url: `/api/documents/${docId}/review-queue/${reviewItem!.id}/approve`,
+      headers: { authorization: `Bearer ${authToken}` },
+    });
+    expect(approveRes.statusCode).toBe(200);
+    const approveBody = approveRes.json();
+    expect(approveBody.success).toBe(true);
+    expect(approveBody.item.status).toBe('approved');
+
+    // Verify fact transitioned in database to USER_CONFIRMED and verified: true
+    const { data: updatedFact } = await supabase
+      .from('facts')
+      .select('*')
+      .eq('id', fact1!.id)
+      .single();
+    expect(updatedFact?.proof_type).toBe('USER_CONFIRMED');
+    expect(updatedFact?.verified).toBe(true);
+
+    // 5. Test GET /api/documents/:id/conflicts
+    const conflictsRes = await app.inject({
+      method: 'GET',
+      url: `/api/documents/${docId}/conflicts`,
+      headers: { authorization: `Bearer ${authToken}` },
+    });
+    expect(conflictsRes.statusCode).toBe(200);
+    const conflictsBody = conflictsRes.json();
+    expect(conflictsBody.conflicts).toHaveLength(1);
+    expect(conflictsBody.conflicts[0].subject).toBe('allocation');
+    expect(conflictsBody.conflicts[0].difference).toBe(500);
+    expect(conflictsBody.conflicts[0].sourceA.value).toBe(10000);
+    expect(conflictsBody.conflicts[0].sourceB.value).toBe(10500);
+
+    // 6. Test GET /api/documents/:id/glossary
+    const glossaryRes = await app.inject({
+      method: 'GET',
+      url: `/api/documents/${docId}/glossary`,
+      headers: { authorization: `Bearer ${authToken}` },
+    });
+    expect(glossaryRes.statusCode).toBe(200);
+    const glossaryBody = glossaryRes.json();
+    expect(glossaryBody.terms).toHaveLength(1);
+    expect(glossaryBody.terms[0].term).toBe('Concessionaire');
+    expect(glossaryBody.terms[0].page).toBe(3);
+    expect(glossaryBody.terms[0].factId).toBe(fact4!.id);
+  }, 30000);
 });
