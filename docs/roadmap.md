@@ -138,8 +138,9 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
 
 ---
 
-### Phase 7: CSV Modality & DuckDB Dual-Computation
+### Phase 7: CSV Modality & DuckDB Dual-Computation (COMPLETED)
 
+- **Status:** COMPLETED
 - **Goal:** Support tabular civic files with provable dual-computation verification.
 - **Deliverables:**
   - CSV/TSV parser supporting UTF-8 and common encodings (up to 50 MB, 500,000 rows).
@@ -147,7 +148,7 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
   - Dual-computation verifier: JavaScript path vs embedded DuckDB SQL path; numbers are COMPUTED only if both paths agree exactly.
   - CSV-specific charts: distribution histograms, box plots, correlation heatmaps, calendar heatmaps.
   - CSV injection protection (neutralizing `=`, `+`, `-`, `@` formulas on export).
-- **Gate:** Seeded arithmetic discrepancy between JS and DuckDB triggers automatic rejection in unit tests.
+- **Gate:** Seeded arithmetic discrepancy between JS and DuckDB triggers automatic rejection in unit tests. (VERIFIED)
 
 ---
 
