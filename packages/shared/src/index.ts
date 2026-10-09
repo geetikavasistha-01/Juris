@@ -89,4 +89,6 @@ export * from './chart-selector.js';
 export * from './insights.js';
 export * from './grounding.js';
 export * from './parsers/index.js';
+export * from './parsers/pdf-advanced.js';
+export * from './storyboard.js';
 export * from './theme.js';

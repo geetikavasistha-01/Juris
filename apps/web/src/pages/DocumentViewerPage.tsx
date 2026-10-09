@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 
 import { OverviewStoryboard } from '../components/visuals/OverviewStoryboard.js';
+import { DocumentStoryboard } from '../components/visuals/DocumentStoryboard.js';
 import { InsightPanel } from '../components/insights/InsightPanel.js';
 
 export const DocumentViewerPage: React.FC = () => {
@@ -324,6 +325,15 @@ export const DocumentViewerPage: React.FC = () => {
               onClose={() => setActiveInsightSpec(null)}
             />
           )}
+          <DocumentStoryboard
+            facts={allFacts}
+            documentId={doc.id}
+            documentTitle={doc.filename}
+            onSelectFact={(factId: string) => {
+              const found = allFacts.find((f) => f.id === factId);
+              if (found) setSelectedFact(found);
+            }}
+          />
           <OverviewStoryboard
             facts={allFacts}
             documentName={doc.filename}
