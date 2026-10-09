@@ -89,3 +89,4 @@ export * from './chart-selector.js';
 export * from './insights.js';
 export * from './grounding.js';
 export * from './parsers/index.js';
+export * from './theme.js';

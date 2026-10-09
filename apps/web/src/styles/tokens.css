@@ -1,10 +1,16 @@
 /**
  * Juris Design System - Design Tokens (CSS Variables)
  * Calm, precise, document-like aesthetic for legal & civic intelligence.
+ *
+ * Exactly 4 canonical themes:
+ * 1. Matcha Light (default :root, [data-theme='matcha-light'])
+ * 2. Matcha Dark (.dark, [data-theme='matcha-dark'], [data-theme='dark'])
+ * 3. Mono Light ([data-theme='mono-light'])
+ * 4. Mono Dark ([data-theme='mono-dark'])
  */
 
 :root {
-  /* Core Color Palette (Light - Matcha Editorial Civic Ledger) */
+  /* 1. MATCHA LIGHT (Editorial Civic Ledger) */
   --bg: #e8edd6;
   --surface: #f7f9ef;
   --surface-raised: #ffffff;
@@ -56,7 +62,7 @@
   --card-shadow: 0 1px 3px 0 rgba(18, 63, 27, 0.08), 0 1px 2px -1px rgba(18, 63, 27, 0.08);
   --dialog-overlay: rgba(18, 63, 27, 0.4);
 
-  /* Chart Series Palette (Light) */
+  /* Chart Series Palette (Light) - Colorblind-safe Wong/Okabe-Ito */
   --chart-series-1: #0072b2;
   --chart-series-2: #c25e00;
   --chart-series-3: #00875a;
@@ -75,8 +81,9 @@
   --min-touch-target: 44px;
 }
 
-/* Dark Theme Variables (Matcha Forest Night) */
+/* 2. MATCHA DARK (Matcha Forest Night) */
 .dark,
+[data-theme='matcha-dark'],
 [data-theme='dark'] {
   --bg: #0f1d12;
   --surface: #182b1c;
@@ -132,8 +139,119 @@
   --chart-series-6: #cbd5e1;
 }
 
+/* 3. MONO LIGHT (Minimalist Editorial Monochrome) */
+[data-theme='mono-light'] {
+  --bg: #f8f9fa;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #d1d5db;
+  --border-subtle: #e5e7eb;
+  --border-strong: #1f2937;
+
+  --text: #111827;
+  --text-muted: #374151;
+  --text-subtle: #4b5563;
+  --text-inverse: #f9fafb;
+
+  --brand-navy: #111827;
+  --brand-navy-hover: #1f2937;
+  --accent-teal: #111827;
+  --accent-teal-hover: #1f2937;
+  --accent-teal-subtle: #e5e7eb;
+  --accent-teal-border: #374151;
+
+  --verified: #065f46;
+  --verified-bg: #d1fae5;
+  --verified-border: #047857;
+
+  --unverified: #92400e;
+  --unverified-bg: #fef3c7;
+  --unverified-border: #b45309;
+
+  --failed: #991b1b;
+  --failed-bg: #fee2e2;
+  --failed-border: #b91c1c;
+
+  --quote-highlight: rgba(229, 231, 235, 0.7);
+  --quote-highlight-solid: #e5e7eb;
+  --quote-border: #4b5563;
+
+  --focus-ring: #111827;
+  --focus-ring-offset: #ffffff;
+  --disabled-bg: #e5e7eb;
+  --disabled-text: #6b7280;
+  --disabled-border: #d1d5db;
+
+  --btn-primary-text: #ffffff;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --dialog-overlay: rgba(0, 0, 0, 0.5);
+
+  --chart-series-1: #0072b2;
+  --chart-series-2: #c25e00;
+  --chart-series-3: #00875a;
+  --chart-series-4: #d55e00;
+  --chart-series-5: #a33c7b;
+  --chart-series-6: #0284c7;
+}
+
+/* 4. MONO DARK (Sleek Carbon & Slate Monochrome) */
+[data-theme='mono-dark'] {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --surface-raised: #21262d;
+  --border: #30363d;
+  --border-subtle: #21262d;
+  --border-strong: #8b949e;
+
+  --text: #f0f6fc;
+  --text-muted: #c9d1d9;
+  --text-subtle: #8b949e;
+  --text-inverse: #0d1117;
+
+  --brand-navy: #e6edf3;
+  --brand-navy-hover: #ffffff;
+  --accent-teal: #e6edf3;
+  --accent-teal-hover: #ffffff;
+  --accent-teal-subtle: #21262d;
+  --accent-teal-border: #6e7681;
+
+  --verified: #3fb950;
+  --verified-bg: #0d2818;
+  --verified-border: #238636;
+
+  --unverified: #d29922;
+  --unverified-bg: #342308;
+  --unverified-border: #9e6a03;
+
+  --failed: #f85149;
+  --failed-bg: #3c1212;
+  --failed-border: #da3633;
+
+  --quote-highlight: rgba(56, 139, 253, 0.18);
+  --quote-highlight-solid: #162438;
+  --quote-border: #388bfd;
+
+  --focus-ring: #e6edf3;
+  --focus-ring-offset: #161b22;
+  --disabled-bg: #21262d;
+  --disabled-text: #484f58;
+  --disabled-border: #30363d;
+
+  --btn-primary-text: #0d1117;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --dialog-overlay: rgba(0, 0, 0, 0.8);
+
+  --chart-series-1: #38bdf8;
+  --chart-series-2: #fbbf24;
+  --chart-series-3: #4ade80;
+  --chart-series-4: #f87171;
+  --chart-series-5: #c084fc;
+  --chart-series-6: #cbd5e1;
+}
+
+/* System dark preference fallback when no explicit theme is set */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']):not(.light) {
+  :root:not([data-theme='matcha-light']):not([data-theme='mono-light']):not([data-theme='mono-dark']):not(.light) {
     --bg: #0f1d12;
     --surface: #182b1c;
     --surface-raised: #1f3624;
@@ -179,7 +297,6 @@
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
     --dialog-overlay: rgba(0, 0, 0, 0.7);
 
-    /* Chart Series Palette (Dark) */
     --chart-series-1: #38bdf8;
     --chart-series-2: #fbbf24;
     --chart-series-3: #4ade80;

@@ -1,59 +1,95 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import {
+  type ThemeId,
+  type ThemePreference,
+  type ThemeMode,
+  type ThemeFamily,
+  THEMES,
+  resolveTheme,
+} from '@juris/shared';
 
-type Theme = 'light' | 'dark' | 'system';
+export type { ThemeId, ThemePreference, ThemeMode, ThemeFamily };
 
-interface ThemeContextType {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-  resolvedTheme: 'light' | 'dark';
+export interface ThemeContextType {
+  theme: ThemePreference;
+  setTheme: (theme: ThemePreference) => void;
+  resolvedTheme: ThemeId;
+  isDark: boolean;
+  mode: ThemeMode;
+  family: ThemeFamily;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
+  const [theme, setThemeState] = useState<ThemePreference>(() => {
     try {
       const stored = localStorage.getItem('juris-theme');
-      if (stored === 'light' || stored === 'dark' || stored === 'system') {
-        return stored;
+      if (
+        stored === 'matcha-light' ||
+        stored === 'matcha-dark' ||
+        stored === 'mono-light' ||
+        stored === 'mono-dark' ||
+        stored === 'system'
+      ) {
+        return stored as ThemePreference;
       }
+      // Migrate legacy storage values
+      if (stored === 'dark') return 'matcha-dark';
+      if (stored === 'light') return 'matcha-light';
     } catch {
       // fallback
     }
     return 'system';
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
+  const [systemIsDark, setSystemIsDark] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = (e: MediaQueryListEvent) => setSystemIsDark(e.matches);
+    mediaQuery.addEventListener('change', onChange);
+    return () => mediaQuery.removeEventListener('change', onChange);
+  }, []);
 
-    const updateResolved = () => {
-      const isDark = theme === 'dark' || (theme === 'system' && mediaQuery.matches);
-      const active = isDark ? 'dark' : 'light';
-      setResolvedTheme(active);
+  const resolvedTheme: ThemeId = useMemo(() => {
+    if ((theme as string) === 'light') return 'matcha-light';
+    if ((theme as string) === 'dark') return 'matcha-dark';
+    return resolveTheme(theme, systemIsDark);
+  }, [theme, systemIsDark]);
 
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
-    };
+  const metadata = THEMES[resolvedTheme];
+  const isDark = metadata.mode === 'dark';
 
-    updateResolved();
-    mediaQuery.addEventListener('change', updateResolved);
-    return () => mediaQuery.removeEventListener('change', updateResolved);
-  }, [theme]);
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
+    document.documentElement.setAttribute('data-theme-mode', metadata.mode);
+    document.documentElement.setAttribute('data-theme-family', metadata.family);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [resolvedTheme, metadata, isDark]);
+
+  const setTheme = (newTheme: ThemePreference) => {
+    const canonicalTheme =
+      newTheme === ('light' as ThemePreference)
+        ? 'matcha-light'
+        : newTheme === ('dark' as ThemePreference)
+          ? 'matcha-dark'
+          : newTheme;
+
+    setThemeState(canonicalTheme);
     try {
-      if (newTheme === 'system') {
+      if (canonicalTheme === 'system') {
         localStorage.removeItem('juris-theme');
       } else {
-        localStorage.setItem('juris-theme', newTheme);
+        localStorage.setItem('juris-theme', canonicalTheme);
       }
     } catch {
       // localStorage unavailable
@@ -61,7 +97,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        resolvedTheme,
+        isDark,
+        mode: metadata.mode,
+        family: metadata.family,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
