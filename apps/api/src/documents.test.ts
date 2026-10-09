@@ -262,22 +262,30 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
       content: 'Sample chunk content for cascade test',
     });
 
-    await supabase.from('facts').insert({
-      document_id: docId,
-      owner_id: _testUserId,
-      type: 'financial_allocation',
-      value: 100,
-      unit: 'crore',
-      page: 1,
-      quote: 'Sample quote 100 crore',
-      verified: true,
-    });
+    const { data: insertedFact } = await supabase
+      .from('facts')
+      .insert({
+        document_id: docId,
+        owner_id: _testUserId,
+        type: 'financial_allocation',
+        fact_type: 'money',
+        value: 100,
+        numeric_value: 100,
+        unit: 'crore',
+        page: 1,
+        quote: 'Sample quote 100 crore',
+        verified: true,
+        proof_type: 'VERIFIED',
+      })
+      .select()
+      .single();
 
     await supabase.from('analyses').insert({
       document_id: docId,
       owner_id: _testUserId,
       summary: 'Analysis summary for cascade test',
       verification_rate: 100,
+      source_fact_ids: insertedFact?.id ? [insertedFact.id] : [],
     });
 
     await supabase.from('visualizations').insert({
@@ -459,10 +467,10 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
       .single();
     expect(dataset?.row_count).toBe(3);
 
-    // Verify facts computed from table
+    // Verify facts computed from table (quarantined in Phase 1 per GAP-01)
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
     expect(facts && facts.length).toBeGreaterThan(0);
-    expect(facts?.every((f) => f.proof_type === 'computed_from_table')).toBe(true);
+    expect(facts?.every((f) => f.verified === false && f.proof_type === null)).toBe(true);
   }, 30000);
 
   it('successfully uploads and processes GeoJSON spatial dataset', async () => {
@@ -539,10 +547,10 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
       .single();
     expect(geoLayer?.feature_count).toBe(2);
 
-    // Verify spatial facts
+    // Verify spatial facts (quarantined in Phase 1 per GAP-02)
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
     expect(facts && facts.length).toBeGreaterThan(0);
-    expect(facts?.[0]?.proof_type).toBe('geo_parsed');
+    expect(facts?.every((f) => f.verified === false && f.proof_type === null)).toBe(true);
   }, 30000);
 
   it('successfully uploads and processes KML spatial dataset', async () => {
@@ -598,8 +606,10 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
     const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
     expect(sources?.[0]?.modality).toBe('spatial');
 
+    // Verify spatial facts (quarantined in Phase 1 per GAP-02)
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
     expect(facts && facts.length).toBeGreaterThan(0);
+    expect(facts?.every((f) => f.verified === false && f.proof_type === null)).toBe(true);
   }, 30000);
 
   it('successfully uploads and processes PNG image document', async () => {
@@ -686,8 +696,11 @@ describe('Document API & Ingestion Pipeline', { timeout: 60000 }, () => {
 
     const { data: sources } = await supabase.from('sources').select('*').eq('document_id', docId);
     expect(sources?.[0]?.modality).toBe('image');
+    expect(sources?.[0]?.width).toBe(256);
+    expect(sources?.[0]?.height).toBe(256);
 
+    // GAP-03: Image dimensions now set sources.width and height directly; no synthetic facts
     const { data: facts } = await supabase.from('facts').select('*').eq('document_id', docId);
-    expect(facts && facts.length).toBeGreaterThan(0);
+    expect(facts?.length).toBe(0);
   }, 30000);
 });

@@ -377,19 +377,23 @@ export async function runDocumentIngestionPipeline(
             const sum = numbers.reduce((acc, v) => acc + v, 0);
             const max = Math.max(...numbers);
 
+            // Phase 1: CSV aggregate facts are quarantined as unverified (GAP-01)
+            // Real dual-computation verification (JS vs DuckDB) will be implemented in Phase 7
             verifiedFacts.push({
               document_id: documentId,
               owner_id: ownerId,
-              type: 'financial_total',
+              type: 'financial_total', // Deprecated legacy column
+              fact_type: 'money',
+              numeric_value: sum,
               value: sum,
               unit: null,
               currency: null,
               period: null,
               page: 1,
               quote: `Computed total sum of column "${col.name}" across ${numbers.length} rows`,
-              verified: true,
-              proof_type: 'computed_from_table',
-              confidence_level: 'high',
+              verified: false,
+              proof_type: null,
+              confidence_level: 'review',
               span_id: spanId,
               fail_reason: null,
             });
@@ -397,16 +401,18 @@ export async function runDocumentIngestionPipeline(
             verifiedFacts.push({
               document_id: documentId,
               owner_id: ownerId,
-              type: 'statistic',
+              type: 'statistic', // Deprecated legacy column
+              fact_type: 'measure',
+              numeric_value: max,
               value: max,
               unit: null,
               currency: null,
               period: null,
               page: 1,
               quote: `Computed maximum value of column "${col.name}" across ${numbers.length} rows`,
-              verified: true,
-              proof_type: 'computed_from_table',
-              confidence_level: 'high',
+              verified: false,
+              proof_type: null,
+              confidence_level: 'review',
               span_id: spanId,
               fail_reason: null,
             });
@@ -439,16 +445,18 @@ export async function runDocumentIngestionPipeline(
             verifiedFacts.push({
               document_id: documentId,
               owner_id: ownerId,
-              type: 'financial_allocation',
+              type: 'financial_allocation', // Deprecated legacy column
+              fact_type: 'money',
+              numeric_value: rawNum,
               value: rawNum,
               unit: null,
               currency: null,
               period: null,
               page: 1,
               quote: `${label}: ${firstNumCol.name} = ${rawNum}`,
-              verified: true,
-              proof_type: 'computed_from_table',
-              confidence_level: 'high',
+              verified: false,
+              proof_type: null,
+              confidence_level: 'review',
               span_id: spanId,
               fail_reason: null,
             });
@@ -495,7 +503,8 @@ export async function runDocumentIngestionPipeline(
         summary: null,
         key_findings: [],
         risks: [],
-        verification_rate: 1.0,
+        verification_rate: 0.0,
+        source_fact_ids: [],
       });
 
       await publishJobEvent(
@@ -769,20 +778,24 @@ export async function runDocumentIngestionPipeline(
         spanId = spanRecord?.id ?? null;
       }
 
+      // Phase 1: Spatial feature facts are quarantined as unverified (GAP-02)
+      // Real geometric and boundary checks with turf/proj4 will be implemented in Phase 8
       const verifiedFacts = [
         {
           document_id: documentId,
           owner_id: ownerId,
-          type: 'statistic',
+          type: 'statistic', // Deprecated legacy column
+          fact_type: 'measure',
+          numeric_value: featureCount,
           value: featureCount,
           unit: 'features',
           currency: null,
           period: null,
           page: 1,
           quote: `Geospatial feature collection contains ${featureCount} features`,
-          verified: true,
-          proof_type: 'geo_parsed',
-          confidence_level: 'high',
+          verified: false,
+          proof_type: null,
+          confidence_level: 'review',
           span_id: spanId,
           fail_reason: null,
         },
@@ -810,7 +823,7 @@ export async function runDocumentIngestionPipeline(
         'verification',
         70,
         sequence++,
-        `Verified ${verifiedFacts.length} spatial facts`,
+        `Processed ${verifiedFacts.length} spatial facts`,
         { verifiedFactCount: verifiedFacts.length },
       );
 
@@ -827,7 +840,8 @@ export async function runDocumentIngestionPipeline(
         summary: null,
         key_findings: [],
         risks: [],
-        verification_rate: 1.0,
+        verification_rate: 0.0,
+        source_fact_ids: [],
       });
 
       await publishJobEvent(
@@ -1044,33 +1058,9 @@ export async function runDocumentIngestionPipeline(
         .update({ stage: 'fact_extraction', updated_at: new Date().toISOString() })
         .eq('id', jobId);
 
+      // Phase 1: Image dimensions moved to sources.width/height (GAP-03).
+      // Real OCR fact extraction and verification will be implemented in Phase 9.
       const createdFactIds: string[] = [];
-
-      const imageFact = {
-        document_id: documentId,
-        owner_id: ownerId,
-        type: 'image_dimension',
-        value: imgWidth,
-        unit: 'px',
-        currency: null,
-        period: `${new Date().getFullYear()}`,
-        quote: `${filename} (${imgWidth}x${imgHeight}px)`,
-        page: 1,
-        verified: true,
-        proof_type: 'ocr_crosscheck',
-        confidence_level: 'high',
-        normalized_value: imgWidth,
-        original_text: `${filename} (${imgWidth}x${imgHeight}px)`,
-        fail_reason: null,
-      };
-
-      const { data: insertedFact } = await supabase
-        .from('facts')
-        .insert(imageFact)
-        .select()
-        .single();
-
-      if (insertedFact) createdFactIds.push(insertedFact.id);
 
       await publishJobEvent(
         supabase,
@@ -1080,8 +1070,8 @@ export async function runDocumentIngestionPipeline(
         'fact_extraction',
         60,
         sequence++,
-        'Extracted and verified image provenance facts',
-        { totalFacts: createdFactIds.length },
+        'Extracted image provenance metadata (dimensions stored on source)',
+        { totalFacts: 0 },
       );
 
       await supabase
@@ -1097,8 +1087,8 @@ export async function runDocumentIngestionPipeline(
         'verification',
         70,
         sequence++,
-        'Verified 100% of image facts against authentic binary image payload',
-        { verifiedCount: createdFactIds.length, verificationRate: 1.0 },
+        'Image metadata verified against source headers',
+        { verifiedCount: 0, verificationRate: 0.0 },
       );
 
       // 8. STAGE: synthesis
@@ -1114,7 +1104,8 @@ export async function runDocumentIngestionPipeline(
         summary: null,
         key_findings: [],
         risks: [],
-        verification_rate: 1.0,
+        verification_rate: 0.0,
+        source_fact_ids: [],
       });
 
       await publishJobEvent(
@@ -1478,10 +1469,13 @@ export async function runDocumentIngestionPipeline(
       });
 
       if (verResult.verified) {
+        const factType = cand.type === 'statistic' ? 'measure' : 'money';
         verifiedFacts.push({
           document_id: documentId,
           owner_id: ownerId,
-          type: cand.type,
+          type: cand.type, // Deprecated legacy column
+          fact_type: factType,
+          numeric_value: cand.value !== null ? cand.value : null,
           value: cand.value,
           unit: cand.unit,
           currency: cand.currency,
@@ -1489,7 +1483,7 @@ export async function runDocumentIngestionPipeline(
           page: cand.page,
           quote: cand.quote,
           verified: true,
-          proof_type: 'verified',
+          proof_type: 'VERIFIED',
           confidence_level: 'high',
           fail_reason: null,
         });
@@ -1528,10 +1522,12 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
+    const verifiedFactIds = insertedFactRecords
+      .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
+      .filter(Boolean);
+
     assertAnalysisDerivedFromVerifiedFacts({
-      verifiedFactIds: verifiedFacts
-        .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
-        .filter(Boolean),
+      verifiedFactIds,
       summary: null,
       keyFindings: [],
     });
@@ -1547,6 +1543,7 @@ export async function runDocumentIngestionPipeline(
       key_findings: [],
       risks: [],
       verification_rate: verificationRate,
+      source_fact_ids: verifiedFactIds,
     });
 
     await publishJobEvent(
