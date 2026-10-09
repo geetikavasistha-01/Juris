@@ -1,0 +1,26 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: juris-ollama
+    profiles:
+      - local-ai
+    ports:
+      - '11434:11434'
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  docling-serve:
+    image: ghcr.io/ds4sd/docling-serve:latest
+    container_name: juris-docling-serve
+    profiles:
+      - local-ai
+    ports:
+      - '5001:5001'
+    environment:
+      - PORT=5001
+      - HOST=0.0.0.0
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

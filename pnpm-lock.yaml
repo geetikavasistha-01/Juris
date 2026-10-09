@@ -205,6 +205,25 @@ importers:
 
   packages/evals: {}
 
+  packages/model:
+    dependencies:
+      '@google/genai':
+        specifier: ^2.27.0
+        version: 2.27.0
+      '@juris/shared':
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.24.2
+        version: 3.25.76
+      zod-to-json-schema:
+        specifier: ^3.25.2
+        version: 3.25.2(zod@3.25.76)
+    devDependencies:
+      typescript:
+        specifier: ^5.8.2
+        version: 5.9.3
+
   packages/shared:
     dependencies:
       zod:
