@@ -125,15 +125,16 @@ Phase 0 [DONE] -> Phase 1 [IN PROGRESS] -> [Spike: Local AI] -> Phase 2 -> Phase
 
 ---
 
-### Phase 6: Advanced PDF Extraction & Document Storyboard
+### Phase 6: Advanced PDF Extraction & Document Storyboard (COMPLETED)
 
+- **Status:** COMPLETED
 - **Goal:** Deep multi-pass PDF extraction and the full "Document at a Glance" storyboard.
 - **Deliverables:**
   - Multi-column reading order detection, running header/footer stripping, footnote linking.
   - Ruled and unruled table reconstruction with cell unit/scale propagation ("in crore", "in million").
   - Multi-pass pipeline: Structure -> Propose -> Normalize -> Verify -> Reconcile -> Derive -> Flag.
   - "Document at a Glance" storyboard: 8-step layman view (What is this, Big numbers, Where money goes, What changed, When things happen, Where, Who, Things to know).
-- **Gate:** Budget gold set achieves >= 99% fact precision; storyboard renders complete visual story from verified facts.
+- **Gate:** Budget gold set achieves >= 99% fact precision; storyboard renders complete visual story from verified facts. (VERIFIED)
 
 ---
 

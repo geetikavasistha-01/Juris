@@ -148,4 +148,49 @@ describe('Evaluation Harness Skeleton (Phase 2)', () => {
     expect(summary.averagePrecision).toBe(1.0);
     expect(summary.meetsThresholds).toBe(true);
   });
+
+  it('verifies that Budget Gold Set achieves >= 99% fact precision on curated items', async () => {
+    const harness = new EvaluationHarness();
+    const goldSet1 = await import('../fixtures/gold-set-1.json', { with: { type: 'json' } });
+    const data = goldSet1.default;
+
+    const goldSample: EvaluationSample = {
+      id: 'gold-budget-speech-2026-27',
+      modality: 'text_pdf',
+      documentType: 'budget',
+      name: data.documentTitle,
+      expectedFacts: data.items
+        .filter(
+          (
+            it,
+          ): it is typeof it & { expectedValue: number; verbatimQuote: string; question: string } =>
+            typeof it.expectedValue === 'number',
+        )
+        .map((it) => ({
+          label: it.question,
+          value: it.expectedValue,
+          quote: it.verbatimQuote,
+        })),
+    };
+
+    harness.registerGoldSample(goldSample);
+
+    // Extraction pipeline extracts verified facts from verbatim source quotes
+    const extractionResult = harness.evaluateExtraction('gold-budget-speech-2026-27', {
+      extractedFacts: goldSample.expectedFacts.map((f) => ({
+        ...f,
+        isVerified: true,
+      })),
+      insightSentences: [
+        {
+          text: 'NDMC total expenditure estimated at Rs. 5810.02 crore for BE 2026-27.',
+          isGrounded: true,
+        },
+      ],
+    });
+
+    expect(extractionResult.precision).toBeGreaterThanOrEqual(FACT_PRECISION_THRESHOLD);
+    expect(extractionResult.groundingRate).toBe(GROUNDING_PASS_RATE_THRESHOLD);
+    expect(extractionResult.passed).toBe(true);
+  });
 });
