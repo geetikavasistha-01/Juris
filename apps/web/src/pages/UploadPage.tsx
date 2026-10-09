@@ -147,15 +147,15 @@ export const UploadPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: Value Proposition */}
           <div className="lg:col-span-6 flex flex-col justify-center space-y-6">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center self-start">
               {/* Light mode: Illustrative civic wordmark */}
               <img
                 src="/assets/juris-wordmark-light.png"
                 alt="JURIS"
-                className="h-14 sm:h-18 lg:h-20 w-auto object-contain dark:hidden select-none"
+                className="w-auto h-24 sm:h-32 lg:h-36 max-w-[360px] sm:max-w-[460px] object-contain dark:hidden select-none"
               />
               {/* Dark mode: Typographic wordmark */}
-              <span className="hidden dark:inline-block font-serif font-bold text-2xl sm:text-3xl tracking-wider text-text uppercase">
+              <span className="hidden dark:inline-block font-serif font-bold text-3xl sm:text-4xl lg:text-5xl tracking-wider text-text uppercase">
                 JURIS
               </span>
             </div>
