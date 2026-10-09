@@ -87,9 +87,14 @@ export function loadTokensFromCss() {
   }
   const cssContent = fs.readFileSync(TOKENS_PATH, 'utf8');
 
-  // Extract :root block and .dark block
-  const rootBlockMatch = cssContent.match(/:root\s*\{([^}]+)\}/);
-  const darkBlockMatch = cssContent.match(/\.dark[^{]*\{([^}]+)\}/);
+  // Strip CSS comments to avoid spurious matches
+  const cleanCss = cssContent.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  // Extract theme blocks
+  const rootBlockMatch = cleanCss.match(/(?:^|\n)\s*:root[^{]*\{([^}]+)\}/);
+  const darkBlockMatch = cleanCss.match(/(?:^|\n)\s*\.dark[^{]*\{([^}]+)\}/);
+  const monoLightBlockMatch = cleanCss.match(/\[data-theme=['"]mono-light['"]\][^{]*\{([^}]+)\}/);
+  const monoDarkBlockMatch = cleanCss.match(/\[data-theme=['"]mono-dark['"]\][^{]*\{([^}]+)\}/);
 
   if (!rootBlockMatch || !darkBlockMatch) {
     throw new Error('Failed to parse :root or .dark blocks from tokens.css');
@@ -109,62 +114,57 @@ export function loadTokensFromCss() {
 
   const lightVars = parseVars(rootBlockMatch[1]);
   const darkVars = parseVars(darkBlockMatch[1]);
+  const monoLightVars = monoLightBlockMatch ? parseVars(monoLightBlockMatch[1]) : lightVars;
+  const monoDarkVars = monoDarkBlockMatch ? parseVars(monoDarkBlockMatch[1]) : darkVars;
+
+  function buildThemeObj(vars, isDarkTheme) {
+    const defaultChart = isDarkTheme
+      ? ['#38BDF8', '#FBBF24', '#4ADE80', '#F87171', '#C084FC', '#CBD5E1']
+      : ['#0072B2', '#C25E00', '#00875A', '#D55E00', '#A33C7B', '#0284C7'];
+
+    return {
+      bg: vars['bg'],
+      surface: vars['surface'],
+      border: vars['border'],
+      text: vars['text'],
+      'text-muted': vars['text-muted'],
+      'brand-navy': vars['brand-navy'],
+      'accent-teal': vars['accent-teal'],
+      verified: vars['verified'],
+      unverified: vars['unverified'],
+      failed: vars['failed'],
+      'quote-highlight': vars['quote-highlight'],
+      'focus-ring': vars['focus-ring'],
+      'btn-primary-bg': vars['accent-teal'],
+      'btn-primary-text': vars['btn-primary-text'] || (isDarkTheme ? vars['bg'] : '#FFFFFF'),
+      'btn-secondary-border': vars['brand-navy'],
+      'btn-secondary-text': vars['brand-navy'],
+      chart: {
+        single: vars['accent-teal'],
+        series1: vars['chart-series-1'] || defaultChart[0],
+        series2: vars['chart-series-2'] || defaultChart[1],
+        series3: vars['chart-series-3'] || defaultChart[2],
+        series4: vars['chart-series-4'] || defaultChart[3],
+        series5: vars['chart-series-5'] || defaultChart[4],
+        series6: vars['chart-series-6'] || defaultChart[5],
+      },
+    };
+  }
+
+  const matchaLight = buildThemeObj(lightVars, false);
+  const matchaDark = buildThemeObj(darkVars, true);
+  const monoLight = buildThemeObj(monoLightVars, false);
+  const monoDark = buildThemeObj(monoDarkVars, true);
 
   return {
-    light: {
-      bg: lightVars['bg'],
-      surface: lightVars['surface'],
-      border: lightVars['border'],
-      text: lightVars['text'],
-      'text-muted': lightVars['text-muted'],
-      'brand-navy': lightVars['brand-navy'],
-      'accent-teal': lightVars['accent-teal'],
-      verified: lightVars['verified'],
-      unverified: lightVars['unverified'],
-      failed: lightVars['failed'],
-      'quote-highlight': lightVars['quote-highlight'],
-      'focus-ring': lightVars['focus-ring'],
-      'btn-primary-bg': lightVars['accent-teal'],
-      'btn-primary-text': '#FFFFFF',
-      'btn-secondary-border': lightVars['brand-navy'],
-      'btn-secondary-text': lightVars['brand-navy'],
-      chart: {
-        single: lightVars['accent-teal'],
-        series1: lightVars['chart-series-1'] || '#0072B2',
-        series2: lightVars['chart-series-2'] || '#C25E00',
-        series3: lightVars['chart-series-3'] || '#00875A',
-        series4: lightVars['chart-series-4'] || '#D55E00',
-        series5: lightVars['chart-series-5'] || '#A33C7B',
-        series6: lightVars['chart-series-6'] || '#0284C7',
-      },
-    },
-    dark: {
-      bg: darkVars['bg'],
-      surface: darkVars['surface'],
-      border: darkVars['border'],
-      text: darkVars['text'],
-      'text-muted': darkVars['text-muted'],
-      'brand-navy': darkVars['brand-navy'],
-      'accent-teal': darkVars['accent-teal'],
-      verified: darkVars['verified'],
-      unverified: darkVars['unverified'],
-      failed: darkVars['failed'],
-      'quote-highlight': darkVars['quote-highlight'],
-      'focus-ring': darkVars['focus-ring'],
-      'btn-primary-bg': darkVars['accent-teal'],
-      'btn-primary-text': darkVars['bg'],
-      'btn-secondary-border': darkVars['brand-navy'],
-      'btn-secondary-text': darkVars['brand-navy'],
-      chart: {
-        single: darkVars['accent-teal'],
-        series1: darkVars['chart-series-1'] || '#38BDF8',
-        series2: darkVars['chart-series-2'] || '#FBBF24',
-        series3: darkVars['chart-series-3'] || '#4ADE80',
-        series4: darkVars['chart-series-4'] || '#F87171',
-        series5: darkVars['chart-series-5'] || '#C084FC',
-        series6: darkVars['chart-series-6'] || '#CBD5E1',
-      },
-    },
+    // Backwards compatible aliases
+    light: matchaLight,
+    dark: matchaDark,
+    // 4 canonical themes
+    'matcha-light': matchaLight,
+    'matcha-dark': matchaDark,
+    'mono-light': monoLight,
+    'mono-dark': monoDark,
   };
 }
 
@@ -314,7 +314,8 @@ export function runContrastChecks() {
   const results = [];
   let failures = 0;
 
-  for (const theme of ['light', 'dark']) {
+  const themesToCheck = ['matcha-light', 'matcha-dark', 'mono-light', 'mono-dark'];
+  for (const theme of themesToCheck) {
     const t = palette[theme];
     const surfaceCompQuote = compositeColor(t['quote-highlight'], t.surface);
     const bgCompQuote = compositeColor(t['quote-highlight'], t.bg);

@@ -23,8 +23,7 @@ export const VisualCard: React.FC<VisualCardProps> = ({
   onOpenInsight,
   className = '',
 }) => {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
+  const { isDark } = useTheme();
   const [showTable, setShowTable] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstanceRef = useRef<EChartsInstance | null>(null);

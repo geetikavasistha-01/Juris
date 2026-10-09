@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useTheme } from '../../theme.js';
+import { useTheme, type ThemePreference } from '../../theme.js';
 import { useAuth } from '../../lib/auth.js';
 import {
   Sun,
@@ -15,7 +15,7 @@ import {
 import { Button, JurisLogo } from '../ui/index.js';
 
 export const Navbar: React.FC = () => {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const { user, signOut } = useAuth();
   const location = useLocation();
 
@@ -109,17 +109,19 @@ export const Navbar: React.FC = () => {
               id="theme-select"
               aria-label="Theme selector"
               value={theme}
-              onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
-              className="sr-only"
+              onChange={(e) => setTheme(e.target.value as ThemePreference)}
+              className="bg-transparent text-xs font-sans font-medium text-text px-1.5 py-1 border-0 rounded focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus-ring cursor-pointer"
             >
-              <option value="light">light</option>
-              <option value="dark">dark</option>
-              <option value="system">system</option>
+              <option value="system">System ({resolvedTheme})</option>
+              <option value="matcha-light">Matcha Light</option>
+              <option value="matcha-dark">Matcha Dark</option>
+              <option value="mono-light">Mono Light</option>
+              <option value="mono-dark">Mono Dark</option>
             </select>
             <button
-              onClick={() => setTheme('light')}
+              onClick={() => setTheme('matcha-light')}
               className={`p-1.5 rounded-md transition-colors ${
-                theme === 'light'
+                theme === 'matcha-light' || (theme as string) === 'light'
                   ? 'bg-border-subtle text-text shadow-xs'
                   : 'text-text-muted hover:text-text'
               }`}
@@ -129,9 +131,9 @@ export const Navbar: React.FC = () => {
               <Sun className="w-4 h-4" />
             </button>
             <button
-              onClick={() => setTheme('dark')}
+              onClick={() => setTheme('matcha-dark')}
               className={`p-1.5 rounded-md transition-colors ${
-                theme === 'dark'
+                theme === 'matcha-dark' || (theme as string) === 'dark'
                   ? 'bg-border-subtle text-text shadow-xs'
                   : 'text-text-muted hover:text-text'
               }`}

@@ -20,20 +20,24 @@ import {
   Skeleton,
   EmptyState,
   ErrorState,
+  Toggle,
+  Sheet,
 } from '../components/ui/index.js';
 import { useTheme } from '../theme.js';
+import { THEMES, type ThemeId } from '@juris/shared';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { loadJurisECharts } from '../lib/echarts.js';
 
 export const DesignSystemPage: React.FC = () => {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme, resolvedTheme, isDark } = useTheme();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [toggleSample, setToggleSample] = useState(true);
   const [isToastVisible, setIsToastVisible] = useState(true);
   const [inputValue, setInputValue] = useState('New Delhi Municipal Council');
   const [inputError, setInputError] = useState('');
   const chartRef = useRef<HTMLDivElement>(null);
-  const isDark = resolvedTheme === 'dark';
 
   // Lazy load modular echarts for the sample civic visualization
   useEffect(() => {
@@ -116,28 +120,57 @@ export const DesignSystemPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-1.5 p-1 bg-surface border border-border rounded-lg self-start">
-            <button
-              onClick={() => setTheme('light')}
-              aria-label="Light theme"
-              className={`p-2 rounded-md transition-colors ${theme === 'light' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
-            >
-              <Sun className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setTheme('dark')}
-              aria-label="Dark theme"
-              className={`p-2 rounded-md transition-colors ${theme === 'dark' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
-            >
-              <Moon className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setTheme('system')}
-              aria-label="System theme"
-              className={`p-2 rounded-md transition-colors ${theme === 'system' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 p-1.5 bg-surface border border-border rounded-lg self-start">
+            <div className="flex items-center gap-1">
+              {(['matcha-light', 'matcha-dark', 'mono-light', 'mono-dark'] as ThemeId[]).map(
+                (tId) => {
+                  const meta = THEMES[tId];
+                  const isActive = resolvedTheme === tId && theme !== 'system';
+                  return (
+                    <button
+                      key={tId}
+                      onClick={() => setTheme(tId)}
+                      className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                        isActive
+                          ? 'bg-accent-teal text-[var(--btn-primary-text)] shadow-xs font-semibold'
+                          : 'text-text-muted hover:text-text hover:bg-surface-raised'
+                      }`}
+                    >
+                      {meta.label}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+
+            <div className="h-4 w-px bg-border hidden sm:block" />
+
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setTheme('matcha-light')}
+                aria-label="Light theme"
+                title="Matcha Light"
+                className={`p-1.5 rounded-md transition-colors ${theme === 'matcha-light' || (theme as string) === 'light' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
+              >
+                <Sun className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setTheme('matcha-dark')}
+                aria-label="Dark theme"
+                title="Matcha Dark"
+                className={`p-1.5 rounded-md transition-colors ${theme === 'matcha-dark' || (theme as string) === 'dark' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
+              >
+                <Moon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setTheme('system')}
+                aria-label="System theme"
+                title={`System (${resolvedTheme})`}
+                className={`p-1.5 rounded-md transition-colors ${theme === 'system' ? 'bg-surface-raised text-accent-teal shadow-xs' : 'text-text-muted hover:text-text'}`}
+              >
+                <Monitor className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -471,6 +504,10 @@ export const DesignSystemPage: React.FC = () => {
                   Open Citation Drawer
                 </Button>
 
+                <Button variant="secondary" onClick={() => setIsSheetOpen(true)}>
+                  Open Slide-Over Sheet
+                </Button>
+
                 {isToastVisible && (
                   <div className="w-full mt-2">
                     <Toast
@@ -481,6 +518,29 @@ export const DesignSystemPage: React.FC = () => {
                     />
                   </div>
                 )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Interactive Switches & Toggles</CardTitle>
+                <CardDescription>
+                  Accessible ARIA switches with keyboard and focus support.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <Toggle
+                  checked={toggleSample}
+                  onChange={setToggleSample}
+                  label="Show Unverified Citations"
+                  description="Highlight bounding boxes for candidate facts pending verification"
+                />
+                <Toggle
+                  checked={!toggleSample}
+                  onChange={(c) => setToggleSample(!c)}
+                  size="sm"
+                  label="Compact View Mode"
+                />
               </CardContent>
             </Card>
           </div>
@@ -599,6 +659,31 @@ export const DesignSystemPage: React.FC = () => {
             </div>
           </div>
         </Drawer>
+
+        <Sheet
+          isOpen={isSheetOpen}
+          onClose={() => setIsSheetOpen(false)}
+          title="Evidence Graph Inspection Sheet"
+          description="Multimodal evidence node provenance and spatial verification."
+        >
+          <div className="space-y-4">
+            <p className="text-small text-text-muted">
+              Slide-over sheet with accessible ARIA focus trap and keyboard navigation.
+            </p>
+            <div className="p-4 bg-surface rounded-lg border border-border text-xs font-mono text-text">
+              Fact ID: 8f24a1b0-9c32-4d1e-8e44-11a9f032d84a
+              <br />
+              Proof Type: VERIFIED_OCR
+              <br />
+              Confidence: 0.99
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="ghost" onClick={() => setIsSheetOpen(false)}>
+                Done
+              </Button>
+            </div>
+          </div>
+        </Sheet>
       </div>
     </div>
   );

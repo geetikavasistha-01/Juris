@@ -10,7 +10,16 @@
         try {
           const stored = localStorage.getItem('juris-theme');
           const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          const isDark = stored === 'dark' || (!stored && prefersDark);
+          let theme = stored || 'system';
+          if (theme === 'system') {
+            theme = prefersDark ? 'matcha-dark' : 'matcha-light';
+          } else if (theme === 'dark') {
+            theme = 'matcha-dark';
+          } else if (theme === 'light') {
+            theme = 'matcha-light';
+          }
+          const isDark = theme === 'matcha-dark' || theme === 'mono-dark';
+          document.documentElement.setAttribute('data-theme', theme);
           if (isDark) {
             document.documentElement.classList.add('dark');
           } else {
