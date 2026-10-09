@@ -193,4 +193,106 @@ describe('Evaluation Harness Skeleton (Phase 2)', () => {
     expect(extractionResult.groundingRate).toBe(GROUNDING_PASS_RATE_THRESHOLD);
     expect(extractionResult.passed).toBe(true);
   });
+
+  it('runs comprehensive Phase 11 multi-modal gold sweeps across all 5 modalities (PDF, scan, CSV, image, GeoJSON)', async () => {
+    const harness = new EvaluationHarness();
+
+    // 1. Text PDF Gold Sample
+    harness.registerGoldSample({
+      id: 'sweep-pdf',
+      modality: 'text_pdf',
+      documentType: 'budget',
+      name: 'Union Budget Speech Excerpt',
+      expectedFacts: [
+        {
+          label: 'Fiscal Deficit Target',
+          value: 4.5,
+          quote: 'Fiscal deficit is budgeted at 4.5% of GDP',
+        },
+        {
+          label: 'Capital Outlay',
+          value: 1111111,
+          quote: 'Capital expenditure allocated at Rs 11,11,111 crore',
+        },
+      ],
+      expectedInsightSentences: [
+        'Fiscal deficit target stands at 4.5% of GDP.',
+        'Capital expenditure is planned at 11,11,111 crore.',
+      ],
+    });
+
+    // 2. Tabular CSV Gold Sample
+    harness.registerGoldSample({
+      id: 'sweep-csv',
+      modality: 'table',
+      documentType: 'dataset',
+      name: 'Departmental Allocations CSV',
+      expectedFacts: [
+        { label: 'Health Allocation', value: 90000, quote: '90000' },
+        { label: 'Education Allocation', value: 125000, quote: '125000' },
+      ],
+      expectedInsightSentences: [
+        'Total social sector allocations exceed 2,00,000 crore across health and education.',
+      ],
+    });
+
+    // 3. GeoJSON / Spatial Gold Sample
+    harness.registerGoldSample({
+      id: 'sweep-geo',
+      modality: 'geo_data',
+      documentType: 'dataset',
+      name: 'District Boundary gazetteer features',
+      expectedFacts: [
+        { label: 'Bilaspur District', value: 'Bilaspur (CT)', quote: 'Bilaspur, Chhattisgarh' },
+        { label: 'Pratapgarh District', value: 'Pratapgarh (RJ)', quote: 'Pratapgarh, Rajasthan' },
+      ],
+      expectedInsightSentences: ['District features parsed with gazetteer boundaries.'],
+    });
+
+    // 4. Image Gold Sample (OCR Verified)
+    harness.registerGoldSample({
+      id: 'sweep-img',
+      modality: 'image',
+      documentType: 'tender',
+      name: 'High-contrast scanned civic tender notice',
+      expectedFacts: [
+        { label: 'Tender Value', value: 75000000, quote: 'Tender value: Rs 7,50,00,000' },
+      ],
+      expectedInsightSentences: ['Tender earnest deposit pegged at Rs 7.5 crore.'],
+    });
+
+    // 5. Scanned PDF Gold Sample (Hybrid Scan with Review Partitioning)
+    harness.registerGoldSample({
+      id: 'sweep-scan',
+      modality: 'scanned_pdf',
+      documentType: 'notification',
+      name: 'Archived Municipal Gazette Scan',
+      expectedFacts: [
+        { label: 'Property Tax Arrears', value: 3400000, quote: 'Arrears totaling Rs 34,00,000' },
+      ],
+      expectedInsightSentences: ['Arrears collected under section 44 of the Act.'],
+    });
+
+    const modalities = ['text_pdf', 'table', 'geo_data', 'image', 'scanned_pdf'] as const;
+
+    for (const modality of modalities) {
+      const summary = await harness.runModalitySweep(modality, async (sample) => {
+        return {
+          extractedFacts: sample.expectedFacts.map((f) => ({
+            ...f,
+            isVerified: true,
+          })),
+          insightSentences: (sample.expectedInsightSentences || []).map((text) => ({
+            text,
+            isGrounded: true,
+          })),
+        };
+      });
+
+      expect(summary.sampleCount).toBeGreaterThanOrEqual(1);
+      expect(summary.averagePrecision).toBeGreaterThanOrEqual(FACT_PRECISION_THRESHOLD);
+      expect(summary.groundingPassRate).toBe(GROUNDING_PASS_RATE_THRESHOLD);
+      expect(summary.meetsThresholds).toBe(true);
+    }
+  });
 });
