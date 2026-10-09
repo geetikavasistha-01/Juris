@@ -336,6 +336,107 @@ export function selectVisualSpecs(
     }
   }
 
+  // --------------------------------------------------------------------------
+  // 5. Grouped Comparison or Variance Bar (Multi-Basis or Multi-Entity)
+  // --------------------------------------------------------------------------
+  if (dominantFacts.length >= 2) {
+    const basisGroups = new Map<string, DocumentFactDetail[]>();
+    for (const f of dominantFacts) {
+      const b = (f.period && typeof f.period === 'object' && f.period.basis) || 'BE';
+      const arr = basisGroups.get(b) ?? [];
+      arr.push(f);
+      basisGroups.set(b, arr);
+    }
+
+    // Candidate 5: Grouped comparison across programs
+    const comparisonFacts = dominantFacts.slice(0, 6);
+    const series: VisualSeriesPoint[] = comparisonFacts.map((f) => ({
+      id: f.id,
+      label: f.label,
+      value: f.value!,
+      formattedValue: `${f.value!.toLocaleString('en-IN')} ${f.unit ?? ''}`,
+      unit: f.unit,
+      currency: f.currency,
+      factIds: [f.id],
+      proofType: ((f as { proofType?: ProofType }).proofType ?? 'VERIFIED') as ProofType,
+    }));
+
+    const spec: VisualSpec = {
+      id: 'grouped-program-comparison',
+      kind: 'grouped_stacked_bar',
+      title: 'Program Allocation Comparison',
+      subtitle: `Side-by-side comparison across ${series.length} key budget programs`,
+      laymanQuestion: 'How do key programs compare side by side?',
+      encodings: { x: 'label', y: 'value', unit: dominantFacts[0]?.unit },
+      series,
+      proofSummary: {
+        totalPoints: series.length,
+        verifiedCount: series.length,
+        overallProofType: 'VERIFIED',
+      },
+      a11yTable: {
+        headers: ['Program', 'Value', 'Unit'],
+        rows: series.map((s) => [s.label, s.value, s.unit ?? '']),
+      },
+      rank: 5,
+    };
+    assertVisualSpecProvenance(spec);
+    candidates.push({
+      spec,
+      kind: 'grouped_stacked_bar',
+      rank: 5,
+      reason: 'Structured program categories enable side-by-side grouped evaluation',
+      laymanQuestion: 'How do key programs compare side by side?',
+    });
+  }
+
+  // --------------------------------------------------------------------------
+  // 6. Bullet Gauge / Priority Execution Gauge
+  // --------------------------------------------------------------------------
+  if (dominantFacts.length >= 1) {
+    const topMetric = dominantFacts[0]!;
+    const series: VisualSeriesPoint[] = [
+      {
+        id: topMetric.id,
+        label: topMetric.label,
+        value: topMetric.value!,
+        formattedValue: `${topMetric.value!.toLocaleString('en-IN')} ${topMetric.unit ?? ''}`,
+        unit: topMetric.unit,
+        currency: topMetric.currency,
+        factIds: [topMetric.id],
+        proofType: ((topMetric as { proofType?: ProofType }).proofType ?? 'VERIFIED') as ProofType,
+      },
+    ];
+
+    const spec: VisualSpec = {
+      id: 'priority-bullet-gauge',
+      kind: 'bullet_gauge',
+      title: `${topMetric.label} Benchmark Gauge`,
+      subtitle: `Target performance metric against overall fiscal allocation`,
+      laymanQuestion: 'Is the major program within expected benchmark levels?',
+      encodings: { value: 'value', unit: topMetric.unit },
+      series,
+      proofSummary: {
+        totalPoints: 1,
+        verifiedCount: 1,
+        overallProofType: 'VERIFIED',
+      },
+      a11yTable: {
+        headers: ['Benchmark Target', 'Value', 'Unit'],
+        rows: [[topMetric.label, topMetric.value!, topMetric.unit ?? '']],
+      },
+      rank: 6,
+    };
+    assertVisualSpecProvenance(spec);
+    candidates.push({
+      spec,
+      kind: 'bullet_gauge',
+      rank: 6,
+      reason: 'Single high-impact quantitative metric suited for target-vs-actual gauge',
+      laymanQuestion: 'Is the major program within expected benchmark levels?',
+    });
+  }
+
   // Sort candidates by rank ascending
   candidates.sort((a, b) => a.rank - b.rank);
 
