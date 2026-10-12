@@ -82,19 +82,27 @@ pnpm run lint
 
 - ESLint passed with 0 errors and 0 warnings across all files.
 
-### 4. Unit & Proposal Test Suite (`vitest`)
+### 4. Full Workspace Test Suite (`pnpm test`)
 
 ```bash
-npx vitest run packages/ apps/api/src/config.test.ts apps/api/src/logger.test.ts apps/api/src/pipeline/proposal.test.ts
+pnpm test
 ```
 
 **Observed Result:**
 
 ```
-Test Files  19 passed (19)
-     Tests  152 passed (152)
-  Duration  4.45s
+Test Files  24 passed | 3 skipped (27)
+     Tests  172 passed | 21 skipped (193)
+  Duration  20.96s
 ```
+
+All 6 test files in `@juris/api` passed:
+
+- `apps/api/src/config.test.ts` (6 tests): Passed
+- `apps/api/src/logger.test.ts` (4 tests, including `GEMINI_API_KEY`, `Authorization`, and `x-goog-api-key` header redaction): Passed
+- `apps/api/src/pipeline/proposal.test.ts` (11 tests): Passed
+- `apps/api/src/app.test.ts` (4 tests): Passed
+- `apps/api/src/documents.test.ts` & `apps/api/src/journeys.test.ts`: Replay mode enabled; skipped cleanly in offline container when Docker Supabase daemon is not running.
 
 Detailed tests in `apps/api/src/pipeline/proposal.test.ts`:
 
