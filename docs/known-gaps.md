@@ -58,9 +58,9 @@ This document records architectural, verification, and schema gaps identified ac
 
 ### GAP-08: Missing proposal.ts and Disconnected Production LLM_MODE (V2)
 
-- **Location:** `apps/api/src/config.ts:21`, `apps/api/src/pipeline/ingestion.ts:1390-1500`
-- **Issue:** `proposal.ts` does not exist in the repository. Production PDF ingestion extracts facts using regex heuristics on plain text lines without invoking Gemini or checking `LLM_MODE`. Replay fixtures are only exercised in the spike script (`spikes/s1-llm-structured/run.ts:56`).
-- **Resolution Plan:** Planned extraction of `packages/model` will encapsulate prompt templates, schema enforcement, and replay-vs-live runner semantics before wire-up to production pipeline.
+- **Location:** `apps/api/src/config.ts:21`, `apps/api/src/pipeline/ingestion.ts:1385-1520`, `apps/api/src/pipeline/proposal.ts`
+- **Issue:** `proposal.ts` did not exist in the repository. Production PDF ingestion previously extracted facts using regex heuristics on plain text lines without invoking Gemini or checking `LLM_MODE`. Replay fixtures were only exercised in the spike script.
+- **Resolution (Phase 13):** Resolved. Implemented `apps/api/src/pipeline/proposal.ts` providing structured Gemini 2.5 Flash proposal (`proposeFacts`), Zod schema validation (`ProposedFactSchema`), prompt perimeter delimitation, page chunking, concurrency throttling (2-3), per-call timeout, and exponential backoff retry on 429/5xx. Integrated `LLM_MODE` ('live', 'record', 'replay'). Wired `proposeFacts` directly into `runDocumentIngestionPipeline()` in `apps/api/src/pipeline/ingestion.ts` with strict deterministic in-code quote/numeric verification (`verifyFactQuoteAndValue`). Unverified candidates are persisted as `REJECTED` for the audit trail.
 
 ### GAP-09: Missing proofType on DocumentFactDetailSchema with Heuristic Fallback (V3)
 

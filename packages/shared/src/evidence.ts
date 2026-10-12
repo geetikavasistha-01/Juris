@@ -320,3 +320,34 @@ export const GlossaryResponseSchema = z.object({
   terms: z.array(GlossaryItemSchema),
 });
 export type GlossaryResponse = z.infer<typeof GlossaryResponseSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* Proposed Facts Schema (LLM Proposal Contract)                             */
+/* -------------------------------------------------------------------------- */
+
+export const ProposedFactSchema = z.object({
+  factType: z.enum([
+    'money',
+    'measure',
+    'date',
+    'place',
+    'entity',
+    'obligation',
+    'definition',
+    'relation',
+    'identifier',
+  ]),
+  label: z.string().min(1),
+  value: z.number().nullable(),
+  unit: z.string().nullable(),
+  currency: z.string().nullable(),
+  period: z.string().nullable(),
+  page: z.number().int().positive(),
+  quote: z.string().min(1),
+});
+export type ProposedFact = z.infer<typeof ProposedFactSchema>;
+
+export const ProposedFactsResponseSchema = z.object({
+  facts: z.array(ProposedFactSchema),
+});
+export type ProposedFactsResponse = z.infer<typeof ProposedFactsResponseSchema>;

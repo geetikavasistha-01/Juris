@@ -17,7 +17,7 @@ export const ApiConfigSchema = z.object({
 
   // LLM & Provider Configuration
   GEMINI_API_KEY: z.string().min(1).default('placeholder_gemini_api_key'),
-  GEMINI_MODEL: z.string().default('gemini-1.5-pro'),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
   LLM_MODE: z.enum(['live', 'record', 'replay']).default('replay'),
   EMBEDDING_PROVIDER: z.string().default('local'),
 
@@ -42,7 +42,22 @@ export const ProductionConfigSchema = ApiConfigSchema.extend({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(10),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(10),
-  GEMINI_API_KEY: z.string().min(10),
+  GEMINI_API_KEY: z.string().min(1),
+}).superRefine((data, ctx) => {
+  if (data.LLM_MODE === 'live') {
+    if (
+      !data.GEMINI_API_KEY ||
+      data.GEMINI_API_KEY.length < 10 ||
+      data.GEMINI_API_KEY.includes('placeholder')
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['GEMINI_API_KEY'],
+        message:
+          'In production mode with LLM_MODE=live, GEMINI_API_KEY must not be empty or a placeholder',
+      });
+    }
+  }
 });
 
 export function parseConfig(rawEnv: Record<string, string | undefined> = process.env): ApiConfig {

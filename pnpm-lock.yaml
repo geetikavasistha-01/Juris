@@ -89,6 +89,9 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.3
         version: 6.0.6
+      '@google/genai':
+        specifier: ^2.27.0
+        version: 2.27.0
       '@juris/shared':
         specifier: workspace:*
         version: link:../../packages/shared

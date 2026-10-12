@@ -18,6 +18,8 @@ import {
 } from '@juris/shared';
 import { getAdminSupabaseClient } from '../supabase.js';
 import { logger } from '../logger.js';
+import { config } from '../config.js';
+import { proposeFacts, type ProposedFact } from './proposal.js';
 
 export interface ExtractedPageData {
   pageNumber: number;
@@ -1395,71 +1397,75 @@ export async function runDocumentIngestionPipeline(
       'fact_extraction',
       60,
       sequence++,
-      'Extracted key numeric figures and source quotations',
+      'Proposing candidate facts via structured LLM extraction',
     );
+
+    let rawFactCandidates: ProposedFact[] = [];
+    try {
+      rawFactCandidates = await proposeFacts(extractedPages, {
+        documentId,
+        ownerId,
+        docSha256: sha256,
+        config,
+      });
+    } catch (proposalError) {
+      logger.error({ proposalError, documentId, jobId }, 'Fact extraction proposal failed');
+      await supabase
+        .from('jobs')
+        .update({
+          stage: 'fact_extraction',
+          status: 'failed',
+          error_code: 'PROCESSING_FAILED',
+          error_message: `Fact extraction proposal failed: ${(proposalError as Error).message}`,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'fact_extraction',
+        60,
+        sequence++,
+        `Fact extraction proposal failed: ${(proposalError as Error).message}`,
+        { error: (proposalError as Error).message },
+      );
+      throw proposalError;
+    }
 
     await supabase
       .from('jobs')
       .update({ stage: 'verification', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    const rawFactCandidates: Array<{
-      type: string;
-      value: number | null;
-      unit: string | null;
-      currency: string | null;
-      period: string | null;
-      page: number;
-      quote: string;
-    }> = [];
-
-    for (const page of extractedPages) {
-      for (const line of page.lines) {
-        const trimmed = line.trim();
-        if (trimmed.length < 15 || trimmed.length > 180) continue;
-        const numMatch = trimmed.match(
-          /(?:Rs\.?\s*([\d,.]+)\s*(?:Crore|crore|Lakh|lakh)?)|(?:\b\d+(?:\.\d+)?\b)/,
-        );
-        if (numMatch) {
-          let val: number | null = null;
-          const parsedNum = trimmed.match(/\b\d+(?:\.\d+)?\b/);
-          if (parsedNum) val = parseFloat(parsedNum[0]);
-
-          let type = 'statistic';
-          if (/Rs\.?|Crore|crore|receipt|expenditure|budget/i.test(trimmed)) {
-            type = /total|net|overall/i.test(trimmed) ? 'financial_total' : 'financial_allocation';
-          }
-
-          let unit: string | null = null;
-          if (/crore/i.test(trimmed)) unit = 'crore';
-          else if (/lakh/i.test(trimmed)) unit = 'lakh';
-          else if (/km/i.test(trimmed)) unit = 'km';
-          else if (/%/.test(trimmed)) unit = 'percent';
-
-          const currency = /Rs\.?|crore|lakh/i.test(trimmed) ? 'INR' : null;
-          const periodMatch = trimmed.match(/(?:(?:FY|BE|RE)\s*)?(20\d{2}[-–]\d{2,4}|20\d{2})/i);
-          const period = periodMatch && periodMatch[1] ? periodMatch[1].replace('–', '-') : null;
-
-          rawFactCandidates.push({
-            type,
-            value: val,
-            unit,
-            currency,
-            period,
-            page: page.pageNumber,
-            quote: trimmed,
-          });
-
-          if (rawFactCandidates.length >= 25) break;
-        }
-      }
-      if (rawFactCandidates.length >= 25) break;
-    }
-
+    const factRecordsToInsert = [];
     const verifiedFacts = [];
+
     for (const cand of rawFactCandidates) {
       const pageObj = extractedPages.find((p) => p.pageNumber === cand.page);
-      if (!pageObj) continue;
+      if (!pageObj) {
+        factRecordsToInsert.push({
+          document_id: documentId,
+          owner_id: ownerId,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
+          numeric_value: cand.value !== null ? cand.value : null,
+          value: cand.value,
+          unit: cand.unit,
+          currency: cand.currency,
+          period: cand.period,
+          page: cand.page,
+          quote: cand.quote,
+          verified: false,
+          proof_type: 'REJECTED',
+          confidence_level: 'review',
+          fail_reason: 'PAGE_OUT_OF_RANGE',
+        });
+        continue;
+      }
 
       const verResult = verifyFactQuoteAndValue(pageObj.rawText, {
         page: cand.page,
@@ -1469,12 +1475,12 @@ export async function runDocumentIngestionPipeline(
       });
 
       if (verResult.verified) {
-        const factType = cand.type === 'statistic' ? 'measure' : 'money';
-        verifiedFacts.push({
+        const verifiedRecord = {
           document_id: documentId,
           owner_id: ownerId,
-          type: cand.type, // Deprecated legacy column
-          fact_type: factType,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
           numeric_value: cand.value !== null ? cand.value : null,
           value: cand.value,
           unit: cand.unit,
@@ -1486,19 +1492,40 @@ export async function runDocumentIngestionPipeline(
           proof_type: 'VERIFIED',
           confidence_level: 'high',
           fail_reason: null,
+        };
+        verifiedFacts.push(verifiedRecord);
+        factRecordsToInsert.push(verifiedRecord);
+      } else {
+        factRecordsToInsert.push({
+          document_id: documentId,
+          owner_id: ownerId,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
+          numeric_value: cand.value !== null ? cand.value : null,
+          value: cand.value,
+          unit: cand.unit,
+          currency: cand.currency,
+          period: cand.period,
+          page: cand.page,
+          quote: cand.quote,
+          verified: false,
+          proof_type: 'REJECTED',
+          confidence_level: 'review',
+          fail_reason: verResult.failReason ?? 'QUOTE_OR_NUMERIC_MISMATCH',
         });
       }
     }
 
     let insertedFactRecords: Array<Record<string, unknown>> = [];
-    if (verifiedFacts.length > 0) {
+    if (factRecordsToInsert.length > 0) {
       const { data: insData, error: factsErr } = await supabase
         .from('facts')
-        .insert(verifiedFacts)
+        .insert(factRecordsToInsert)
         .select();
 
       if (factsErr) {
-        logger.error({ factsErr }, 'Error inserting verified facts into database');
+        logger.error({ factsErr }, 'Error inserting facts into database');
       } else if (insData) {
         insertedFactRecords = insData;
       }
@@ -1513,7 +1540,7 @@ export async function runDocumentIngestionPipeline(
       70,
       sequence++,
       `Verified ${verifiedFacts.length} numeric facts in-code with 100% quote & value matching`,
-      { verifiedFactCount: verifiedFacts.length },
+      { verifiedFactCount: verifiedFacts.length, totalCandidates: rawFactCandidates.length },
     );
 
     // 8. STAGE: synthesis
@@ -1523,6 +1550,7 @@ export async function runDocumentIngestionPipeline(
       .eq('id', jobId);
 
     const verifiedFactIds = insertedFactRecords
+      .filter((f: Record<string, unknown>) => f.verified === true)
       .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
       .filter(Boolean);
 
@@ -1564,6 +1592,7 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
+    const verifiedInsertedRecords = insertedFactRecords.filter((f) => f.verified === true);
     const visualConfigs = [
       {
         document_id: documentId,
@@ -1571,7 +1600,7 @@ export async function runDocumentIngestionPipeline(
         title: 'Key Figures Overview',
         kind: 'key_figures',
         spec: {
-          metrics: insertedFactRecords.slice(0, 4).map((f) => ({
+          metrics: verifiedInsertedRecords.slice(0, 4).map((f) => ({
             label: f.type,
             value: f.value,
             unit: f.unit,
@@ -1581,9 +1610,9 @@ export async function runDocumentIngestionPipeline(
           })),
         },
         source_pages: Array.from(
-          new Set(insertedFactRecords.slice(0, 4).map((f) => Number(f.page))),
+          new Set(verifiedInsertedRecords.slice(0, 4).map((f) => Number(f.page))),
         ),
-        fact_ids: insertedFactRecords
+        fact_ids: verifiedInsertedRecords
           .slice(0, 4)
           .map((f) => f.id)
           .filter(Boolean),
@@ -1591,7 +1620,7 @@ export async function runDocumentIngestionPipeline(
       },
     ];
 
-    if (insertedFactRecords.length > 0) {
+    if (verifiedInsertedRecords.length > 0) {
       const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
       if (visErr) {
         logger.error({ visErr }, 'Error inserting visualizations');

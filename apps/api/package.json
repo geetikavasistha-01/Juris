@@ -14,6 +14,7 @@
     "@fastify/cors": "^10.0.2",
     "@fastify/multipart": "^10.1.2",
     "@fastify/sensible": "^6.0.3",
+    "@google/genai": "^2.27.0",
     "@juris/shared": "workspace:*",
     "@supabase/supabase-js": "^2.117.2",
     "fastify": "^5.2.1",
