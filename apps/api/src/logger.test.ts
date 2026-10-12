@@ -81,4 +81,40 @@ describe('Logger security and redaction', () => {
     expect(parsed.msg).not.toContain('AIzaSy_SYNTHETIC_KEY_IN_LOG_MSG');
     expect(parsed.msg).not.toContain('eyJhbGciOiJIUzI1Ni');
   });
+
+  it('strictly redacts GEMINI_API_KEY and Authorization or x-goog-api-key headers', () => {
+    const logs: string[] = [];
+    const stream = new Writable({
+      write(chunk, _encoding, callback) {
+        logs.push(chunk.toString());
+        callback();
+      },
+    });
+
+    const testLogger = createLogger(stream);
+
+    testLogger.info(
+      {
+        GEMINI_API_KEY: 'AQ.synthetic_gemini_key_value_9876543210',
+        headers: {
+          Authorization: 'Bearer synthetic_auth_header_token_12345',
+          'x-goog-api-key': 'AIzaSy_synthetic_x_goog_key_header_value',
+        },
+        config: {
+          geminiApiKey: 'AQ.another_synthetic_gemini_key_1234567890',
+        },
+      },
+      'Testing call with key AQ.synthetic_gemini_key_value_9876543210 in log text',
+    );
+
+    expect(logs.length).toBe(1);
+    const parsed = JSON.parse(logs[0]!);
+
+    expect(parsed.GEMINI_API_KEY).toBe('[REDACTED]');
+    expect(parsed.headers.Authorization).toBe('[REDACTED]');
+    expect(parsed.headers['x-goog-api-key']).toBe('[REDACTED]');
+    expect(parsed.config.geminiApiKey).toBe('[REDACTED]');
+    expect(parsed.msg).toContain('[REDACTED_GEMINI_KEY]');
+    expect(parsed.msg).not.toContain('AQ.synthetic_gemini_key_value_9876543210');
+  });
 });

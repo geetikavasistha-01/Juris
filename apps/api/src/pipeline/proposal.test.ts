@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import fs from 'node:fs';
 import path from 'node:path';
 import {
   proposeFacts,
@@ -224,10 +225,11 @@ describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
   });
 
   it('runs in replay mode against recorded budget-speech fixture with zero network access', async () => {
-    const fixturePath = path.resolve(
-      process.cwd(),
-      'packages/evals/fixtures/budget-speech-analysis.json',
-    );
+    const candidatePaths = [
+      path.resolve(process.cwd(), 'packages/evals/fixtures/budget-speech-analysis.json'),
+      path.resolve(process.cwd(), '../../packages/evals/fixtures/budget-speech-analysis.json'),
+    ];
+    const fixturePath = candidatePaths.find((p) => fs.existsSync(p)) || candidatePaths[0]!;
 
     const facts = await proposeFacts(samplePages, {
       fixturePath,

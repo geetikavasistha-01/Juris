@@ -291,7 +291,12 @@ export async function proposeFacts(
   const pagesPerChunk = ctx.pagesPerChunk ?? 4;
   const maxCharsPerCall = ctx.maxCharsPerCall ?? cfg.MAX_TEXT_CHARS;
 
-  const defaultFixtureDir = path.resolve(process.cwd(), 'packages/evals/fixtures/proposals');
+  const candidateFixtureDirs = [
+    path.resolve(process.cwd(), 'packages/evals/fixtures/proposals'),
+    path.resolve(process.cwd(), '../../packages/evals/fixtures/proposals'),
+  ];
+  const defaultFixtureDir =
+    candidateFixtureDirs.find((d) => fs.existsSync(d)) || candidateFixtureDirs[0]!;
   const fixtureDir = ctx.fixtureDir || defaultFixtureDir;
 
   // 1. Direct explicit fixture path override (used in replay benchmarks)
