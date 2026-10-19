@@ -1,9 +1,56 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import {
   DEFAULT_MAX_FILE_SIZE_BYTES,
   DEFAULT_MAX_PDF_PAGES,
   DEFAULT_MAX_TEXT_CHARS,
 } from '@juris/shared';
+
+/**
+ * Automatically loads .env files using Node 20+ process.loadEnvFile.
+ * Resolves apps/api/.env first, then repo-root .env regardless of working directory.
+ * Ignores missing files without crashing and never overrides variables already set.
+ */
+export function loadEnvironmentFiles(): void {
+  if (typeof process.loadEnvFile !== 'function') return;
+
+  try {
+    const currentFilePath = fileURLToPath(import.meta.url);
+    const srcDir = path.dirname(currentFilePath);
+    const apiDir = path.resolve(srcDir, '..');
+    const repoRoot = path.resolve(apiDir, '..');
+
+    const candidatePaths = [path.join(apiDir, '.env'), path.join(repoRoot, '.env')];
+
+    for (const candidate of candidatePaths) {
+      if (fs.existsSync(candidate)) {
+        // Snapshot existing env keys to ensure pre-existing variables win
+        const existingKeys = new Set(Object.keys(process.env));
+        const originalValues = new Map<string, string | undefined>();
+        for (const k of existingKeys) {
+          originalValues.set(k, process.env[k]);
+        }
+
+        process.loadEnvFile(candidate);
+
+        // Restore original values so existing variables are never overridden
+        for (const [k, val] of originalValues) {
+          if (val !== undefined) {
+            process.env[k] = val;
+          }
+        }
+        break; // Loaded highest priority file
+      }
+    }
+  } catch {
+    // Ignore any filesystem resolution errors safely
+  }
+}
+
+// Automatically load environment files on import
+loadEnvironmentFiles();
 
 export const ApiConfigSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
@@ -17,7 +64,7 @@ export const ApiConfigSchema = z.object({
 
   // LLM & Provider Configuration
   GEMINI_API_KEY: z.string().min(1).default('placeholder_gemini_api_key'),
-  GEMINI_MODEL: z.string().default('gemini-1.5-pro'),
+  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
   LLM_MODE: z.enum(['live', 'record', 'replay']).default('replay'),
   EMBEDDING_PROVIDER: z.string().default('local'),
 
@@ -42,7 +89,22 @@ export const ProductionConfigSchema = ApiConfigSchema.extend({
   SUPABASE_URL: z.string().url(),
   SUPABASE_ANON_KEY: z.string().min(10),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(10),
-  GEMINI_API_KEY: z.string().min(10),
+  GEMINI_API_KEY: z.string().min(1),
+}).superRefine((data, ctx) => {
+  if (data.LLM_MODE === 'live') {
+    if (
+      !data.GEMINI_API_KEY ||
+      data.GEMINI_API_KEY.length < 10 ||
+      data.GEMINI_API_KEY.includes('placeholder')
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['GEMINI_API_KEY'],
+        message:
+          'In production mode with LLM_MODE=live, GEMINI_API_KEY must not be empty or a placeholder',
+      });
+    }
+  }
 });
 
 export function parseConfig(rawEnv: Record<string, string | undefined> = process.env): ApiConfig {

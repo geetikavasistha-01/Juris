@@ -152,7 +152,7 @@ export const UploadPage: React.FC = () => {
               <img
                 src="/assets/juris-wordmark-light.png"
                 alt="JURIS"
-                className="w-auto h-24 sm:h-32 lg:h-36 max-w-[360px] sm:max-w-[460px] object-contain dark:hidden select-none"
+                className="w-auto h-50 sm:h-50 lg:h-50 max-w-[360px] sm:max-w-[460px] object-contain dark:hidden select-none"
               />
               {/* Dark mode: Typographic wordmark */}
               <span className="hidden dark:inline-block font-serif font-bold text-3xl sm:text-4xl lg:text-5xl tracking-wider text-text uppercase">

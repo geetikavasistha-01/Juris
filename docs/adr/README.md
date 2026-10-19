@@ -31,3 +31,4 @@ This directory documents the foundational architectural, security, and algorithm
 | [ADR-023](023-phase-10-review-queue-and-document-inspector.md)            | Phase 10 Review Queue, Human Approval Gate, and Inspector          | Accepted | 2026-10-10 |
 | [ADR-024](024-phase-11-evals-hardening-and-ci.md)                         | Phase 11 Evals Hardening, Multi-Modal Sweeps, and CI Quality Gates | Accepted | 2026-10-10 |
 | [ADR-025](025-phase-12-release-readiness-and-threat-model.md)             | Phase 12 Release Readiness, Threat Model, and Packaging            | Accepted | 2026-10-10 |
+| [ADR-026](026-gemini-proposal-step.md)                                    | Gemini Proposal Step with In-Code Quote Verification               | Accepted | 2026-10-12 |

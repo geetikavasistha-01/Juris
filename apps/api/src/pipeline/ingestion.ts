@@ -18,6 +18,8 @@ import {
 } from '@juris/shared';
 import { getAdminSupabaseClient } from '../supabase.js';
 import { logger } from '../logger.js';
+import { config } from '../config.js';
+import { proposeFacts, type ProposedFact } from './proposal.js';
 
 export interface ExtractedPageData {
   pageNumber: number;
@@ -104,10 +106,14 @@ export async function runDocumentIngestionPipeline(
     logger.info({ documentId, jobId, filename }, 'Starting document ingestion pipeline...');
 
     // 1. STAGE: validating
-    await supabase
+    const { error: jobStartErr } = await supabase
       .from('jobs')
       .update({ status: 'running', stage: 'validating', updated_at: new Date().toISOString() })
       .eq('id', jobId);
+    if (jobStartErr) {
+      logger.error({ jobStartErr }, 'Failed to initialize job state');
+      throw new Error(`Failed to initialize job: ${jobStartErr.message}`);
+    }
 
     const lowerFilename = filename.toLowerCase();
     const pdfMagic = Buffer.from([0x25, 0x50, 0x44, 0x46, 0x2d]);
@@ -199,7 +205,7 @@ export async function runDocumentIngestionPipeline(
         index: col.index,
       }));
 
-      await supabase.from('datasets').insert({
+      const { error: dsErr } = await supabase.from('datasets').insert({
         document_id: documentId,
         columns: columnDefs,
         row_count: parsedTable.rowCount,
@@ -209,9 +215,13 @@ export async function runDocumentIngestionPipeline(
           columns: columnDefs,
         },
       });
+      if (dsErr) {
+        logger.error({ dsErr, documentId }, 'Error inserting dataset record');
+        throw new Error(`DATASET_INSERT_FAILED: ${dsErr.message}`);
+      }
 
       if (sourceId) {
-        await supabase.from('tables').insert({
+        const { error: tblErr } = await supabase.from('tables').insert({
           source_id: sourceId,
           document_id: documentId,
           caption: filename,
@@ -219,12 +229,20 @@ export async function runDocumentIngestionPipeline(
           cells: parsedTable.rows.slice(0, 100),
           structure_confidence: 1.0,
         });
+        if (tblErr) {
+          logger.error({ tblErr, documentId }, 'Error inserting table record');
+          throw new Error(`TABLE_INSERT_FAILED: ${tblErr.message}`);
+        }
       }
 
-      await supabase
+      const { error: docUpdateErr } = await supabase
         .from('documents')
         .update({ page_count: 1, status: 'processing', updated_at: new Date().toISOString() })
         .eq('id', documentId);
+      if (docUpdateErr) {
+        logger.error({ docUpdateErr, documentId }, 'Error updating document processing state');
+        throw new Error(`DOCUMENT_UPDATE_FAILED: ${docUpdateErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -269,7 +287,7 @@ export async function runDocumentIngestionPipeline(
       }
 
       if (chunksToInsert.length > 0) {
-        await supabase.from('chunks').insert(
+        const { error: chunkErr } = await supabase.from('chunks').insert(
           chunksToInsert.map((c) => ({
             document_id: documentId,
             owner_id: ownerId,
@@ -279,6 +297,10 @@ export async function runDocumentIngestionPipeline(
             embedding: `[${c.embedding.join(',')}]`,
           })),
         );
+        if (chunkErr) {
+          logger.error({ chunkErr, documentId }, 'Error inserting tabular chunks');
+          throw new Error(`CHUNK_INSERT_FAILED: ${chunkErr.message}`);
+        }
       }
 
       await publishJobEvent(
@@ -345,7 +367,7 @@ export async function runDocumentIngestionPipeline(
       // Create evidence span for table cells
       let spanId: string | null = null;
       if (sourceId) {
-        const { data: spanRecord } = await supabase
+        const { data: spanRecord, error: spanErr } = await supabase
           .from('evidence_spans')
           .insert({
             source_id: sourceId,
@@ -356,6 +378,10 @@ export async function runDocumentIngestionPipeline(
           })
           .select()
           .single();
+        if (spanErr) {
+          logger.error({ spanErr, documentId }, 'Error inserting evidence span for table');
+          throw new Error(`SPAN_INSERT_FAILED: ${spanErr.message}`);
+        }
         spanId = spanRecord?.id ?? null;
       }
 
@@ -473,6 +499,7 @@ export async function runDocumentIngestionPipeline(
 
         if (factsErr) {
           logger.error({ factsErr }, 'Error inserting verified tabular facts');
+          throw new Error(`FACTS_INSERT_FAILED: ${factsErr.message}`);
         } else if (insData) {
           insertedFactRecords = insData;
         }
@@ -496,7 +523,7 @@ export async function runDocumentIngestionPipeline(
         .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
         .eq('id', jobId);
 
-      await supabase.from('analyses').insert({
+      const { error: anaErr } = await supabase.from('analyses').insert({
         document_id: documentId,
         owner_id: ownerId,
         doc_type: docType,
@@ -506,6 +533,10 @@ export async function runDocumentIngestionPipeline(
         verification_rate: 0.0,
         source_fact_ids: [],
       });
+      if (anaErr) {
+        logger.error({ anaErr }, 'Failed to insert analysis record');
+        throw new Error(`ANALYSIS_INSERT_FAILED: ${anaErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -551,7 +582,11 @@ export async function runDocumentIngestionPipeline(
       ];
 
       if (insertedFactRecords.length > 0) {
-        await supabase.from('visualizations').insert(visualConfigs);
+        const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
+        if (visErr) {
+          logger.error({ visErr }, 'Failed to insert visualizations');
+          throw new Error(`VISUALIZATION_INSERT_FAILED: ${visErr.message}`);
+        }
       }
 
       await publishJobEvent(
@@ -572,15 +607,19 @@ export async function runDocumentIngestionPipeline(
         .update({ status: 'done', updated_at: new Date().toISOString() })
         .eq('id', documentId);
 
-      await supabase
+      const { error: jobDoneErr } = await supabase
         .from('jobs')
         .update({
           status: 'completed',
           stage: 'done',
-          progress: 100,
           updated_at: new Date().toISOString(),
         })
         .eq('id', jobId);
+
+      if (jobDoneErr) {
+        logger.error({ jobDoneErr, jobId }, 'Error updating CSV job to completed');
+        throw new Error(`JOB_UPDATE_FAILED: ${jobDoneErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -636,7 +675,7 @@ export async function runDocumentIngestionPipeline(
 
       const sourceId = sourceRecord.id;
 
-      await supabase.from('geo_layers').insert({
+      const { error: geoErr } = await supabase.from('geo_layers').insert({
         document_id: documentId,
         crs: 'WGS84',
         feature_count: featureCount,
@@ -646,10 +685,20 @@ export async function runDocumentIngestionPipeline(
         },
       });
 
-      await supabase
+      if (geoErr) {
+        logger.error({ geoErr, documentId }, 'Error inserting geo layer');
+        throw new Error(`GEO_LAYER_INSERT_FAILED: ${geoErr.message}`);
+      }
+
+      const { error: docProcErr } = await supabase
         .from('documents')
         .update({ page_count: 1, status: 'processing', updated_at: new Date().toISOString() })
         .eq('id', documentId);
+
+      if (docProcErr) {
+        logger.error({ docProcErr, documentId }, 'Error updating document status to processing');
+        throw new Error(`DOC_UPDATE_FAILED: ${docProcErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -691,7 +740,7 @@ export async function runDocumentIngestionPipeline(
       }
 
       if (chunksToInsert.length > 0) {
-        await supabase.from('chunks').insert(
+        const { error: chunkErr } = await supabase.from('chunks').insert(
           chunksToInsert.map((c) => ({
             document_id: documentId,
             owner_id: ownerId,
@@ -701,6 +750,11 @@ export async function runDocumentIngestionPipeline(
             embedding: `[${c.embedding.join(',')}]`,
           })),
         );
+
+        if (chunkErr) {
+          logger.error({ chunkErr, documentId }, 'Error inserting spatial chunks');
+          throw new Error(`CHUNK_INSERT_FAILED: ${chunkErr.message}`);
+        }
       }
 
       await publishJobEvent(
@@ -764,7 +818,7 @@ export async function runDocumentIngestionPipeline(
 
       let spanId: string | null = null;
       if (sourceId) {
-        const { data: spanRecord } = await supabase
+        const { data: spanRecord, error: spanErr } = await supabase
           .from('evidence_spans')
           .insert({
             source_id: sourceId,
@@ -775,6 +829,11 @@ export async function runDocumentIngestionPipeline(
           })
           .select()
           .single();
+
+        if (spanErr) {
+          logger.error({ spanErr, documentId }, 'Error inserting spatial evidence span');
+          throw new Error(`SPAN_INSERT_FAILED: ${spanErr.message}`);
+        }
         spanId = spanRecord?.id ?? null;
       }
 
@@ -810,6 +869,7 @@ export async function runDocumentIngestionPipeline(
 
         if (factsErr) {
           logger.error({ factsErr }, 'Error inserting verified spatial facts');
+          throw new Error(`FACTS_INSERT_FAILED: ${factsErr.message}`);
         } else if (insData) {
           insertedFactRecords = insData;
         }
@@ -833,7 +893,7 @@ export async function runDocumentIngestionPipeline(
         .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
         .eq('id', jobId);
 
-      await supabase.from('analyses').insert({
+      const { error: anaErr } = await supabase.from('analyses').insert({
         document_id: documentId,
         owner_id: ownerId,
         doc_type: docType,
@@ -843,6 +903,11 @@ export async function runDocumentIngestionPipeline(
         verification_rate: 0.0,
         source_fact_ids: [],
       });
+
+      if (anaErr) {
+        logger.error({ anaErr, documentId }, 'Error inserting spatial analysis');
+        throw new Error(`ANALYSIS_INSERT_FAILED: ${anaErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -881,7 +946,11 @@ export async function runDocumentIngestionPipeline(
       ];
 
       if (insertedFactRecords.length > 0) {
-        await supabase.from('visualizations').insert(visualConfigs);
+        const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
+        if (visErr) {
+          logger.error({ visErr, documentId }, 'Error inserting spatial visualizations');
+          throw new Error(`VISUAL_INSERT_FAILED: ${visErr.message}`);
+        }
       }
 
       await publishJobEvent(
@@ -897,20 +966,29 @@ export async function runDocumentIngestionPipeline(
       );
 
       // 10. STAGE: done
-      await supabase
+      const { error: docDoneErr } = await supabase
         .from('documents')
         .update({ status: 'done', updated_at: new Date().toISOString() })
         .eq('id', documentId);
 
-      await supabase
+      if (docDoneErr) {
+        logger.error({ docDoneErr, documentId }, 'Error updating document status to done');
+        throw new Error(`DOC_UPDATE_FAILED: ${docDoneErr.message}`);
+      }
+
+      const { error: jobDoneErr } = await supabase
         .from('jobs')
         .update({
           status: 'completed',
           stage: 'done',
-          progress: 100,
           updated_at: new Date().toISOString(),
         })
         .eq('id', jobId);
+
+      if (jobDoneErr) {
+        logger.error({ jobDoneErr, jobId }, 'Error updating job status to completed');
+        throw new Error(`JOB_UPDATE_FAILED: ${jobDoneErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -963,10 +1041,15 @@ export async function runDocumentIngestionPipeline(
         throw new Error(`SOURCE_INSERT_FAILED: ${srcErr?.message}`);
       }
 
-      await supabase
+      const { error: docProcErr } = await supabase
         .from('documents')
         .update({ page_count: 1, status: 'processing', updated_at: new Date().toISOString() })
         .eq('id', documentId);
+
+      if (docProcErr) {
+        logger.error({ docProcErr, documentId }, 'Error updating image document to processing');
+        throw new Error(`DOC_UPDATE_FAILED: ${docProcErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -989,7 +1072,7 @@ export async function runDocumentIngestionPipeline(
       const imageSummary = `Image record ${filename} (${imgWidth}x${imgHeight}px, SHA-256: ${sha256})`;
       const chunkEmbedding = generate768DimEmbedding(imageSummary);
 
-      const { data: insertedChunk } = await supabase
+      const { data: insertedChunk, error: chunkErr } = await supabase
         .from('chunks')
         .insert({
           document_id: documentId,
@@ -1001,6 +1084,11 @@ export async function runDocumentIngestionPipeline(
         })
         .select()
         .single();
+
+      if (chunkErr) {
+        logger.error({ chunkErr, documentId }, 'Error inserting image chunk');
+        throw new Error(`CHUNK_INSERT_FAILED: ${chunkErr.message}`);
+      }
 
       const _chunkId = insertedChunk?.id;
 
@@ -1097,7 +1185,7 @@ export async function runDocumentIngestionPipeline(
         .update({ stage: 'synthesis', updated_at: new Date().toISOString() })
         .eq('id', jobId);
 
-      await supabase.from('analyses').insert({
+      const { error: anaErr } = await supabase.from('analyses').insert({
         document_id: documentId,
         owner_id: ownerId,
         doc_type: docType,
@@ -1107,6 +1195,11 @@ export async function runDocumentIngestionPipeline(
         verification_rate: 0.0,
         source_fact_ids: [],
       });
+
+      if (anaErr) {
+        logger.error({ anaErr, documentId }, 'Error inserting image analysis');
+        throw new Error(`ANALYSIS_INSERT_FAILED: ${anaErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -1157,7 +1250,11 @@ export async function runDocumentIngestionPipeline(
       ];
 
       if (createdFactIds.length > 0) {
-        await supabase.from('visualizations').insert(visualConfigs);
+        const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
+        if (visErr) {
+          logger.error({ visErr, documentId }, 'Error inserting image visualizations');
+          throw new Error(`VISUAL_INSERT_FAILED: ${visErr.message}`);
+        }
       }
 
       await publishJobEvent(
@@ -1173,20 +1270,29 @@ export async function runDocumentIngestionPipeline(
       );
 
       // 10. STAGE: done
-      await supabase
+      const { error: docDoneErr } = await supabase
         .from('documents')
         .update({ status: 'done', updated_at: new Date().toISOString() })
         .eq('id', documentId);
 
-      await supabase
+      if (docDoneErr) {
+        logger.error({ docDoneErr, documentId }, 'Error updating image document to done');
+        throw new Error(`DOC_UPDATE_FAILED: ${docDoneErr.message}`);
+      }
+
+      const { error: jobDoneErr } = await supabase
         .from('jobs')
         .update({
           status: 'completed',
           stage: 'done',
-          progress: 100,
           updated_at: new Date().toISOString(),
         })
         .eq('id', jobId);
+
+      if (jobDoneErr) {
+        logger.error({ jobDoneErr, jobId }, 'Error updating image job to completed');
+        throw new Error(`JOB_UPDATE_FAILED: ${jobDoneErr.message}`);
+      }
 
       await publishJobEvent(
         supabase,
@@ -1251,18 +1357,28 @@ export async function runDocumentIngestionPipeline(
       });
 
       // Insert source record for page
-      await supabase.from('sources').insert({
+      const { error: srcErr } = await supabase.from('sources').insert({
         document_id: documentId,
         modality: 'document',
         page_or_sheet: p,
         sha256,
       });
+
+      if (srcErr) {
+        logger.error({ srcErr, documentId, page: p }, 'Error inserting PDF source record');
+        throw new Error(`SOURCE_INSERT_FAILED: ${srcErr.message}`);
+      }
     }
 
-    await supabase
+    const { error: docProcErr } = await supabase
       .from('documents')
       .update({ page_count: pageCount, status: 'processing', updated_at: new Date().toISOString() })
       .eq('id', documentId);
+
+    if (docProcErr) {
+      logger.error({ docProcErr, documentId }, 'Error updating PDF document to processing');
+      throw new Error(`DOC_UPDATE_FAILED: ${docProcErr.message}`);
+    }
 
     await publishJobEvent(
       supabase,
@@ -1318,7 +1434,8 @@ export async function runDocumentIngestionPipeline(
         }));
         const { error: chunkErr } = await supabase.from('chunks').insert(batch);
         if (chunkErr) {
-          logger.error({ chunkErr }, 'Error inserting chunk batch');
+          logger.error({ chunkErr, documentId }, 'Error inserting chunk batch');
+          throw new Error(`CHUNK_INSERT_FAILED: ${chunkErr.message}`);
         }
       }
     }
@@ -1395,71 +1512,74 @@ export async function runDocumentIngestionPipeline(
       'fact_extraction',
       60,
       sequence++,
-      'Extracted key numeric figures and source quotations',
+      'Proposing candidate facts via structured LLM extraction',
     );
+
+    let rawFactCandidates: ProposedFact[] = [];
+    try {
+      rawFactCandidates = await proposeFacts(extractedPages, {
+        documentId,
+        ownerId,
+        docSha256: sha256,
+        config,
+      });
+    } catch (proposalError) {
+      logger.error({ proposalError, documentId, jobId }, 'Fact extraction proposal failed');
+      await supabase
+        .from('jobs')
+        .update({
+          stage: 'fact_extraction',
+          status: 'failed',
+          payload: { error: (proposalError as Error).message },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', jobId);
+
+      await publishJobEvent(
+        supabase,
+        documentId,
+        jobId,
+        ownerId,
+        'fact_extraction',
+        60,
+        sequence++,
+        `Fact extraction proposal failed: ${(proposalError as Error).message}`,
+        { error: (proposalError as Error).message },
+      );
+      throw proposalError;
+    }
 
     await supabase
       .from('jobs')
       .update({ stage: 'verification', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
-    const rawFactCandidates: Array<{
-      type: string;
-      value: number | null;
-      unit: string | null;
-      currency: string | null;
-      period: string | null;
-      page: number;
-      quote: string;
-    }> = [];
-
-    for (const page of extractedPages) {
-      for (const line of page.lines) {
-        const trimmed = line.trim();
-        if (trimmed.length < 15 || trimmed.length > 180) continue;
-        const numMatch = trimmed.match(
-          /(?:Rs\.?\s*([\d,.]+)\s*(?:Crore|crore|Lakh|lakh)?)|(?:\b\d+(?:\.\d+)?\b)/,
-        );
-        if (numMatch) {
-          let val: number | null = null;
-          const parsedNum = trimmed.match(/\b\d+(?:\.\d+)?\b/);
-          if (parsedNum) val = parseFloat(parsedNum[0]);
-
-          let type = 'statistic';
-          if (/Rs\.?|Crore|crore|receipt|expenditure|budget/i.test(trimmed)) {
-            type = /total|net|overall/i.test(trimmed) ? 'financial_total' : 'financial_allocation';
-          }
-
-          let unit: string | null = null;
-          if (/crore/i.test(trimmed)) unit = 'crore';
-          else if (/lakh/i.test(trimmed)) unit = 'lakh';
-          else if (/km/i.test(trimmed)) unit = 'km';
-          else if (/%/.test(trimmed)) unit = 'percent';
-
-          const currency = /Rs\.?|crore|lakh/i.test(trimmed) ? 'INR' : null;
-          const periodMatch = trimmed.match(/(?:(?:FY|BE|RE)\s*)?(20\d{2}[-–]\d{2,4}|20\d{2})/i);
-          const period = periodMatch && periodMatch[1] ? periodMatch[1].replace('–', '-') : null;
-
-          rawFactCandidates.push({
-            type,
-            value: val,
-            unit,
-            currency,
-            period,
-            page: page.pageNumber,
-            quote: trimmed,
-          });
-
-          if (rawFactCandidates.length >= 25) break;
-        }
-      }
-      if (rawFactCandidates.length >= 25) break;
-    }
-
+    const factRecordsToInsert = [];
     const verifiedFacts = [];
+
     for (const cand of rawFactCandidates) {
       const pageObj = extractedPages.find((p) => p.pageNumber === cand.page);
-      if (!pageObj) continue;
+      if (!pageObj) {
+        factRecordsToInsert.push({
+          document_id: documentId,
+          owner_id: ownerId,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
+          numeric_value: cand.value !== null ? cand.value : null,
+          value: cand.value,
+          unit: cand.unit,
+          currency: cand.currency,
+          period: cand.period,
+          page: cand.page,
+          quote: cand.quote,
+          verified: false,
+          proof_type: 'REJECTED',
+          confidence_level: 'review',
+          fail_reason: 'PAGE_OUT_OF_RANGE',
+        });
+        continue;
+      }
 
       const verResult = verifyFactQuoteAndValue(pageObj.rawText, {
         page: cand.page,
@@ -1469,12 +1589,12 @@ export async function runDocumentIngestionPipeline(
       });
 
       if (verResult.verified) {
-        const factType = cand.type === 'statistic' ? 'measure' : 'money';
-        verifiedFacts.push({
+        const verifiedRecord = {
           document_id: documentId,
           owner_id: ownerId,
-          type: cand.type, // Deprecated legacy column
-          fact_type: factType,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
           numeric_value: cand.value !== null ? cand.value : null,
           value: cand.value,
           unit: cand.unit,
@@ -1486,19 +1606,41 @@ export async function runDocumentIngestionPipeline(
           proof_type: 'VERIFIED',
           confidence_level: 'high',
           fail_reason: null,
+        };
+        verifiedFacts.push(verifiedRecord);
+        factRecordsToInsert.push(verifiedRecord);
+      } else {
+        factRecordsToInsert.push({
+          document_id: documentId,
+          owner_id: ownerId,
+          type: cand.factType === 'measure' ? 'statistic' : 'allocation',
+          fact_type: cand.factType,
+          label: cand.label,
+          numeric_value: cand.value !== null ? cand.value : null,
+          value: cand.value,
+          unit: cand.unit,
+          currency: cand.currency,
+          period: cand.period,
+          page: cand.page,
+          quote: cand.quote,
+          verified: false,
+          proof_type: 'REJECTED',
+          confidence_level: 'review',
+          fail_reason: verResult.failReason ?? 'QUOTE_OR_NUMERIC_MISMATCH',
         });
       }
     }
 
     let insertedFactRecords: Array<Record<string, unknown>> = [];
-    if (verifiedFacts.length > 0) {
+    if (factRecordsToInsert.length > 0) {
       const { data: insData, error: factsErr } = await supabase
         .from('facts')
-        .insert(verifiedFacts)
+        .insert(factRecordsToInsert)
         .select();
 
       if (factsErr) {
-        logger.error({ factsErr }, 'Error inserting verified facts into database');
+        logger.error({ factsErr, documentId }, 'Error inserting facts into database');
+        throw new Error(`FACTS_INSERT_FAILED: ${factsErr.message}`);
       } else if (insData) {
         insertedFactRecords = insData;
       }
@@ -1513,7 +1655,7 @@ export async function runDocumentIngestionPipeline(
       70,
       sequence++,
       `Verified ${verifiedFacts.length} numeric facts in-code with 100% quote & value matching`,
-      { verifiedFactCount: verifiedFacts.length },
+      { verifiedFactCount: verifiedFacts.length, totalCandidates: rawFactCandidates.length },
     );
 
     // 8. STAGE: synthesis
@@ -1523,6 +1665,7 @@ export async function runDocumentIngestionPipeline(
       .eq('id', jobId);
 
     const verifiedFactIds = insertedFactRecords
+      .filter((f: Record<string, unknown>) => f.verified === true)
       .map((f: Record<string, unknown>) => (typeof f.id === 'string' ? f.id : ''))
       .filter(Boolean);
 
@@ -1535,7 +1678,7 @@ export async function runDocumentIngestionPipeline(
     const verificationRate =
       rawFactCandidates.length > 0 ? verifiedFacts.length / rawFactCandidates.length : 0.0;
 
-    await supabase.from('analyses').insert({
+    const { error: anaErr } = await supabase.from('analyses').insert({
       document_id: documentId,
       owner_id: ownerId,
       doc_type: docType,
@@ -1545,6 +1688,11 @@ export async function runDocumentIngestionPipeline(
       verification_rate: verificationRate,
       source_fact_ids: verifiedFactIds,
     });
+
+    if (anaErr) {
+      logger.error({ anaErr, documentId }, 'Error inserting PDF analysis');
+      throw new Error(`ANALYSIS_INSERT_FAILED: ${anaErr.message}`);
+    }
 
     await publishJobEvent(
       supabase,
@@ -1564,6 +1712,7 @@ export async function runDocumentIngestionPipeline(
       .update({ stage: 'building_visuals', updated_at: new Date().toISOString() })
       .eq('id', jobId);
 
+    const verifiedInsertedRecords = insertedFactRecords.filter((f) => f.verified === true);
     const visualConfigs = [
       {
         document_id: documentId,
@@ -1571,7 +1720,7 @@ export async function runDocumentIngestionPipeline(
         title: 'Key Figures Overview',
         kind: 'key_figures',
         spec: {
-          metrics: insertedFactRecords.slice(0, 4).map((f) => ({
+          metrics: verifiedInsertedRecords.slice(0, 4).map((f) => ({
             label: f.type,
             value: f.value,
             unit: f.unit,
@@ -1581,9 +1730,9 @@ export async function runDocumentIngestionPipeline(
           })),
         },
         source_pages: Array.from(
-          new Set(insertedFactRecords.slice(0, 4).map((f) => Number(f.page))),
+          new Set(verifiedInsertedRecords.slice(0, 4).map((f) => Number(f.page))),
         ),
-        fact_ids: insertedFactRecords
+        fact_ids: verifiedInsertedRecords
           .slice(0, 4)
           .map((f) => f.id)
           .filter(Boolean),
@@ -1591,10 +1740,11 @@ export async function runDocumentIngestionPipeline(
       },
     ];
 
-    if (insertedFactRecords.length > 0) {
+    if (verifiedInsertedRecords.length > 0) {
       const { error: visErr } = await supabase.from('visualizations').insert(visualConfigs);
       if (visErr) {
-        logger.error({ visErr }, 'Error inserting visualizations');
+        logger.error({ visErr, documentId }, 'Error inserting visualizations');
+        throw new Error(`VISUAL_INSERT_FAILED: ${visErr.message}`);
       }
     }
 
@@ -1611,20 +1761,29 @@ export async function runDocumentIngestionPipeline(
     );
 
     // 10. STAGE: done
-    await supabase
+    const { error: docDoneErr } = await supabase
       .from('documents')
       .update({ status: 'done', updated_at: new Date().toISOString() })
       .eq('id', documentId);
 
-    await supabase
+    if (docDoneErr) {
+      logger.error({ docDoneErr, documentId }, 'Error updating document status to done');
+      throw new Error(`DOC_UPDATE_FAILED: ${docDoneErr.message}`);
+    }
+
+    const { error: jobDoneErr } = await supabase
       .from('jobs')
       .update({
         status: 'completed',
         stage: 'done',
-        progress: 100,
         updated_at: new Date().toISOString(),
       })
       .eq('id', jobId);
+
+    if (jobDoneErr) {
+      logger.error({ jobDoneErr, jobId }, 'Error updating job status to completed');
+      throw new Error(`JOB_UPDATE_FAILED: ${jobDoneErr.message}`);
+    }
 
     await publishJobEvent(
       supabase,
@@ -1644,19 +1803,33 @@ export async function runDocumentIngestionPipeline(
     const errorMsg = err instanceof Error ? err.message : String(err);
     logger.error({ err, documentId, jobId }, 'Document ingestion pipeline failed');
 
-    await supabase
+    const { error: docFailErr } = await supabase
       .from('documents')
-      .update({ status: 'failed', updated_at: new Date().toISOString() })
+      .update({
+        status: 'failed',
+        error_code: 'PROCESSING_FAILED',
+        error_message: errorMsg,
+        updated_at: new Date().toISOString(),
+      })
       .eq('id', documentId);
 
-    await supabase
+    if (docFailErr) {
+      logger.error({ docFailErr, documentId }, 'Failed to record failed status on document');
+    }
+
+    const { error: jobFailErr } = await supabase
       .from('jobs')
       .update({
         status: 'failed',
         stage: 'failed',
+        payload: { error: errorMsg },
         updated_at: new Date().toISOString(),
       })
       .eq('id', jobId);
+
+    if (jobFailErr) {
+      logger.error({ jobFailErr, jobId }, 'Failed to record failed status on job');
+    }
 
     await publishJobEvent(
       supabase,

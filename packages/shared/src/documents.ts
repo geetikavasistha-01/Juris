@@ -151,6 +151,7 @@ export const DocumentDetailResponseSchema = z.object({
   filename: z.string(),
   documentType: DocumentTypeSchema.default('generic').optional(),
   status: DocumentStatusSchema,
+  errorMessage: z.string().nullable().optional(),
   pageCount: z.number().int().nonnegative(),
   fileSizeBytes: z.number().int().nonnegative(),
   sha256: z.string(),
@@ -163,6 +164,7 @@ export const DocumentDetailResponseSchema = z.object({
       status: JobStatusSchema,
       stage: JobStageSchema,
       progress: z.number().int().min(0).max(100),
+      errorMessage: z.string().nullable().optional(),
     })
     .optional(),
 });

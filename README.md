@@ -67,35 +67,36 @@ Every extracted fact carries an auditable proof type describing its provenance:
 
 Juris supports 5 distinct civic modalities with dedicated parsing pipelines:
 
-| Modality          | Formats                        | Processing Engine                                       | Verification Method                                             |
-| :---------------- | :----------------------------- | :------------------------------------------------------ | :-------------------------------------------------------------- |
-| **Text PDF**      | `.pdf`                         | PDF.js with coordinate stream & layout extraction       | Verbatim substring matching & coordinate anchoring              |
-| **Tabular Data**  | `.csv`, `.tsv`                 | Analytical parser with dual-computation                 | Analytical query cross-checked against pure TS engine           |
-| **Geospatial**    | `.geojson`, `.kml`             | Turf.js + Offline Gazetteer (`@juris/geodata`)          | Centroid calculation, bounding box, topology validation         |
-| **Scanned Docs**  | `.pdf` (image), `.png`, `.jpg` | Tesseract.js / Vision Sidecar with 80% confidence floor | Word-level OCR confidence floor; items < 80% go to Review Queue |
-| **Civic Notices** | `.txt`, `.md`                  | Sentence-boundary chunker & heading normalizer          | Verbatim quote verification against source chunk                |
+| Modality          | Formats                        | Processing Engine                                         | Verification Method                                             |
+| :---------------- | :----------------------------- | :-------------------------------------------------------- | :-------------------------------------------------------------- |
+| **Text PDF**      | `.pdf`                         | PDF.js coordinate stream & Gemini 2.5 Flash proposal step | Verbatim substring matching & in-code numeric grounding         |
+| **Tabular Data**  | `.csv`, `.tsv`                 | Analytical parser with dual-computation                   | Analytical query cross-checked against pure TS engine           |
+| **Geospatial**    | `.geojson`, `.kml`             | Turf.js + Offline Gazetteer (`@juris/geodata`)            | Centroid calculation, bounding box, topology validation         |
+| **Scanned Docs**  | `.pdf` (image), `.png`, `.jpg` | Tesseract.js / Vision Sidecar with 80% confidence floor   | Word-level OCR confidence floor; items < 80% go to Review Queue |
+| **Civic Notices** | `.txt`, `.md`                  | Sentence-boundary chunker & heading normalizer            | Verbatim quote verification against source chunk                |
 
 ---
 
 ## Project Status
 
-All 12 roadmap phases are complete, tested, and verified on `main`:
+All roadmap phases are complete, tested, and verified:
 
-| Phase        | Milestone                                                           | Status   |
-| :----------- | :------------------------------------------------------------------ | :------- |
-| **Phase 0**  | Workspace cleanup, hygiene, quality gates setup                     | Complete |
-| **Phase 1**  | Evidence-graph contracts (`packages/shared`), RLS, DB schema        | Complete |
-| **Phase 2**  | Design tokens, Okabe-Ito CVD palette, WCAG AA compliance            | Complete |
-| **Phase 3**  | Visual engine, chart selector, and ECharts lazy loading             | Complete |
-| **Phase 4**  | Core user journeys, App Shell, upload flow, live progress           | Complete |
-| **Phase 5**  | Insight panel, sentence grounding checker, haptic feedback          | Complete |
-| **Phase 6**  | Advanced PDF extraction, layout detection, Document Storyboard      | Complete |
-| **Phase 7**  | CSV modality, tabular analytics, dual-computation validator         | Complete |
-| **Phase 8**  | Geospatial modality (GeoJSON, KML), offline gazetteer               | Complete |
-| **Phase 9**  | Images & scans pipeline, OCR confidence floor (80%), EXIF stripping | Complete |
-| **Phase 10** | Review Queue (Rule 8 gate), Document Inspector, Conflict & Glossary | Complete |
-| **Phase 11** | Evals hardening, multi-modal sweeps, palette guard, CI matrix       | Complete |
-| **Phase 12** | Release readiness, threat model, complete documentation             | Complete |
+| Phase        | Milestone                                                             | Status   |
+| :----------- | :-------------------------------------------------------------------- | :------- |
+| **Phase 0**  | Workspace cleanup, hygiene, quality gates setup                       | Complete |
+| **Phase 1**  | Evidence-graph contracts (`packages/shared`), RLS, DB schema          | Complete |
+| **Phase 2**  | Design tokens, Okabe-Ito CVD palette, WCAG AA compliance              | Complete |
+| **Phase 3**  | Visual engine, chart selector, and ECharts lazy loading               | Complete |
+| **Phase 4**  | Core user journeys, App Shell, upload flow, live progress             | Complete |
+| **Phase 5**  | Insight panel, sentence grounding checker, haptic feedback            | Complete |
+| **Phase 6**  | Advanced PDF extraction, layout detection, Document Storyboard        | Complete |
+| **Phase 7**  | CSV modality, tabular analytics, dual-computation validator           | Complete |
+| **Phase 8**  | Geospatial modality (GeoJSON, KML), offline gazetteer                 | Complete |
+| **Phase 9**  | Images & scans pipeline, OCR confidence floor (80%), EXIF stripping   | Complete |
+| **Phase 10** | Review Queue (Rule 8 gate), Document Inspector, Conflict & Glossary   | Complete |
+| **Phase 11** | Evals hardening, multi-modal sweeps, palette guard, CI matrix         | Complete |
+| **Phase 12** | Release readiness, threat model, complete documentation               | Complete |
+| **Phase 13** | Gemini-backed fact proposal step, replay runner, in-code verification | Complete |
 
 ---
 

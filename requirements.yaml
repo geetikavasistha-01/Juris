@@ -40,14 +40,17 @@ requirements:
   - id: EVD-01
     priority: P0
     title: Extract facts with type, value, unit, currency, period, page, verbatim quote
-    status: not_started
-    tests: []
+    status: implemented
+    tests:
+      - apps/api/src/pipeline/proposal.test.ts
 
   - id: EVD-02
     priority: P0
     title: Verify each fact in code (quote on page, normalized number check); failed facts stored with reason
-    status: not_started
-    tests: []
+    status: implemented
+    tests:
+      - apps/api/src/pipeline/proposal.test.ts
+      - packages/shared/src/text-normalization.test.ts
 
   - id: EVD-03
     priority: P0

@@ -25,6 +25,7 @@ import {
   BookOpen,
   Filter,
   Crosshair,
+  AlertCircle,
 } from 'lucide-react';
 
 import { OverviewStoryboard } from '../components/visuals/OverviewStoryboard.js';
@@ -266,12 +267,26 @@ export const DocumentViewerPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Failure Error Alert */}
+        {(doc.status === 'failed' || doc.errorMessage) && (
+          <div className="p-4 rounded-xl bg-failed-bg border border-failed/30 text-failed flex items-start gap-3 shadow-xs">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h4 className="font-serif text-sm font-bold">Ingestion Pipeline Failed</h4>
+              <p className="text-xs font-mono leading-relaxed">
+                {doc.errorMessage || 'An error occurred during document ingestion.'}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Tab Bar with Cadence Toolbar */}
         <div className="pt-3 border-t border-border flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Navigation Tabs */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             <button
               type="button"
+              data-testid="tab-overview"
               onClick={() => setActiveTab('overview')}
               className={`h-9 px-3 rounded-lg font-mono text-xs font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeTab === 'overview'
@@ -280,7 +295,7 @@ export const DocumentViewerPage: React.FC = () => {
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Overview</span>
+              <span>Overview &amp; Storyboard</span>
             </button>
 
             <button
@@ -380,7 +395,7 @@ export const DocumentViewerPage: React.FC = () => {
               }`}
             >
               <Fingerprint className="w-3.5 h-3.5" />
-              <span>Audit Proof</span>
+              <span>Audit Proof Chain</span>
             </button>
           </div>
 
@@ -464,7 +479,7 @@ export const DocumentViewerPage: React.FC = () => {
           <OverviewStoryboard
             facts={allFacts}
             documentName={doc.filename}
-            verificationRate={allFacts.length > 0 ? (verifiedCount / allFacts.length) * 100 : 100}
+            verificationRate={allFacts.length > 0 ? (verifiedCount / allFacts.length) * 100 : 0}
             pageCount={doc.pageCount}
             onSelectFact={(factId: string) => {
               const found = allFacts.find((f) => f.id === factId);
@@ -495,8 +510,15 @@ export const DocumentViewerPage: React.FC = () => {
 
               {/* Page Filter Selector */}
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-text-subtle whitespace-nowrap">Page:</span>
+                <label
+                  htmlFor="fact-page-filter"
+                  className="text-xs font-mono text-text-subtle whitespace-nowrap"
+                >
+                  Page:
+                </label>
                 <select
+                  id="fact-page-filter"
+                  aria-label="Filter facts by page"
                   value={pageFilter}
                   onChange={(e) => setPageFilter(e.target.value)}
                   className="h-8 px-2.5 rounded-md bg-surface-raised border border-border text-xs font-mono text-text focus:outline-none focus:border-text"
@@ -607,7 +629,7 @@ export const DocumentViewerPage: React.FC = () => {
                     <th className="py-3 px-4 font-semibold">Fact Description & Quote</th>
                     <th className="py-3 px-4 font-semibold">Value & Unit</th>
                     <th className="py-3 px-4 font-semibold">Location</th>
-                    <th className="py-3 px-4 font-semibold">Provenance Proof</th>
+                    <th className="py-3 px-4 font-semibold">Provenance Status</th>
                     <th className="py-3 px-4 font-semibold text-right">Inspect</th>
                   </tr>
                 </thead>

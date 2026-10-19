@@ -325,7 +325,7 @@ export function buildDocumentStoryboard(
   const totalClaims = steps.flatMap((s) => s.claims);
   const verifiedClaimsCount = totalClaims.filter((c) => c.isVerified).length;
   const provenancePassRate =
-    totalClaims.length > 0 ? verifiedClaimsCount / totalClaims.length : 1.0;
+    totalClaims.length > 0 ? verifiedClaimsCount / totalClaims.length : 0.0;
 
   return {
     documentId: docId,
