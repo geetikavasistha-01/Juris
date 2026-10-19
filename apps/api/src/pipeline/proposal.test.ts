@@ -12,6 +12,7 @@ import {
 } from './proposal.js';
 import { verifyFactQuoteAndValue } from '@juris/shared';
 import type { ApiConfig } from '../config.js';
+import { FAKE_GEMINI_KEY } from '../test-fixtures.js';
 
 describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
   const samplePages: ProposalPage[] = [
@@ -78,7 +79,7 @@ describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
       config: {
         LLM_MODE: 'live',
         GEMINI_MODEL: 'gemini-2.5-flash',
-        GEMINI_API_KEY: 'test_key_dummy_123456789',
+        GEMINI_API_KEY: FAKE_GEMINI_KEY,
       } as unknown as ApiConfig,
       customGenerateContent: vi.fn().mockResolvedValue({
         text: JSON.stringify({ facts: mockFacts }),
@@ -97,7 +98,7 @@ describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
         config: {
           LLM_MODE: 'live',
           GEMINI_MODEL: 'gemini-2.5-flash',
-          GEMINI_API_KEY: 'test_key_dummy_123456789',
+          GEMINI_API_KEY: FAKE_GEMINI_KEY,
         } as unknown as ApiConfig,
         customGenerateContent: vi.fn().mockResolvedValue({
           text: 'This is not JSON at all: { unclosed bracket',
@@ -112,7 +113,7 @@ describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
         config: {
           LLM_MODE: 'live',
           GEMINI_MODEL: 'gemini-2.5-flash',
-          GEMINI_API_KEY: 'test_key_dummy_123456789',
+          GEMINI_API_KEY: FAKE_GEMINI_KEY,
         } as unknown as ApiConfig,
         customGenerateContent: vi.fn().mockResolvedValue({
           text: JSON.stringify({
@@ -162,7 +163,7 @@ describe('proposal.ts - Gemini Fact Proposal Pipeline', () => {
       config: {
         LLM_MODE: 'live',
         GEMINI_MODEL: 'gemini-2.5-flash',
-        GEMINI_API_KEY: 'test_key_dummy_123456789',
+        GEMINI_API_KEY: FAKE_GEMINI_KEY,
       } as unknown as ApiConfig,
       customGenerateContent: mockFn,
       maxRetries: 3,

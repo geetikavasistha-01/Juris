@@ -1,0 +1,10 @@
+# Confirmed fake test fixture in commit f234299: dummy JWT string for unit tests in apps/api/src/config.test.ts
+f234299c36af447c176e76b829de767cafbe68d9:apps/api/src/config.test.ts:generic-api-key:42
+# Confirmed fake test fixture in commit f234299: test dummy string in apps/api/src/pipeline/proposal.test.ts
+f234299c36af447c176e76b829de767cafbe68d9:apps/api/src/pipeline/proposal.test.ts:generic-api-key:80
+# Confirmed fake test fixture in commit f234299: test dummy string in apps/api/src/pipeline/proposal.test.ts
+f234299c36af447c176e76b829de767cafbe68d9:apps/api/src/pipeline/proposal.test.ts:generic-api-key:99
+# Confirmed fake test fixture in commit f234299: test dummy string in apps/api/src/pipeline/proposal.test.ts
+f234299c36af447c176e76b829de767cafbe68d9:apps/api/src/pipeline/proposal.test.ts:generic-api-key:114
+# Confirmed fake test fixture in commit f234299: test dummy string in apps/api/src/pipeline/proposal.test.ts
+f234299c36af447c176e76b829de767cafbe68d9:apps/api/src/pipeline/proposal.test.ts:generic-api-key:164

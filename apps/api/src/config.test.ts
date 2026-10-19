@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { parseConfig, ApiConfigSchema } from './config.js';
+import {
+  FAKE_GEMINI_KEY,
+  FAKE_SUPABASE_ANON_KEY,
+  FAKE_SUPABASE_SERVICE_ROLE_KEY,
+} from './test-fixtures.js';
 
 describe('apps/api config', () => {
   it('parses valid environment configuration with defaults', () => {
@@ -39,9 +44,8 @@ describe('apps/api config', () => {
         NODE_ENV: 'production',
         PORT: '3001',
         SUPABASE_URL: 'https://xyzcompany.supabase.co',
-        SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key_for_test',
-        SUPABASE_SERVICE_ROLE_KEY:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_service_key_for_test',
+        SUPABASE_ANON_KEY: FAKE_SUPABASE_ANON_KEY,
+        SUPABASE_SERVICE_ROLE_KEY: FAKE_SUPABASE_SERVICE_ROLE_KEY,
         GEMINI_API_KEY: 'placeholder_gemini_api_key',
         LLM_MODE: 'live',
       });
@@ -56,9 +60,9 @@ describe('apps/api config', () => {
       PORT: '3001',
       ROLE: 'all',
       SUPABASE_URL: 'https://xyzcompany.supabase.co',
-      SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_anon_key_for_test',
-      SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy_service_key_for_test',
-      GEMINI_API_KEY: 'test_gemini_api_key_for_production_min_len',
+      SUPABASE_ANON_KEY: FAKE_SUPABASE_ANON_KEY,
+      SUPABASE_SERVICE_ROLE_KEY: FAKE_SUPABASE_SERVICE_ROLE_KEY,
+      GEMINI_API_KEY: FAKE_GEMINI_KEY,
       GEMINI_MODEL: 'gemini-2.5-flash',
       LLM_MODE: 'live',
       EMBEDDING_PROVIDER: 'hosted',
