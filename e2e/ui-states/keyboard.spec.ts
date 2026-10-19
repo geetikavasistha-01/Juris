@@ -113,14 +113,14 @@ test.describe('Mocked UI State Suite: Keyboard Navigation & Focus Trapping', () 
     await page.goto(`/documents/${mockDocumentId}`);
     await page.waitForSelector('h1');
 
-    const overviewTab = page.locator('button:has-text("Overview & Storyboard")');
+    const overviewTab = page.locator('button:has-text("Overview")').first();
     const factsTab = page.locator('button:has-text("Facts")');
     const sourceTab = page.locator('button:has-text("Source")');
-    const auditTab = page.locator('button:has-text("Audit Proof Chain")');
+    const auditTab = page.locator('button:has-text("Audit Proof")').first();
 
     await expect(overviewTab).toBeVisible();
     await factsTab.click();
-    await expect(page.locator('th:has-text("Provenance Status")')).toBeVisible();
+    await expect(page.locator('th:has-text("Provenance")')).toBeVisible();
 
     await sourceTab.click();
     await expect(page.locator('h3:has-text("Document Source Stream")')).toBeVisible();

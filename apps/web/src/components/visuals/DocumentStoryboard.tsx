@@ -72,16 +72,19 @@ export const DocumentStoryboard: React.FC<DocumentStoryboardProps> = ({
           </div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-text">{storyboard.title}</h2>
           <p className="text-xs text-text-subtle mt-0.5">
-            Cryptographically grounded narrative synthesized across {storyboard.verifiedFactsCount}{' '}
-            verified facts.
+            {storyboard.verifiedFactsCount === 0
+              ? 'No verified facts extracted yet'
+              : `Cryptographically grounded narrative synthesized across ${storyboard.verifiedFactsCount} verified facts.`}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-surface-raised border border-border text-text">
-            100% Provenance Passed
-          </span>
-        </div>
+        {storyboard.verifiedFactsCount > 0 && (
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <span className="px-3 py-1 rounded-full text-xs font-mono font-medium bg-surface-raised border border-border text-text">
+              100% Provenance Passed
+            </span>
+          </div>
+        )}
       </div>
 
       {/* 8-Step Grid Layout */}

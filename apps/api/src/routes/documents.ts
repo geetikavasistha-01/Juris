@@ -380,6 +380,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
       filename: doc.original_name,
       documentType: doc.document_type || 'generic',
       status: doc.status,
+      errorMessage: doc.error_message || null,
       pageCount: doc.page_count,
       fileSizeBytes: doc.size_bytes,
       sha256: doc.sha256,
@@ -458,6 +459,7 @@ export const documentRoutes: FastifyPluginAsync = async (server: FastifyInstance
             status: job.status,
             stage: job.stage,
             progress: job.status === 'completed' ? 100 : 50,
+            errorMessage: job.error_message || null,
           }
         : undefined,
     };

@@ -134,4 +134,12 @@ describe('Document Storyboard ("Document at a Glance") Engine', () => {
 
     expect(allClaims.some((c) => c.factIds.includes('unverified-hallucinated-fact'))).toBe(false);
   });
+
+  it('handles 0 verified facts gracefully with 0.0 provenance pass rate', () => {
+    const storyboard = buildDocumentStoryboard([]);
+    expect(storyboard.verifiedFactsCount).toBe(0);
+    expect(storyboard.provenancePassRate).toBe(0.0);
+    const allClaims = storyboard.steps.flatMap((s) => s.claims);
+    expect(allClaims.length).toBe(0);
+  });
 });

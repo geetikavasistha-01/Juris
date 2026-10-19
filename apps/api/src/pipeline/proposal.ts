@@ -413,6 +413,7 @@ export async function proposeFacts(
               model,
               contents: prompt,
               config: {
+                temperature: 0,
                 responseMimeType: 'application/json',
                 responseSchema: {
                   type: 'object',

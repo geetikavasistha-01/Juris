@@ -218,6 +218,22 @@ export const LiveProgressPage: React.FC = () => {
         )}
       </Card>
 
+      {/* Processing Error Alert */}
+      {isFailed && (
+        <div className="p-4 rounded-xl bg-failed-bg border border-failed/30 text-failed flex items-start gap-3 shadow-xs">
+          <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h4 className="font-serif text-sm font-bold">Ingestion Pipeline Failed</h4>
+            <p className="text-xs font-mono leading-relaxed">
+              {doc?.errorMessage ||
+                doc?.job?.errorMessage ||
+                lastEvent?.message ||
+                'An error occurred during document ingestion.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 4-Step Stepper in Editorial Container */}
       <Card className="p-6 bg-surface border border-border space-y-6 shadow-xs">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
